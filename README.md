@@ -8,11 +8,6 @@
 
 The Scala client for Openstack Neutron.
 
-Currently supported endpoints:
-  
-- [Volumes](https://docs.openstack.org/api-ref/block-storage/v3/index.html?expanded=#volumes-volumes)
-- [Quota sets extension](https://docs.openstack.org/api-ref/block-storage/v3/index.html?expanded=#quota-sets-extension-os-quota-sets)
-
 [Latest scaladoc documentation](https://ist-dsi.github.io/scala-neutron-client/latest/api/pt/tecnico/dsi/scala-neutron-client/index.html)
 
 ## Install
