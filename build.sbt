@@ -28,7 +28,8 @@ scalacOptions ++= Seq(
   "-Wvalue-discard",               // Warn when non-Unit expression results are unused.
   "-Wunused:_",                    // Enables every warning of unused members/definitions/etc
   // https://github.com/scala/bug/issues/11980
-  "-Wconf:cat=unused-privates&site=pt\\.tecnico\\.dsi\\.keystone\\.models\\.auth\\..*:silent"
+  "-Wconf:cat=unused-privates&site=pt\\.tecnico\\.dsi\\.keystone\\.models\\.auth\\..*:silent",
+  "-language:higherKinds"
 )
 
 // These lines ensure that in sbt console or sbt test:console the -Ywarn* and the -Xfatal-warning are not bothersome.

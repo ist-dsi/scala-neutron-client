@@ -41,7 +41,7 @@ abstract class Utils extends AsyncWordSpec with Matchers with BeforeAndAfterAll 
 
   val keystoneClient: IO[KeystoneClient[IO]] = KeystoneClient.fromEnvironment()
 
-  val client: IO[CinderClient[IO]] = for {
+  val client: IO[NeutronClient[IO]] = for {
     keystone <- keystoneClient
     session = keystone.session
     cinderUrlOpt = session.catalog.collectFirst { case entry @ CatalogEntry("volumev3", _, _, _) => entry.urlOf(sys.env("OS_REGION_NAME"), Interface.Public) }
@@ -50,7 +50,7 @@ abstract class Utils extends AsyncWordSpec with Matchers with BeforeAndAfterAll 
     // scoped to that project. That is: instead of returning "https://somehost.com:8776/v3", it returns "https://somehost.com:8776/v3/<admin-project-id>"
     // So we need to drop the admin-project-id
     adminProjectId = session.scope.asInstanceOf[Project].id
-  } yield new CinderClient[IO](Uri.unsafeFromString(cinderUrl.stripSuffix(s"/$adminProjectId")), keystone.authToken)
+  } yield new NeutronClient[IO](Uri.unsafeFromString(cinderUrl.stripSuffix(s"/$adminProjectId")), keystone.authToken)
 
   implicit class RichIO[T](io: IO[T]) {
     def idempotently(test: T => Assertion, repetitions: Int = 3): IO[Assertion] = {
@@ -92,7 +92,7 @@ abstract class Utils extends AsyncWordSpec with Matchers with BeforeAndAfterAll 
       case _ => "th"
     }
 
-  def idempotently(test: CinderClient[IO] => IO[Assertion], repetitions: Int = 3): Future[Assertion] = {
+  def idempotently(test: NeutronClient[IO] => IO[Assertion], repetitions: Int = 3): Future[Assertion] = {
     require(repetitions >= 2, "To test for idempotency at least 2 repetitions must be made")
 
     // If the first run fails we do not want to mask its exception, because failing in the first attempt means
