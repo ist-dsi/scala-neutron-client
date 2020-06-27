@@ -14,13 +14,13 @@ case object Ipv6Mode extends Enum[Ipv6Mode] {
   implicit val circeEncoder: Encoder[Ipv6Mode] = Encoder.encodeString.contramap {
     case Slaac => "slaac"
     case Dhcpv6Stateful => "dhcpv6-stateful"
-    case Dhcpv6Stateless => "dhcpv6-stateless"
+    case Dhcpv6Stateless => "dhcpv6-stateful"
   }
 
   implicit val circeDecoder: Decoder[Ipv6Mode] = Decoder.decodeString.map {
     case "slaac" => Slaac
     case "dhcpv6-stateful" => Dhcpv6Stateful
-    case "dhcpv6-stateless" => Dhcpv6Stateless
+    case "dhcpv6-stateful" => Dhcpv6Stateless
   }
 
   case object Slaac extends Ipv6Mode
