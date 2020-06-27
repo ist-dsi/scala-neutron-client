@@ -40,7 +40,7 @@ abstract class AsymmetricCrudService[F[_]: Sync: Client, Model: Decoder](baseUri
   def get(id: String): F[WithId[Model]] = super.get(uri / id, wrappedAt = Some(name))
 
   def update(id: String, value: Update)(implicit d: Encoder[Update]): F[WithId[Model]] =
-    super.patch(value, uri / id, wrappedAt = Some(name))
+    super.put(value, uri / id, wrappedAt = Some(name))
 
   def delete(value: WithId[Model]): F[Unit] = delete(value.id)
   def delete(id: String): F[Unit] = super.delete(uri / id)

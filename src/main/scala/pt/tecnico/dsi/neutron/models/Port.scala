@@ -2,109 +2,99 @@ package pt.tecnico.dsi.neutron.models
 
 import java.time.LocalDateTime
 
-import enumeratum.{Enum, EnumEntry}
-import io.circe
-import io.circe.derivation.{deriveCodec, renaming}
-import io.circe.{Codec, Decoder, Encoder}
+import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
+import io.circe.{Decoder, Encoder}
 
-// For lack of a better name
-sealed trait Ipv6Mode extends EnumEntry
-case object Ipv6Mode extends Enum[Ipv6Mode] {
-
-  implicit val circeEncoder: Encoder[Ipv6Mode] = Encoder.encodeString.contramap {
-    case Slaac => "slaac"
-    case Dhcpv6Stateful => "dhcpv6-stateful"
-    case Dhcpv6Stateless => "dhcpv6-stateful"
-  }
-
-  implicit val circeDecoder: Decoder[Ipv6Mode] = Decoder.decodeString.map {
-    case "slaac" => Slaac
-    case "dhcpv6-stateful" => Dhcpv6Stateful
-    case "dhcpv6-stateful" => Dhcpv6Stateless
-  }
-
-  case object Slaac extends Ipv6Mode
-  case object Dhcpv6Stateful extends Ipv6Mode
-  case object Dhcpv6Stateless extends Ipv6Mode
-
-  val values: IndexedSeq[Ipv6Mode] = findValues
+object Port {
+  implicit val codec: Decoder[Port] = deriveDecoder(renaming.snakeCase)
 }
 
-object Subnet {
-  implicit val codec: Codec.AsObject[Subnet] = deriveCodec(renaming.snakeCase)
+object PortCreate {
+  implicit val codec: Encoder[PortCreate] = deriveEncoder(renaming.snakeCase)
 }
 
-object SubnetCreate {
-  implicit val codec: Codec.AsObject[SubnetCreate] = deriveCodec(renaming.snakeCase)
+object PortUpdate {
+  implicit val codec: Encoder[PortUpdate] = deriveEncoder(renaming.snakeCase)
 }
 
-object SubnetUpdate {
-  implicit val codec: Codec.AsObject[SubnetUpdate] = deriveCodec(renaming.snakeCase)
-}
-
-case class SubnetUpdate(
+case class PortUpdate(
   name: Option[String],
-  enableDhcp: Option[Boolean],
-  dnsNameservers: Option[Seq[String]], // ???
-  allocationPools: Option[Seq[Map[String, String]]], // ???
-  hostRoutes: Option[Seq[Map[String, String]]], // ???
-  gatewayIp: Option[String],
+  adminStateUp: Option[Boolean],
+  allowedAddressPairs: Option[Seq[String]],
+  bindingHostId: Option[String],
+  bindingProfile: Option[Map[String,String]],
+  bindingVnicType: Option[String],
+  dataPlaneStatus: Option[String],
+  deviceId: Option[String],
   description: Option[String],
-  serviceTypes: Option[Seq[String]],
-  segmentId: Option[String],
-  dnsPublishFixedIp: Option[Boolean]
+  deviceOwner: Option[String],
+  dnsName: Option[String],
+  dnsDomain: Option[String],
+  extraDhcpOpts: Option[Seq[Map[String,String]]],
+  fixedIps: Option[Seq[String]],
+  macAddress: Option[String],
+  securityGrous: Option[Seq[String]],
+  qosPolicyId: Option[String],
+  macLearningEnabled: Option[Boolean],
 )
 
-case class SubnetCreate(
+case class PortCreate(
+  uplinkStatusPropagation: Option[Boolean],
+  macLearningEnabled: Option[Boolean],
   tenantId: Option[String],
+  securityGrous: Option[Seq[String]],
+  qosPolicyId: Option[String],
   projectId: Option[String],
   name: Option[String],
-  enableDhcp: Option[Boolean],
-  networkId: String,
-  dnsNameservers: Seq[String], // ???
-  allocationPools: Option[Seq[Map[String, String]]], // ???
-  hostRoutes: Option[Seq[Map[String, String]]], // ???
-  ipVersion: Integer,
-  gatewayIp: Option[String],
-  cidr: String,
-  prefixlen: Option[Integer],
-  description: Option[String],
-  ipv6AddressMode: Option[Ipv6Mode],
-  ipv6RaMode: Option[Ipv6Mode],
-  segmentId: Option[String],
-  subnetpoolId: Option[String],
-  useDefaultSubnetpool: Option[Boolean],
-  serviceTypes: Seq[String],
-  dnsPublishFixedIp: Option[Boolean]
+  networkId: Option[String],
+  portSecurityEnabled: Option[Boolean],
+  adminStateUp: Option[Boolean],
+  allowedAddressPairs: Option[Seq[String]],
+  bindingHostId: Option[String],
+  bindingProfile: Option[Map[String,String]],
+  bindingVifType: Option[String],
+  deviceId: Option[String],
+  deviceOwner: Option[String],
+  dnsName: Option[String],
+  dnsDomain: Option[String],
+  extraDhcpOpts: Option[Seq[Map[String,String]]],
+  fixedIps: Option[Seq[String]],
+  macAddress: Option[String],
 )
 
-case class Subnet(
-  name: String,
-  enableDhcp: Boolean,
-  networkId: String,
-  tenantId: String,
-  projectId: String,
-  ipVersion: Integer,
-  gatewayIp: String,
-  cidr: String,
+case class Port(
+  adminStateUp: Boolean,
+  allowedAddressPairs: Seq[String],
+  bindingHostId: String,
+  bindingProfile: Map[String, String],
+  bindingVifDetails: Map[String, String],
+  bindingVifType: String,
+  bindingVnicType: String,
   createdAt: LocalDateTime,
-  /*
-  "allocation_pools": [
-    {
-      "start": "10.0.0.2",
-      "end": "10.0.0.254"
-    }
-  ],
-  */
-  allocationPools: Seq[Map[String, String]],
+  dataPlaneStatus: String,
   description: String,
-  ipv6AddressMode: Option[Ipv6Mode],
-  ipv6RaMode: Option[Ipv6Mode],
+  deviceId: String,
+  deviceOwner: String,
+  dnsAssignment: Map[String, String],
+  dnsDomain: String,
+  dnsName: String,
+  extraDhcpOpts: Seq[Map[String,String]],
+  fixedIps: Seq[String],
+  ipAllocation: String,
+  macAddress: String,
+  name: String,
+  networkId: String,
+  portSecurityEnabled: Boolean,
+  projectId: String,
+  qosNetworkPolicyId: String,
+  qosPolicyId: String,
   revisionNumber: Integer,
-  segmentId: String,
-  subnetpoolId: String,
-  updatedAt: LocalDateTime,
+  resourceRequest: Option[Map[String, String]],
+  securityGrous: Seq[String],
+  status: String,
   tags: Seq[String],
-  dnsPublishFixedIp: Boolean,
-  //serviceTypes: Seq[???],
+  tenantId: String,
+  updatedAt: LocalDateTime,
+  uplinkStatusPropagation: Boolean,
+  macLearningEnabled: Boolean
 )
