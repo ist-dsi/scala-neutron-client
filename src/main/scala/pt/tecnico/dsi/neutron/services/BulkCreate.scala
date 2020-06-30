@@ -1,14 +1,15 @@
 package pt.tecnico.dsi.neutron.services
 
 import io.circe.{Decoder, Encoder}
-import org.http4s.Method.POST
-import pt.tecnico.dsi.neutron.models.WithId
+import pt.tecnico.dsi.neutron.models.Model
+import pt.tecnico.dsi.openstack.common.models.WithId
 
-trait BulkCreate[F[_], R] {
-  service: AsymmetricCrudService[F, R] =>
+trait BulkCreate[F[_], T <: Model] {
+  service: CrudService[F, T] =>
 
-  def create(values: Seq[Create])(implicit encoder: Encoder[Create], decoder: Decoder[WithId[R]]): F[Seq[WithId[R]]] =
-    service.expect(POST, values, uri, Some(pluralName))
+  def create(values: Seq[Create])
+    (implicit encoder: Encoder[Create], decoder: Decoder[WithId[Model]]): F[Seq[WithId[Model]]] =
+    service.post(values, uri, Some(pluralName))
 
 }
 
