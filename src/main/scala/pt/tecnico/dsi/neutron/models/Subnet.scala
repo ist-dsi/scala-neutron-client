@@ -44,39 +44,39 @@ object Subnet {
   }
 
   case class Update(
-    name: Option[String],
-    enableDhcp: Option[Boolean],
-    dnsNameservers: Option[Seq[String]], // ???
-    allocationPools: Option[Seq[Map[String, String]]], // ???
-    hostRoutes: Option[Seq[Map[String, String]]], // ???
-    gatewayIp: Option[String],
-    description: Option[String],
-    serviceTypes: Option[Seq[String]],
-    segmentId: Option[String],
-    dnsPublishFixedIp: Option[Boolean]
+    name: Option[String] = None,
+    enableDhcp: Option[Boolean] = None,
+    dnsNameservers: Option[List[String]] = None, // ???
+    allocationPools: Option[List[Map[String, String]]] = None, // ???
+    hostRoutes: Option[List[Map[String, String]]] = None, // ???
+    gatewayIp: Option[String] = None,
+    description: Option[String] = None,
+    serviceTypes: Option[List[String]] = None,
+    segmentId: Option[String] = None,
+    dnsPublishFixedIp: Option[Boolean] = None
   )
 
   case class Create(
-    tenantId: Option[String],
-    projectId: Option[String],
-    name: Option[String],
-    enableDhcp: Option[Boolean],
+    tenantId: Option[String] = None,
+    projectId: Option[String] = None,
+    name: Option[String] = None,
+    enableDhcp: Option[Boolean] = None,
     networkId: String,
-    dnsNameservers: Seq[String], // ???
-    allocationPools: Option[Seq[Map[String, String]]], // ???
-    hostRoutes: Option[Seq[Map[String, String]]], // ???
+    dnsNameservers: List[String] = List.empty, // ???
+    allocationPools: Option[List[Map[String, String]]] = None, // ???
+    hostRoutes: Option[List[Map[String, String]]] = None, // ???
     ipVersion: Integer,
-    gatewayIp: Option[String],
+    gatewayIp: Option[String] = None,
     cidr: String,
-    prefixlen: Option[Integer],
-    description: Option[String],
-    ipv6AddressMode: Option[Ipv6Mode],
-    ipv6RaMode: Option[Ipv6Mode],
-    segmentId: Option[String],
-    subnetpoolId: Option[String],
-    useDefaultSubnetpool: Option[Boolean],
-    serviceTypes: Seq[String],
-    dnsPublishFixedIp: Option[Boolean]
+    prefixlen: Option[Integer] = None,
+    description: Option[String] = None,
+    ipv6AddressMode: Option[Ipv6Mode] = None,
+    ipv6RaMode: Option[Ipv6Mode] = None,
+    segmentId: Option[String] = None,
+    subnetpoolId: Option[String] = None,
+    useDefaultSubnetpool: Option[Boolean] = None,
+    serviceTypes: List[String] = Nil,
+    dnsPublishFixedIp: Option[Boolean] = None
   )
 
   case class Read(
@@ -97,7 +97,7 @@ object Subnet {
       }
     ],
     */
-    allocationPools: Seq[Map[String, String]],
+    allocationPools: List[Map[String, String]],
     description: String,
     ipv6AddressMode: Option[Ipv6Mode],
     ipv6RaMode: Option[Ipv6Mode],
@@ -105,9 +105,9 @@ object Subnet {
     segmentId: String,
     subnetpoolId: String,
     updatedAt: LocalDateTime,
-    tags: Seq[String],
+    tags: List[String],
     dnsPublishFixedIp: Boolean,
-    //serviceTypes: Seq[???],
+    //serviceTypes: List[???],
   )
 }
 

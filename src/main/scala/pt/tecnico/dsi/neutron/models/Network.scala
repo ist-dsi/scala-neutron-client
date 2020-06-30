@@ -28,23 +28,23 @@ object Network {
   }
 
   case class Create(
-    adminStateUp: Option[Boolean],
-    dnsDomain: Option[String],
-    mtu: Option[Integer],
-    name: Option[String],
-    portSecurityEnabled: Option[Boolean],
-    projectId: Option[String],
-    providerNetworkType: Option[String],
-    providerPhysicalNetwork: Option[String],
-    providerSegmentationId: Option[Integer],
-    qosPolicyId: Option[String],
-    routerExternal: Option[Boolean],
-    tenantId: Option[String],
-    isDefault: Option[Boolean],
-    availabilityZoneHints: Option[Seq[String]],
-    segments: Option[Seq[String]],
-    shared: Option[Boolean],
-    vlanTransparent: Option[Boolean],
+    adminStateUp: Option[Boolean] = None,
+    dnsDomain: Option[String] = None,
+    mtu: Option[Integer] = None,
+    name: Option[String] = None,
+    portSecurityEnabled: Option[Boolean] = None,
+    projectId: Option[String] = None,
+    providerNetworkType: Option[String] = None,
+    providerPhysicalNetwork: Option[String] = None,
+    providerSegmentationId: Option[Integer] = None,
+    qosPolicyId: Option[String] = None,
+    routerExternal: Option[Boolean] = None,
+    tenantId: Option[String] = None,
+    isDefault: Option[Boolean] = None,
+    availabilityZoneHints: Option[List[String]] = None,
+    segments: Option[List[String]] = None,
+    shared: Option[Boolean] = None,
+    vlanTransparent: Option[Boolean] = None,
   )
 
   object Update {
@@ -52,26 +52,26 @@ object Network {
   }
 
   sealed case class Update(
-    adminStateUp: Option[Boolean],
-    dnsDomain: Option[String],
-    mtu: Option[Integer],
-    name: Option[String],
-    portSecurityEnabled: Option[Boolean],
-    projectId: Option[String],
-    providerNetworkType: Option[String],
-    providerPhysicalNetwork: Option[String],
-    providerSegmentationId: Option[Integer],
-    qosPolicyId: Option[String],
-    routerExternal: Option[Boolean],
-    isDefault: Option[Boolean],
-    segments: Option[Seq[String]],
-    shared: Option[Boolean],
+    adminStateUp: Option[Boolean] = None,
+    dnsDomain: Option[String] = None,
+    mtu: Option[Integer] = None,
+    name: Option[String] = None,
+    portSecurityEnabled: Option[Boolean] = None,
+    projectId: Option[String] = None,
+    providerNetworkType: Option[String] = None,
+    providerPhysicalNetwork: Option[String] = None,
+    providerSegmentationId: Option[Integer] = None,
+    qosPolicyId: Option[String] = None,
+    routerExternal: Option[Boolean] = None,
+    isDefault: Option[Boolean] = None,
+    segments: Option[List[String]] = None,
+    shared: Option[Boolean] = None,
   )
 
   sealed case class Read(
     adminStateUp: Boolean,
-    availabilityZoneHints: Seq[String], // ???
-    availabilityZones: Seq[String], // ???
+    availabilityZoneHints: List[String], // ???
+    availabilityZones: List[String], // ???
     createdAt: LocalDateTime,
     dnsDomain: String,
     ipv4AddressScope: String,
@@ -89,17 +89,16 @@ object Network {
     revision_number: Integer,
     // router:external
     routerExternal: Boolean,
-    segments: Seq[String], // ???
+    segments: List[String], // ???
     shared: Boolean,
-    subnets: Seq[String], //???
+    subnets: List[String], //???
     tenantId: String,
     updatedAt: LocalDateTime,
     vlanTransparent: Boolean,
     description: String,
     isDefault: Boolean,
-    tags: Seq[String],
+    tags: List[String],
   )
-
 }
 
 sealed trait Network extends Model {
