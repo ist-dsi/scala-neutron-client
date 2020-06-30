@@ -49,6 +49,7 @@ libraryDependencies ++= Seq("blaze-client", "circe").map { module =>
   "org.typelevel"   %% "squants"               % "1.6.0",
   "com.beachape"    %% "enumeratum-circe"      % "1.6.0",
   "pt.tecnico.dsi"  %% "scala-keystone-client" % "0.1.0-SNAPSHOT" % Test,
+  "pt.tecnico.dsi"  %% "scala-openstack-common-clients" % "0.1.0-SNAPSHOT",
   "ch.qos.logback"  %  "logback-classic"       % "1.2.3" % Test,
   "org.scalatest"   %% "scalatest"             % "3.1.1" % Test,
 )
@@ -136,6 +137,8 @@ developers ++= List(
 
 releaseUseGlobalVersion := false
 releaseNextCommitMessage := s"Setting version to ${ReleasePlugin.runtimeVersion.value} [skip ci]"
+
+resolvers += Resolver.sonatypeRepo("snapshots")
 
 releasePublishArtifactsAction := PgpKeys.publishSigned.value // Maven Central requires packages to be signed
 import ReleaseTransformations._
