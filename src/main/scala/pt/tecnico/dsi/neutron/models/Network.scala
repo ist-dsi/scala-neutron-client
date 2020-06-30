@@ -39,7 +39,6 @@ object Network {
     providerSegmentationId: Option[Integer] = None,
     qosPolicyId: Option[String] = None,
     routerExternal: Option[Boolean] = None,
-    tenantId: Option[String] = None,
     isDefault: Option[Boolean] = None,
     availabilityZoneHints: Option[List[String]] = None,
     segments: Option[List[String]] = None,
@@ -92,7 +91,6 @@ object Network {
     segments: List[String], // ???
     shared: Boolean,
     subnets: List[String], //???
-    tenantId: String,
     updatedAt: LocalDateTime,
     vlanTransparent: Boolean,
     description: String,

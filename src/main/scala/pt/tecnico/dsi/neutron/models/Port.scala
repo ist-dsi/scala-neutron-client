@@ -43,7 +43,6 @@ object Port {
   case class Create(
     uplinkStatusPropagation: Option[Boolean] = None,
     macLearningEnabled: Option[Boolean] = None,
-    tenantId: Option[String] = None,
     securityGrous: Option[List[String]] = None,
     qosPolicyId: Option[String] = None,
     projectId: Option[String] = None,
@@ -95,7 +94,6 @@ object Port {
     securityGrous: List[String],
     status: String,
     tags: List[String],
-    tenantId: String,
     updatedAt: LocalDateTime,
     uplinkStatusPropagation: Boolean,
     macLearningEnabled: Boolean

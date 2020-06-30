@@ -57,7 +57,6 @@ object Subnet {
   )
 
   case class Create(
-    tenantId: Option[String] = None,
     projectId: Option[String] = None,
     name: Option[String] = None,
     enableDhcp: Option[Boolean] = None,
@@ -83,7 +82,6 @@ object Subnet {
     name: String,
     enableDhcp: Boolean,
     networkId: String,
-    tenantId: String,
     projectId: String,
     ipVersion: Integer,
     gatewayIp: String,
