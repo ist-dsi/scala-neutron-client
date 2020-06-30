@@ -103,8 +103,4 @@ sealed trait Network extends Model {
   type Update = Network.Update
   type Create = Network.Create
   type Read = Network.Read
-
-  implicit val e: Encoder[Network.Create] = deriveEncoder(renaming.snakeCase)
-  implicit val g: Encoder[Network.Update] = deriveEncoder(renaming.snakeCase)
-  implicit val f: Decoder[Network.Read] = deriveDecoder(renaming.snakeCase)
 }

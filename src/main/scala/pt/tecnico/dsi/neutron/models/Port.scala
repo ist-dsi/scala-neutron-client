@@ -104,9 +104,5 @@ sealed trait Port extends Model {
   type Update = Port.Update
   type Create = Port.Create
   type Read = Port.Read
-
-  implicit val e: Encoder[Create] = deriveEncoder(renaming.snakeCase)
-  implicit val g: Encoder[Update] = deriveEncoder(renaming.snakeCase)
-  implicit val f: Decoder[Read] = deriveDecoder(renaming.snakeCase)
 }
 

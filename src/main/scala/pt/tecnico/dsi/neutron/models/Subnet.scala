@@ -113,8 +113,4 @@ sealed trait Subnet extends Model {
   type Update = Subnet.Update
   type Create = Subnet.Create
   type Read = Subnet.Read
-
-  implicit val e: Encoder[Create] = deriveEncoder(renaming.snakeCase)
-  implicit val g: Encoder[Update] = deriveEncoder(renaming.snakeCase)
-  implicit val f: Decoder[Read] = deriveDecoder(renaming.snakeCase)
 }
