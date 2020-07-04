@@ -54,7 +54,7 @@ object Router extends Model {
     projectId: Option[String] = None,
     name: Option[String] = None,
     description: Option[String] = None,
-    adminStateUp: Option[Boolean] = None ,
+    adminStateUp: Option[Boolean] = None,
     externalGatewayInfo: Option[Map[String, String]] = None,
     distributed: Option[Boolean] = None,
     ha: Option[Boolean] = None,
@@ -72,6 +72,7 @@ object Router extends Model {
     ha: Option[Boolean] = None,
     routes: Option[List[Map[String, String]]] = None,
   )
+
 }
 
 sealed trait Router extends Model {

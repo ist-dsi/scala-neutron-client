@@ -11,11 +11,11 @@ object Network {
   object Read {
     implicit val decoder: Decoder[Read] = (c: HCursor) => {
       for {
-        providerNetworkType      <- c.downField("provider:network_type").as[String]
-        providerPhysicalNetwork  <- c.downField("provider:physical_network").as[String]
-        providerSegmentationId   <- c.downField("provider:segmentation_id").as[Integer]
-        routerExternal           <- c.downField("router:external").as[Boolean]
-        network                  <- c.as[Read](deriveDecoder(renaming.snakeCase))
+        providerNetworkType <- c.downField("provider:network_type").as[String]
+        providerPhysicalNetwork <- c.downField("provider:physical_network").as[String]
+        providerSegmentationId <- c.downField("provider:segmentation_id").as[Integer]
+        routerExternal <- c.downField("router:external").as[Boolean]
+        network <- c.as[Read](deriveDecoder(renaming.snakeCase))
       } yield network.copy(
         providerNetworkType = providerNetworkType,
         providerPhysicalNetwork = providerPhysicalNetwork,
@@ -99,6 +99,7 @@ object Network {
     isDefault: Boolean,
     tags: List[String],
   )
+
 }
 
 sealed trait Network extends Model {

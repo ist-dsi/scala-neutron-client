@@ -10,10 +10,11 @@ object RouterInterface {
     implicit val encoder: Encoder[Remove] = deriveEncoder(renaming.snakeCase)
   }
 
-  case class Remove (
+  case class Remove(
     subnetId: Option[String] = None,
     portId: Option[String] = None,
   )
+
 }
 
 case class RouterInterface(

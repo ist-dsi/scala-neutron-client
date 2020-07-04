@@ -2,8 +2,8 @@ package pt.tecnico.dsi.neutron.models
 
 import java.time.LocalDateTime
 
+import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
 import io.circe.{Decoder, Encoder}
-import io.circe.derivation.{deriveDecoder, renaming, deriveEncoder}
 
 object FloatingIp {
 
@@ -55,6 +55,7 @@ object FloatingIp {
     tags: List[String],
     portForwardings: List[Map[String, String]]
   )
+
 }
 
 sealed trait FloatingIp extends Model {

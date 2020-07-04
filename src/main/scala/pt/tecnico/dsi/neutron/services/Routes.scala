@@ -8,9 +8,10 @@ import org.http4s.{Header, Uri}
 import pt.tecnico.dsi.neutron.models.Route
 import pt.tecnico.dsi.openstack.common.services.Service
 
-final class Routes[F[_]: Sync: Client](base: Uri, authToken: Header) extends Service[F](authToken) {
+final class Routes[F[_] : Sync : Client](base: Uri, authToken: Header) extends Service[F](authToken) {
 
   import dsl._
+
   implicit val d: Decoder[List[Route]] = _.downField("router").get("routes")
   implicit val e: Encoder[List[Route]] = e.mapJson(e => Json.obj("router" -> Json.obj("routes" -> e)))
 

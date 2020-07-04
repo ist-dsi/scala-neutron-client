@@ -2,8 +2,8 @@ package pt.tecnico.dsi.neutron.models
 
 import java.time.LocalDateTime
 
+import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
 import io.circe.{Decoder, Encoder}
-import io.circe.derivation.{deriveDecoder, renaming, deriveEncoder}
 
 object SecurityGroupRule {
   implicit val decoder: Decoder[SecurityGroupRule] = deriveDecoder(renaming.snakeCase)
@@ -24,6 +24,7 @@ object SecurityGroupRule {
     securityGroupId: String,
     portRangeMax: Option[Integer] = None,
   )
+
 }
 
 case class SecurityGroupRule(

@@ -24,7 +24,7 @@ object Port {
     adminStateUp: Option[Boolean] = None,
     allowedAddressPairs: Option[List[String]] = None,
     bindingHostId: Option[String] = None,
-    bindingProfile: Option[Map[String,String]] = None,
+    bindingProfile: Option[Map[String, String]] = None,
     bindingVnicType: Option[String] = None,
     dataPlaneStatus: Option[String] = None,
     deviceId: Option[String] = None,
@@ -32,7 +32,7 @@ object Port {
     deviceOwner: Option[String] = None,
     dnsName: Option[String] = None,
     dnsDomain: Option[String] = None,
-    extraDhcpOpts: Option[List[Map[String,String]]] = None,
+    extraDhcpOpts: Option[List[Map[String, String]]] = None,
     fixedIps: Option[List[String]] = None,
     macAddress: Option[String] = None,
     securityGrous: Option[List[String]] = None,
@@ -52,13 +52,13 @@ object Port {
     adminStateUp: Option[Boolean] = None,
     allowedAddressPairs: Option[List[String]] = None,
     bindingHostId: Option[String] = None,
-    bindingProfile: Option[Map[String,String]] = None,
+    bindingProfile: Option[Map[String, String]] = None,
     bindingVifType: Option[String] = None,
     deviceId: Option[String] = None,
     deviceOwner: Option[String] = None,
     dnsName: Option[String] = None,
     dnsDomain: Option[String] = None,
-    extraDhcpOpts: Option[List[Map[String,String]]] = None,
+    extraDhcpOpts: Option[List[Map[String, String]]] = None,
     fixedIps: Option[List[String]] = None,
     macAddress: Option[String] = None,
   )
@@ -79,7 +79,7 @@ object Port {
     dnsAssignment: Map[String, String],
     dnsDomain: String,
     dnsName: String,
-    extraDhcpOpts: List[Map[String,String]],
+    extraDhcpOpts: List[Map[String, String]],
     fixedIps: List[String],
     ipAllocation: String,
     macAddress: String,
@@ -98,6 +98,7 @@ object Port {
     uplinkStatusPropagation: Boolean,
     macLearningEnabled: Boolean
   )
+
 }
 
 sealed trait Port extends Model {

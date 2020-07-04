@@ -2,8 +2,8 @@ package pt.tecnico.dsi.neutron.models
 
 import java.time.LocalDateTime
 
+import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
 import io.circe.{Decoder, Encoder}
-import io.circe.derivation.{deriveDecoder, renaming, deriveEncoder}
 
 object SecurityGroup {
 
@@ -43,6 +43,7 @@ object SecurityGroup {
     securityGroupRoles: List[SecurityGroupRule], // Security Group Roles Object
     stateful: Option[String]
   )
+
 }
 
 sealed trait SecurityGroup extends Model {

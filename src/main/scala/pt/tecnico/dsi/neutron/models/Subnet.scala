@@ -10,6 +10,7 @@ object Subnet {
 
   // For lack of a better name
   sealed trait Ipv6Mode extends EnumEntry
+
   case object Ipv6Mode extends Enum[Ipv6Mode] {
 
     implicit val circeEncoder: Encoder[Ipv6Mode] = Encoder.encodeString.contramap {
@@ -25,7 +26,9 @@ object Subnet {
     }
 
     case object Slaac extends Ipv6Mode
+
     case object Dhcpv6Stateful extends Ipv6Mode
+
     case object Dhcpv6Stateless extends Ipv6Mode
 
     val values: IndexedSeq[Ipv6Mode] = findValues
@@ -107,6 +110,7 @@ object Subnet {
     dnsPublishFixedIp: Boolean,
     //serviceTypes: List[???],
   )
+
 }
 
 sealed trait Subnet extends Model {

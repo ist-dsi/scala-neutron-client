@@ -1,6 +1,5 @@
 package pt.tecnico.dsi.neutron
 
-import java.net.Inet4Address
 import java.net.InetAddress
 
 import io.circe.{Decoder, Encoder}

@@ -8,13 +8,14 @@ import pt.tecnico.dsi.neutron.models.SecurityGroupRule
 import pt.tecnico.dsi.openstack.common.models.WithId
 import pt.tecnico.dsi.openstack.common.services.Service
 
-class SecurityGroupRules[F[_]: Sync: Client](baseUri: Uri, authToken: Header) extends Service[F](authToken) {
+final class SecurityGroupRules[F[_] : Sync : Client](baseUri: Uri, authToken: Header) extends Service[F](authToken) {
 
   val name = "security-group-rule"
   val pluralName = s"${name}s"
   val uri: Uri = baseUri / pluralName
 
   def list(): Stream[F, WithId[SecurityGroupRule]] = list(Query.empty)
+
   def list(query: Query): Stream[F, WithId[SecurityGroupRule]] =
     super.list[WithId[SecurityGroupRule]](pluralName, uri, query)
 
@@ -24,5 +25,6 @@ class SecurityGroupRules[F[_]: Sync: Client](baseUri: Uri, authToken: Header) ex
   def get(id: String): F[WithId[SecurityGroupRule]] = super.get(uri / id, wrappedAt = Some(name))
 
   def delete(value: WithId[SecurityGroupRule]): F[Unit] = delete(value.id)
+
   def delete(id: String): F[Unit] = super.delete(uri / id)
 }
