@@ -13,16 +13,16 @@ object SecurityGroupRule {
   }
 
   case class Create(
-    projectId: Option[String],
-    remoteIpPrefix: Option[String],
-    portRangeMin: Option[Integer],
-    remoteGroupId: Option[String],
-    description: Option[String],
+    projectId: Option[String] = None,
+    remoteIpPrefix: Option[String] = None,
+    portRangeMin: Option[Integer] = None,
+    remoteGroupId: Option[String] = None,
+    description: Option[String] = None,
     direction: String,
-    protocol: Option[String],
-    ehtertype: Option[String],
+    protocol: Option[String] = None,
+    ethertype: Option[String] = None,
     securityGroupId: String,
-    portRangeMax: Option[Integer],
+    portRangeMax: Option[Integer] = None,
   )
 }
 
@@ -36,7 +36,7 @@ case class SecurityGroupRule(
   description: String,
   direction: String,
   protocol: String,
-  ehtertype: String,
+  ethertype: String,
   securityGroupId: String,
   portRangeMax: Integer,
   revisionNumber: Integer,

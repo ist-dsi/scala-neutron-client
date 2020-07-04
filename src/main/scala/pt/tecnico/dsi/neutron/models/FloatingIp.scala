@@ -20,21 +20,21 @@ object FloatingIp {
   }
 
   case class Create(
-    portId: Option[String],
-    projectId: Option[String],
-    fixedIpAddress: Option[String],
-    floatingIpAddress: Option[String],
-    description: Option[String],
-    subnetId: Option[String],
-    dnsDomain: Option[String],
-    dnsName: Option[String],
-    floatingNetworkId: Option[String]
+    portId: Option[String] = None,
+    projectId: Option[String] = None,
+    fixedIpAddress: Option[String] = None,
+    floatingIpAddress: Option[String] = None,
+    description: Option[String] = None,
+    subnetId: Option[String] = None,
+    dnsDomain: Option[String] = None,
+    dnsName: Option[String] = None,
+    floatingNetworkId: Option[String] = None
   )
 
   case class Update(
     portId: String,
-    fixedIpAddress: Option[String],
-    description: Option[String]
+    fixedIpAddress: Option[String] = None,
+    description: Option[String] = None
   )
 
   case class Read(

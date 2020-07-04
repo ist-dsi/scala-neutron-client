@@ -1,11 +1,10 @@
 package pt.tecnico.dsi.neutron.models
 
-import io.circe.{Codec, Decoder, Encoder}
-import io.circe.derivation.{deriveEncoder, deriveDecoder, renaming}
+import io.circe.Codec
+import io.circe.derivation.{deriveCodec, renaming}
 
 object Route {
-  implicit val encoder: Encoder[Route] = deriveEncoder(renaming.snakeCase)
-  implicit val decoder: Decoder[Route] = deriveDecoder(renaming.snakeCase)
+  implicit val codec: Codec[Route] = deriveCodec(renaming.snakeCase)
 }
 
 case class Route(destination: String, nexthop: String)

@@ -1,9 +1,10 @@
 package pt.tecnico.dsi.neutron.models
 
+import java.net.Inet4Address
 import java.time.LocalDateTime
 
+import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
 import io.circe.{Decoder, Encoder}
-import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming, deriveCodec}
 
 object Router extends Model {
 
@@ -35,7 +36,7 @@ object Router extends Model {
     revisionNumber: Integer,
     routes: List[Map[String, String]], // ???
     destination: String,
-    nexthop: String, // Ipv4Address
+    nexthop: String,
     distributed: Boolean,
     ha: Boolean,
     availabilityZoneHints: List[String], //??
@@ -50,26 +51,26 @@ object Router extends Model {
   )
 
   case class Create(
-    projectId: Option[String],
-    name: Option[String],
-    description: Option[String],
-    adminStateUp: Option[Boolean],
-    externalGatewayInfo: Option[Map[String, String]],
-    distributed: Option[Boolean],
-    ha: Option[Boolean],
-    availabilityZoneHints: Option[List[String]],
-    serviceTypeId: Option[String],
-    flavorId: Option[String],
+    projectId: Option[String] = None,
+    name: Option[String] = None,
+    description: Option[String] = None,
+    adminStateUp: Option[Boolean] = None ,
+    externalGatewayInfo: Option[Map[String, String]] = None,
+    distributed: Option[Boolean] = None,
+    ha: Option[Boolean] = None,
+    availabilityZoneHints: Option[List[String]] = None,
+    serviceTypeId: Option[String] = None,
+    flavorId: Option[String] = None,
   )
 
   case class Update(
-    name: Option[String],
-    description: Option[String],
-    adminStateUp: Option[Boolean],
-    externalGatewayInfo: Option[Map[String, String]],
-    distributed: Option[Boolean],
-    ha: Option[Boolean],
-    routes: List[Map[String, String]],
+    name: Option[String] = None,
+    description: Option[String] = None,
+    adminStateUp: Option[Boolean] = None,
+    externalGatewayInfo: Option[Map[String, String]] = None,
+    distributed: Option[Boolean] = None,
+    ha: Option[Boolean] = None,
+    routes: Option[List[Map[String, String]]] = None,
   )
 }
 

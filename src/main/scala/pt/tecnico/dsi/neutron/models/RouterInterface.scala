@@ -11,8 +11,8 @@ object RouterInterface {
   }
 
   case class Remove (
-    subnetId: Option[String],
-    portId: Option[String],
+    subnetId: Option[String] = None,
+    portId: Option[String] = None,
   )
 }
 

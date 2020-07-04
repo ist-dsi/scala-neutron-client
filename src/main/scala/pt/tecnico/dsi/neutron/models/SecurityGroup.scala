@@ -21,14 +21,14 @@ object SecurityGroup {
 
   case class Create(
     projectId: String,
-    description: Option[String],
-    stateful: Option[Boolean]
+    description: Option[String] = None,
+    stateful: Option[Boolean] = None
   )
 
   case class Update(
-    description: Option[String],
-    name: Option[String],
-    stateful: Option[Boolean]
+    description: Option[String] = None,
+    name: Option[String] = None,
+    stateful: Option[Boolean] = None
   )
 
   case class Read(
