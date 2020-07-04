@@ -1,6 +1,6 @@
 package pt.tecnico.dsi.neutron.models
 
-import java.net.Inet4Address
+import java.net.InetAddress
 import java.time.LocalDateTime
 
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
@@ -36,7 +36,7 @@ object Router extends Model {
     revisionNumber: Integer,
     routes: List[Map[String, String]], // ???
     destination: String,
-    nexthop: String,
+    nexthop: InetAddress,
     distributed: Boolean,
     ha: Boolean,
     availabilityZoneHints: List[String], //??
