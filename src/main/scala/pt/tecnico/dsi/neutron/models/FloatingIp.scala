@@ -1,11 +1,23 @@
 package pt.tecnico.dsi.neutron.models
 
+import java.net.InetAddress
 import java.time.LocalDateTime
 
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
 import io.circe.{Decoder, Encoder}
 
 object FloatingIp {
+
+  object PortForwarding {
+    implicit val decoder: Decoder[Read] = deriveDecoder(renaming.snakeCase)
+  }
+
+  case class PortForwarding(
+    protocol: String,
+    internalIpAddress: InetAddress,
+    internalPort: Integer,
+    externalPort: Integer
+  )
 
   object Read {
     implicit val decoder: Decoder[Read] = deriveDecoder(renaming.snakeCase)
@@ -27,7 +39,7 @@ object FloatingIp {
     floatingIpAddress: String,
     portId: String,
     tags: List[String],
-    portForwardings: List[Map[String, String]]
+    portForwardings: List[PortForwarding]
   )
 
   object Create {
