@@ -17,4 +17,5 @@ class NeutronClient[F[_]: Sync](baseUri: Uri, authToken: Header)(implicit client
   val subnets: CrudService[F, Subnet] = crudService("subnet")
   val ports: CrudService[F, Port] = crudService("port")
 
+  val routers: Routers[F] = new Routers[F](uri, authToken)
 }
