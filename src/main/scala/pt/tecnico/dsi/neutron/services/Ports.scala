@@ -6,6 +6,5 @@ import org.http4s.{Header, Uri}
 import pt.tecnico.dsi.neutron.models.{Port, Subnet}
 
 final class Ports[F[_]: Sync: Client](baseUri: Uri, authToken: Header)
-  extends CrudService[F, Port](baseUri, "port", authToken) with BulkCreate[F, Port] {
+  extends CrudService[F, Port](baseUri, "port", authToken) with BulkCreate[F, Port]
 
-}

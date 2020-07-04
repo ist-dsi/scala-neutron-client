@@ -6,6 +6,4 @@ import org.http4s.{Header, Uri}
 import pt.tecnico.dsi.neutron.models.{Network, Subnet}
 
 final class Subnets[F[_]: Sync: Client](baseUri: Uri, authToken: Header)
-  extends CrudService[F, Subnet](baseUri, "subnet", authToken) with BulkCreate[F, Subnet] {
-
-}
+  extends CrudService[F, Subnet](baseUri, "subnet", authToken) with BulkCreate[F, Subnet]
