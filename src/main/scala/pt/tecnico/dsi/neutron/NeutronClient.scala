@@ -10,21 +10,17 @@ import pt.tecnico.dsi.neutron.services._
 class NeutronClient[F[_]: Sync](baseUri: Uri, authToken: Header)(implicit client: Client[F]) {
   val uri: Uri = baseUri / "v2.0"
 
-  val networks: CrudService[F, Network] =
-    new CrudService(uri, "network", authToken) with BulkCreate[F, Network]
-
-  val subnets: CrudService[F, Subnet] =
-    new CrudService(uri, "subnet", authToken) with BulkCreate[F, Subnet]
-
-  val ports: CrudService[F, Port] =
-    new CrudService(uri, "port", authToken) with BulkCreate[F, Port]
+  val networks = new CrudService[F, Network] (uri, "network", authToken) with BulkCreate[F, Network]
+  val subnets  = new CrudService[F, Subnet](uri, "subnet", authToken) with BulkCreate[F, Subnet]
+  val ports    = new CrudService[F, Port](uri, "port", authToken) with BulkCreate[F, Port]
 
   val floatingIps: CrudService[F, FloatingIp] =
-    new CrudService[F, FloatingIp](uri, "floatingip", authToken) with BulkCreate[F, FloatingIp]
+    new CrudService[F, FloatingIp](uri, "floatingip", authToken) {}
 
   val securityGroups: CrudService[F, SecurityGroup] =
-    new CrudService[F, SecurityGroup](uri, "security-group", authToken) with BulkCreate[F, SecurityGroup]
+    new CrudService[F, SecurityGroup](uri, "security-group", authToken) {}
 
-  val securityGroupRules: CrudService[F, SecurityGroupRules] = new SecurityGroupRules[F](uri, authToken)
+  val securityGroupRules: SecurityGroupRules[F] = new SecurityGroupRules[F](uri, authToken)
+
   val routers: Routers[F] = new Routers[F](uri, authToken)
 }
