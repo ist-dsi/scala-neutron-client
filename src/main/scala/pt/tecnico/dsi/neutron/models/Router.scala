@@ -12,20 +12,6 @@ object Router extends Model {
     implicit val codec: Decoder[Read] = deriveDecoder(renaming.snakeCase)
   }
 
-  object Create {
-    implicit val codec: Encoder[Create] = deriveEncoder(renaming.snakeCase)
-  }
-
-  object Update {
-    implicit val codec: Encoder[Update] = deriveEncoder(renaming.snakeCase)
-  }
-
-  object ConntrackHelper {
-    implicit val decoder: Decoder[ConntrackHelper] = deriveDecoder(renaming.snakeCase)
-  }
-
-  case class ConntrackHelper(protocol: String, helper: String, port: Integer)
-
   case class Read(
     projectId: String,
     name: String,
@@ -47,8 +33,11 @@ object Router extends Model {
     updatedAt: LocalDateTime,
     tags: List[String],
     conntrack_helpers: List[ConntrackHelper]
-
   )
+
+  object Create {
+    implicit val codec: Encoder[Create] = deriveEncoder(renaming.snakeCase)
+  }
 
   case class Create(
     projectId: Option[String] = None,
@@ -63,6 +52,10 @@ object Router extends Model {
     flavorId: Option[String] = None,
   )
 
+  object Update {
+    implicit val codec: Encoder[Update] = deriveEncoder(renaming.snakeCase)
+  }
+
   case class Update(
     name: Option[String] = None,
     description: Option[String] = None,
@@ -73,6 +66,11 @@ object Router extends Model {
     routes: Option[List[Map[String, String]]] = None,
   )
 
+  object ConntrackHelper {
+    implicit val decoder: Decoder[ConntrackHelper] = deriveDecoder(renaming.snakeCase)
+  }
+
+  case class ConntrackHelper(protocol: String, helper: String, port: Integer)
 }
 
 sealed trait Router extends Model {

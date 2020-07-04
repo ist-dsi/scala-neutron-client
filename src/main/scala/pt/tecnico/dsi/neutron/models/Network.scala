@@ -25,6 +25,37 @@ object Network {
     }
   }
 
+  sealed case class Read(
+    adminStateUp: Boolean,
+    availabilityZoneHints: List[String], // ???
+    availabilityZones: List[String], // ???
+    createdAt: LocalDateTime,
+    dnsDomain: String,
+    ipv4AddressScope: String,
+    ipv6AddressScope: String,
+    l2Adjacency: Boolean,
+    mtu: Integer,
+    name: String,
+    portSecurityEnabled: Boolean,
+    projectId: String,
+    // provider:network_type
+    providerNetworkType: String,
+    providerPhysicalNetwork: String,
+    providerSegmentationId: Integer,
+    qosPolicyId: String,
+    revision_number: Integer,
+    // router:external
+    routerExternal: Boolean,
+    segments: List[String], // ???
+    shared: Boolean,
+    subnets: List[String], //???
+    updatedAt: LocalDateTime,
+    vlanTransparent: Boolean,
+    description: String,
+    isDefault: Boolean,
+    tags: List[String],
+  )
+
   object Create {
     implicit val encoder: Encoder[Create] = deriveEncoder(renaming.snakeCase)
   }
@@ -67,37 +98,6 @@ object Network {
     isDefault: Option[Boolean] = None,
     segments: Option[List[String]] = None,
     shared: Option[Boolean] = None,
-  )
-
-  sealed case class Read(
-    adminStateUp: Boolean,
-    availabilityZoneHints: List[String], // ???
-    availabilityZones: List[String], // ???
-    createdAt: LocalDateTime,
-    dnsDomain: String,
-    ipv4AddressScope: String,
-    ipv6AddressScope: String,
-    l2Adjacency: Boolean,
-    mtu: Integer,
-    name: String,
-    portSecurityEnabled: Boolean,
-    projectId: String,
-    // provider:network_type
-    providerNetworkType: String,
-    providerPhysicalNetwork: String,
-    providerSegmentationId: Integer,
-    qosPolicyId: String,
-    revision_number: Integer,
-    // router:external
-    routerExternal: Boolean,
-    segments: List[String], // ???
-    shared: Boolean,
-    subnets: List[String], //???
-    updatedAt: LocalDateTime,
-    vlanTransparent: Boolean,
-    description: String,
-    isDefault: Boolean,
-    tags: List[String],
   )
 
 }

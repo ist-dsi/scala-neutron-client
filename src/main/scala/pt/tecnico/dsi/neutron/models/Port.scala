@@ -11,58 +11,6 @@ object Port {
     implicit val codec: Decoder[Read] = deriveDecoder(renaming.snakeCase)
   }
 
-  object Create {
-    implicit val codec: Encoder[Create] = deriveEncoder(renaming.snakeCase)
-  }
-
-  object Update {
-    implicit val codec: Encoder[Update] = deriveEncoder(renaming.snakeCase)
-  }
-
-  case class Update(
-    name: Option[String] = None,
-    adminStateUp: Option[Boolean] = None,
-    allowedAddressPairs: Option[List[String]] = None,
-    bindingHostId: Option[String] = None,
-    bindingProfile: Option[Map[String, String]] = None,
-    bindingVnicType: Option[String] = None,
-    dataPlaneStatus: Option[String] = None,
-    deviceId: Option[String] = None,
-    description: Option[String] = None,
-    deviceOwner: Option[String] = None,
-    dnsName: Option[String] = None,
-    dnsDomain: Option[String] = None,
-    extraDhcpOpts: Option[List[Map[String, String]]] = None,
-    fixedIps: Option[List[String]] = None,
-    macAddress: Option[String] = None,
-    securityGrous: Option[List[String]] = None,
-    qosPolicyId: Option[String] = None,
-    macLearningEnabled: Option[Boolean] = None,
-  )
-
-  case class Create(
-    uplinkStatusPropagation: Option[Boolean] = None,
-    macLearningEnabled: Option[Boolean] = None,
-    securityGrous: Option[List[String]] = None,
-    qosPolicyId: Option[String] = None,
-    projectId: Option[String] = None,
-    name: Option[String] = None,
-    networkId: Option[String] = None,
-    portSecurityEnabled: Option[Boolean] = None,
-    adminStateUp: Option[Boolean] = None,
-    allowedAddressPairs: Option[List[String]] = None,
-    bindingHostId: Option[String] = None,
-    bindingProfile: Option[Map[String, String]] = None,
-    bindingVifType: Option[String] = None,
-    deviceId: Option[String] = None,
-    deviceOwner: Option[String] = None,
-    dnsName: Option[String] = None,
-    dnsDomain: Option[String] = None,
-    extraDhcpOpts: Option[List[Map[String, String]]] = None,
-    fixedIps: Option[List[String]] = None,
-    macAddress: Option[String] = None,
-  )
-
   case class Read(
     adminStateUp: Boolean,
     allowedAddressPairs: List[String],
@@ -99,6 +47,57 @@ object Port {
     macLearningEnabled: Boolean
   )
 
+  object Create {
+    implicit val codec: Encoder[Create] = deriveEncoder(renaming.snakeCase)
+  }
+
+  case class Create(
+    uplinkStatusPropagation: Option[Boolean] = None,
+    macLearningEnabled: Option[Boolean] = None,
+    securityGrous: Option[List[String]] = None,
+    qosPolicyId: Option[String] = None,
+    projectId: Option[String] = None,
+    name: Option[String] = None,
+    networkId: Option[String] = None,
+    portSecurityEnabled: Option[Boolean] = None,
+    adminStateUp: Option[Boolean] = None,
+    allowedAddressPairs: Option[List[String]] = None,
+    bindingHostId: Option[String] = None,
+    bindingProfile: Option[Map[String, String]] = None,
+    bindingVifType: Option[String] = None,
+    deviceId: Option[String] = None,
+    deviceOwner: Option[String] = None,
+    dnsName: Option[String] = None,
+    dnsDomain: Option[String] = None,
+    extraDhcpOpts: Option[List[Map[String, String]]] = None,
+    fixedIps: Option[List[String]] = None,
+    macAddress: Option[String] = None,
+  )
+
+  object Update {
+    implicit val codec: Encoder[Update] = deriveEncoder(renaming.snakeCase)
+  }
+
+  case class Update(
+    name: Option[String] = None,
+    adminStateUp: Option[Boolean] = None,
+    allowedAddressPairs: Option[List[String]] = None,
+    bindingHostId: Option[String] = None,
+    bindingProfile: Option[Map[String, String]] = None,
+    bindingVnicType: Option[String] = None,
+    dataPlaneStatus: Option[String] = None,
+    deviceId: Option[String] = None,
+    description: Option[String] = None,
+    deviceOwner: Option[String] = None,
+    dnsName: Option[String] = None,
+    dnsDomain: Option[String] = None,
+    extraDhcpOpts: Option[List[Map[String, String]]] = None,
+    fixedIps: Option[List[String]] = None,
+    macAddress: Option[String] = None,
+    securityGrous: Option[List[String]] = None,
+    qosPolicyId: Option[String] = None,
+    macLearningEnabled: Option[Boolean] = None,
+  )
 }
 
 sealed trait Port extends Model {

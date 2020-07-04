@@ -14,7 +14,6 @@ object RouterInterface {
     subnetId: Option[String] = None,
     portId: Option[String] = None,
   )
-
 }
 
 case class RouterInterface(

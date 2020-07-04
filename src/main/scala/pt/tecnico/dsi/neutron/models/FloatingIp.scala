@@ -11,32 +11,6 @@ object FloatingIp {
     implicit val decoder: Decoder[Read] = deriveDecoder(renaming.snakeCase)
   }
 
-  object Update {
-    implicit val decoder: Encoder[Update] = deriveEncoder(renaming.snakeCase)
-  }
-
-  object Create {
-    implicit val decoder: Encoder[Create] = deriveEncoder(renaming.snakeCase)
-  }
-
-  case class Create(
-    portId: Option[String] = None,
-    projectId: Option[String] = None,
-    fixedIpAddress: Option[String] = None,
-    floatingIpAddress: Option[String] = None,
-    description: Option[String] = None,
-    subnetId: Option[String] = None,
-    dnsDomain: Option[String] = None,
-    dnsName: Option[String] = None,
-    floatingNetworkId: Option[String] = None
-  )
-
-  case class Update(
-    portId: String,
-    fixedIpAddress: Option[String] = None,
-    description: Option[String] = None
-  )
-
   case class Read(
     routerId: String,
     status: String,
@@ -56,6 +30,31 @@ object FloatingIp {
     portForwardings: List[Map[String, String]]
   )
 
+  object Create {
+    implicit val decoder: Encoder[Create] = deriveEncoder(renaming.snakeCase)
+  }
+
+  case class Create(
+    portId: Option[String] = None,
+    projectId: Option[String] = None,
+    fixedIpAddress: Option[String] = None,
+    floatingIpAddress: Option[String] = None,
+    description: Option[String] = None,
+    subnetId: Option[String] = None,
+    dnsDomain: Option[String] = None,
+    dnsName: Option[String] = None,
+    floatingNetworkId: Option[String] = None
+  )
+
+  object Update {
+    implicit val decoder: Encoder[Update] = deriveEncoder(renaming.snakeCase)
+  }
+
+  case class Update(
+    portId: String,
+    fixedIpAddress: Option[String] = None,
+    description: Option[String] = None
+  )
 }
 
 sealed trait FloatingIp extends Model {
