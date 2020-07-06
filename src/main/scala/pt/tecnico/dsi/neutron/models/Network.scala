@@ -8,20 +8,53 @@ import io.circe.{Decoder, Encoder, HCursor}
 object Network {
 
   // TODO: Rethink this
-  implicit val decoder: Decoder[Read] = (c: HCursor) => {
-    for {
-      providerNetworkType      <- c.downField("provider:network_type").as[String]
-      providerPhysicalNetwork  <- c.downField("provider:physical_network").as[String]
-      providerSegmentationId   <- c.downField("provider:segmentation_id").as[Integer]
-      routerExternal           <- c.downField("router:external").as[Boolean]
-      network                  <- c.as[Read](deriveDecoder(renaming.snakeCase))
-    } yield network.copy(
-      providerNetworkType = providerNetworkType,
-      providerPhysicalNetwork = providerPhysicalNetwork,
-      providerSegmentationId = providerSegmentationId,
-      routerExternal = routerExternal
-    )
+  object Read {
+    implicit val decoder: Decoder[Read] = (c: HCursor) => {
+      for {
+        providerNetworkType <- c.downField("provider:network_type").as[String]
+        providerPhysicalNetwork <- c.downField("provider:physical_network").as[String]
+        providerSegmentationId <- c.downField("provider:segmentation_id").as[Integer]
+        routerExternal <- c.downField("router:external").as[Boolean]
+        network <- c.as[Read](deriveDecoder(renaming.snakeCase))
+      } yield network.copy(
+        providerNetworkType = providerNetworkType,
+        providerPhysicalNetwork = providerPhysicalNetwork,
+        providerSegmentationId = providerSegmentationId,
+        routerExternal = routerExternal
+      )
+    }
   }
+
+  sealed case class Read(
+    adminStateUp: Boolean,
+    availabilityZoneHints: List[String], // ???
+    availabilityZones: List[String], // ???
+    createdAt: LocalDateTime,
+    dnsDomain: String,
+    ipv4AddressScope: String,
+    ipv6AddressScope: String,
+    l2Adjacency: Boolean,
+    mtu: Integer,
+    name: String,
+    portSecurityEnabled: Boolean,
+    projectId: String,
+    // provider:network_type
+    providerNetworkType: String,
+    providerPhysicalNetwork: String,
+    providerSegmentationId: Integer,
+    qosPolicyId: String,
+    revision_number: Integer,
+    // router:external
+    routerExternal: Boolean,
+    segments: List[String], // ???
+    shared: Boolean,
+    subnets: List[String], //???
+    updatedAt: LocalDateTime,
+    vlanTransparent: Boolean,
+    description: String,
+    isDefault: Boolean,
+    tags: List[String],
+  )
 
   object Create {
     implicit val encoder: Encoder[Create] = deriveEncoder(renaming.snakeCase)
@@ -67,36 +100,6 @@ object Network {
     shared: Option[Boolean] = None,
   )
 
-  sealed case class Read(
-    adminStateUp: Boolean,
-    availabilityZoneHints: List[String], // ???
-    availabilityZones: List[String], // ???
-    createdAt: LocalDateTime,
-    dnsDomain: String,
-    ipv4AddressScope: String,
-    ipv6AddressScope: String,
-    l2Adjacency: Boolean,
-    mtu: Integer,
-    name: String,
-    portSecurityEnabled: Boolean,
-    projectId: String,
-    // provider:network_type
-    providerNetworkType: String,
-    providerPhysicalNetwork: String,
-    providerSegmentationId: Integer,
-    qosPolicyId: String,
-    revision_number: Integer,
-    // router:external
-    routerExternal: Boolean,
-    segments: List[String], // ???
-    shared: Boolean,
-    subnets: List[String], //???
-    updatedAt: LocalDateTime,
-    vlanTransparent: Boolean,
-    description: String,
-    isDefault: Boolean,
-    tags: List[String],
-  )
 }
 
 sealed trait Network extends Model {

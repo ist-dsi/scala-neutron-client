@@ -1,8 +1,5 @@
 package pt.tecnico.dsi.neutron
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.DurationInt
-import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import cats.effect.{ContextShift, IO, Timer}
 import cats.instances.list._
 import cats.syntax.traverse._
@@ -15,9 +12,13 @@ import org.scalatest._
 import org.scalatest.exceptions.TestFailedException
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
-import pt.tecnico.dsi.keystone.KeystoneClient
-import pt.tecnico.dsi.keystone.models.Scope.Project
-import pt.tecnico.dsi.keystone.models.{CatalogEntry, Interface}
+import pt.tecnico.dsi.openstack.keystone.KeystoneClient
+import pt.tecnico.dsi.openstack.keystone.models.Scope.Project
+import pt.tecnico.dsi.openstack.keystone.models.{CatalogEntry, Interface}
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.DurationInt
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 
 abstract class Utils extends AsyncWordSpec with Matchers with BeforeAndAfterAll {
   val logger: Logger = getLogger
@@ -44,7 +45,7 @@ abstract class Utils extends AsyncWordSpec with Matchers with BeforeAndAfterAll 
   val client: IO[NeutronClient[IO]] = for {
     keystone <- keystoneClient
     session = keystone.session
-    cinderUrlOpt = session.catalog.collectFirst { case entry @ CatalogEntry("volumev3", _, _, _) => entry.urlOf(sys.env("OS_REGION_NAME"), Interface.Public) }
+    cinderUrlOpt = session.catalog.collectFirst { case entry@CatalogEntry("volumev3", _, _, _) => entry.urlOf(sys.env("OS_REGION_NAME"), Interface.Public) }
     cinderUrl <- IO.fromEither(cinderUrlOpt.flatten.toRight(new Throwable("Could not find \"volumev3\" service in the catalog")))
     // Since we performed a scoped authentication to the admin project openstack tries to be clever and returns the cinder public url already
     // scoped to that project. That is: instead of returning "https://somehost.com:8776/v3", it returns "https://somehost.com:8776/v3/<admin-project-id>"
@@ -82,6 +83,7 @@ abstract class Utils extends AsyncWordSpec with Matchers with BeforeAndAfterAll 
   }
 
   import scala.language.implicitConversions
+
   implicit def io2Future[T](io: IO[T]): Future[T] = io.unsafeToFuture()
 
   private def ordinalSuffix(number: Int): String =

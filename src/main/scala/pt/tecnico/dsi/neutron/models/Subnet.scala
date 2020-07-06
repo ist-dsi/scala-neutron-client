@@ -7,11 +7,10 @@ import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
 import io.circe.{Decoder, Encoder}
 
 object Subnet {
-
   // For lack of a better name
   sealed trait Ipv6Mode extends EnumEntry
-  case object Ipv6Mode extends Enum[Ipv6Mode] {
 
+  case object Ipv6Mode extends Enum[Ipv6Mode] {
     implicit val circeEncoder: Encoder[Ipv6Mode] = Encoder.encodeString.contramap {
       case Slaac => "slaac"
       case Dhcpv6Stateful => "dhcpv6-stateful"
@@ -25,36 +24,17 @@ object Subnet {
     }
 
     case object Slaac extends Ipv6Mode
+
     case object Dhcpv6Stateful extends Ipv6Mode
+
     case object Dhcpv6Stateless extends Ipv6Mode
 
     val values: IndexedSeq[Ipv6Mode] = findValues
   }
 
-  object Read {
-    implicit val decoder: Decoder[Read] = deriveDecoder(renaming.snakeCase)
-  }
-
   object Create {
     implicit val encoder: Encoder[Create] = deriveEncoder(renaming.snakeCase)
   }
-
-  object Update {
-    implicit val encoder: Encoder[Update] = deriveEncoder(renaming.snakeCase)
-  }
-
-  case class Update(
-    name: Option[String] = None,
-    enableDhcp: Option[Boolean] = None,
-    dnsNameservers: Option[List[String]] = None, // ???
-    allocationPools: Option[List[Map[String, String]]] = None, // ???
-    hostRoutes: Option[List[Map[String, String]]] = None, // ???
-    gatewayIp: Option[String] = None,
-    description: Option[String] = None,
-    serviceTypes: Option[List[String]] = None,
-    segmentId: Option[String] = None,
-    dnsPublishFixedIp: Option[Boolean] = None
-  )
 
   case class Create(
     projectId: Option[String] = None,
@@ -77,6 +57,27 @@ object Subnet {
     serviceTypes: List[String] = Nil,
     dnsPublishFixedIp: Option[Boolean] = None
   )
+
+  object Update {
+    implicit val encoder: Encoder[Update] = deriveEncoder(renaming.snakeCase)
+  }
+
+  case class Update(
+    name: Option[String] = None,
+    enableDhcp: Option[Boolean] = None,
+    dnsNameservers: Option[List[String]] = None, // ???
+    allocationPools: Option[List[Map[String, String]]] = None, // ???
+    hostRoutes: Option[List[Map[String, String]]] = None, // ???
+    gatewayIp: Option[String] = None,
+    description: Option[String] = None,
+    serviceTypes: Option[List[String]] = None,
+    segmentId: Option[String] = None,
+    dnsPublishFixedIp: Option[Boolean] = None
+  )
+
+  object Read {
+    implicit val decoder: Decoder[Read] = deriveDecoder(renaming.snakeCase)
+  }
 
   case class Read(
     name: String,
@@ -107,6 +108,7 @@ object Subnet {
     dnsPublishFixedIp: Boolean,
     //serviceTypes: List[???],
   )
+
 }
 
 sealed trait Subnet extends Model {
