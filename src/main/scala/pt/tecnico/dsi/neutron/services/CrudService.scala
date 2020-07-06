@@ -17,5 +17,5 @@ abstract class CrudService[F[_] : Sync : Client, T <: Model]
   type Update = T#Update
   type Model = T#Read
 
-  override def update(id: String, value: Update): F[WithId[Model]] = super.put(value, uri / id, wrappedAt = Some(name))
+  override def update(id: String, value: Update, extraHeaders: Header*): F[WithId[Model]] = super.put(wrappedAt = Some(name), value, uri / id, extraHeaders:_*)
 }
