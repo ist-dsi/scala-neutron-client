@@ -12,7 +12,7 @@ final class Routes[F[_] : Sync : Client](base: Uri, authToken: Header) extends S
 
   import dsl._
 
-  implicit val d: Decoder[List[Route]] = _.downField("router").get("routes")
+  implicit val d: Decoder[List[Route]] = _.downField("router").get("routes")(Decoder.decodeList(Route.codec))
   implicit val e: Encoder[List[Route]] = e.mapJson(e => Json.obj("router" -> Json.obj("routes" -> e)))
 
   def add(routes: List[Route]): F[List[Route]] =

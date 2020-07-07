@@ -1,8 +1,10 @@
 package pt.tecnico.dsi.neutron
 
 import cats.effect.Sync
+import io.circe.{Decoder, Encoder}
 import org.http4s.client.Client
 import org.http4s.{Header, Uri}
+import pt.tecnico.dsi.neutron.models._
 import pt.tecnico.dsi.neutron.services._
 
 class NeutronClient[F[_]: Sync](baseUri: Uri, authToken: Header)(implicit client: Client[F]) {

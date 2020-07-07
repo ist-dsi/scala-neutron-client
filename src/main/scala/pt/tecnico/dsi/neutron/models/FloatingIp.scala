@@ -9,9 +9,8 @@ import io.circe.{Decoder, Encoder}
 object FloatingIp {
 
   object PortForwarding {
-    implicit val decoder: Decoder[Read] = deriveDecoder(renaming.snakeCase)
+    implicit val decoder: Decoder[PortForwarding] = deriveDecoder(renaming.snakeCase)
   }
-
   case class PortForwarding(
     protocol: String,
     internalIpAddress: InetAddress,
@@ -22,7 +21,6 @@ object FloatingIp {
   object Read {
     implicit val decoder: Decoder[Read] = deriveDecoder(renaming.snakeCase)
   }
-
   case class Read(
     routerId: String,
     status: String,
@@ -45,7 +43,6 @@ object FloatingIp {
   object Create {
     implicit val decoder: Encoder[Create] = deriveEncoder(renaming.snakeCase)
   }
-
   case class Create(
     portId: Option[String] = None,
     projectId: Option[String] = None,
@@ -61,7 +58,6 @@ object FloatingIp {
   object Update {
     implicit val decoder: Encoder[Update] = deriveEncoder(renaming.snakeCase)
   }
-
   case class Update(
     portId: String,
     fixedIpAddress: Option[String] = None,
