@@ -13,12 +13,10 @@ import org.scalatest.exceptions.TestFailedException
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
 import pt.tecnico.dsi.openstack.keystone.KeystoneClient
-import pt.tecnico.dsi.openstack.keystone.models.Scope.Project
-import pt.tecnico.dsi.openstack.keystone.models.{CatalogEntry, Interface}
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
+import pt.tecnico.dsi.openstack.keystone.models.{CatalogEntry, Interface}
 
 abstract class Utils extends AsyncWordSpec with Matchers with BeforeAndAfterAll {
   val logger: Logger = getLogger
@@ -45,13 +43,9 @@ abstract class Utils extends AsyncWordSpec with Matchers with BeforeAndAfterAll 
   val client: IO[NeutronClient[IO]] = for {
     keystone <- keystoneClient
     session = keystone.session
-    cinderUrlOpt = session.catalog.collectFirst { case entry@CatalogEntry("volumev3", _, _, _) => entry.urlOf(sys.env("OS_REGION_NAME"), Interface.Public) }
-    cinderUrl <- IO.fromEither(cinderUrlOpt.flatten.toRight(new Throwable("Could not find \"volumev3\" service in the catalog")))
-    // Since we performed a scoped authentication to the admin project openstack tries to be clever and returns the cinder public url already
-    // scoped to that project. That is: instead of returning "https://somehost.com:8776/v3", it returns "https://somehost.com:8776/v3/<admin-project-id>"
-    // So we need to drop the admin-project-id
-    adminProjectId = session.scope.asInstanceOf[Project].id
-  } yield new NeutronClient[IO](Uri.unsafeFromString(cinderUrl.stripSuffix(s"/$adminProjectId")), keystone.authToken)
+    neutronUrlOpt = session.catalog.collectFirst { case entry @ CatalogEntry("network", _, _, _) => entry.urlOf(sys.env("OS_REGION_NAME"), Interface.Public) }
+    neutronUrl <- IO.fromEither(neutronUrlOpt.flatten.toRight(new Throwable("Could not find \"network\" service in the catalog")))
+  } yield new NeutronClient[IO](Uri.unsafeFromString(neutronUrl), keystone.authToken)
 
   implicit class RichIO[T](io: IO[T]) {
     def idempotently(test: T => Assertion, repetitions: Int = 3): IO[Assertion] = {

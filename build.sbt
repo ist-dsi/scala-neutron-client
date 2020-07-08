@@ -5,7 +5,7 @@ name := "scala-neutron-client"
 // ==== Compile Options =================================================================================================
 // ======================================================================================================================
 javacOptions ++= Seq("-Xlint", "-encoding", "UTF-8", "-Dfile.encoding=utf-8")
-scalaVersion := "2.13.2"
+scalaVersion := "2.13.3"
 
 scalacOptions ++= Seq(
   "-encoding", "utf-8",            // Specify character encoding used by source files.
@@ -43,19 +43,16 @@ scalacOptions in (Test, console) := (scalacOptions in (Compile, console)).value
 // ==== Dependencies ====================================================================================================
 // ======================================================================================================================
 libraryDependencies ++= Seq("blaze-client", "circe").map { module =>
-  "org.http4s"      %% s"http4s-$module" % "0.21.4"
+  "org.http4s"      %% s"http4s-$module" % "0.21.6"
 } ++ Seq(
   "io.circe"        %% "circe-derivation"      % "0.13.0-M4",
-  "org.typelevel"   %% "squants"               % "1.6.0",
-  "com.beachape"    %% "enumeratum-circe"      % "1.6.0",
+  "com.beachape"    %% "enumeratum-circe"      % "1.6.1",
   "pt.tecnico.dsi"  %% "scala-keystone-client" % "0.1.0-SNAPSHOT" % Test,
   "pt.tecnico.dsi"  %% "scala-openstack-common-clients" % "0.1.0-SNAPSHOT",
   "ch.qos.logback"  %  "logback-classic"       % "1.2.3" % Test,
-  "org.scalatest"   %% "scalatest"             % "3.1.1" % Test,
+  "org.scalatest"   %% "scalatest"             % "3.2.0" % Test,
 )
 addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
-
-//coverageEnabled := true
 
 // ======================================================================================================================
 // ==== Testing =========================================================================================================
@@ -78,6 +75,8 @@ Test / testGrouping := {
 //   -o[configs...] - causes test results to be written to the standard output. The D configs shows all durations.
 // -F shows the complete stack trace in case of exception thrown.
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oDF")
+
+coverageEnabled := true
 
 // ======================================================================================================================
 // ==== Scaladoc ========================================================================================================

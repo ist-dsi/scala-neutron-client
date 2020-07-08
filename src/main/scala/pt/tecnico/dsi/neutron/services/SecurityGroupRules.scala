@@ -20,9 +20,9 @@ final class SecurityGroupRules[F[_] : Sync : Client](baseUri: Uri, authToken: He
     super.list[WithId[SecurityGroupRule]](pluralName, uri, query)
 
   def create(value: SecurityGroupRule.Create): F[WithId[SecurityGroupRule]] =
-    super.post(value, uri, wrappedAt = Some(name))
+    super.post(wrappedAt = Some(name), value, uri)
 
-  def get(id: String): F[WithId[SecurityGroupRule]] = super.get(uri / id, wrappedAt = Some(name))
+  def get(id: String): F[WithId[SecurityGroupRule]] = super.get(wrappedAt = Some(name), uri / id)
 
   def delete(value: WithId[SecurityGroupRule]): F[Unit] = delete(value.id)
 
