@@ -7,7 +7,6 @@ import pt.tecnico.dsi.neutron.services.BulkCreate
 class NetworksSpec extends CrudSpec[Network]("network", _.networks) with BulkCreateSpec[Network] {
 
   val bulkService: NeutronClient[IO] => BulkCreate[IO, Network] = _.networks
-
   val createStub: IO[Network.Create] = IO { Network.Create() }
   val updateStub: IO[Network.Update] = IO {
     Network.Update(
@@ -24,5 +23,4 @@ class NetworksSpec extends CrudSpec[Network]("network", _.networks) with BulkCre
       } yield assert(updated.name == ustub.name.get)
     }
   }
-
 }

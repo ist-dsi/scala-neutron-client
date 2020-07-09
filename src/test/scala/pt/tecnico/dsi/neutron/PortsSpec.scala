@@ -1,51 +1,27 @@
 package pt.tecnico.dsi.neutron
 
-import pt.tecnico.dsi.neutron.models.Port
+import cats.effect.IO
+import pt.tecnico.dsi.neutron.models.{Network, Port}
+import pt.tecnico.dsi.neutron.services.BulkCreate
 
-class PortsSpec extends Utils {
+class PortsSpec extends CrudSpec[Port]("port", _.ports) with BulkCreateSpec[Port] {
 
-  object stub {
-    val create: Port.Create = Port.Create(
-     networkId = "test"
-    )
-    val update: Port.Update = Port.Update(
-      name = Some("port-name")
-    )
-  }
+  val bulkService: NeutronClient[IO] => BulkCreate[IO, Port] = _.ports
+  val updateStub: Port.Update = Port.Update(name = Some("cool-port"))
+  val createStub: IO[Port.Create] = for {
+    neutron <- client
+    net <- neutron.networks.create(Network.Create())
+  } yield Port.Create(name = Some("hello"), networkId = net.id)
 
   "Ports service" should {
-    "should create" in {
-      for {
-        neutron <- client
-        _ <- neutron.ports.create(stub.create)
-      } yield assert {
-        true
-      }
-    }
-    "delete" in {
-      for {
-        neutron <- client
-        port <- neutron.ports.create(stub.create)
-        _ <- neutron.ports.delete(port.id)
-      } yield assert {
-        true
-      }
-    }
-    "list" in {
-      for {
-        neutron <- client
-        _ <- neutron.ports.list().compile.toList
-      } yield assert {
-        true
-      }
-    }
     "update" in {
       for {
         neutron <- client
-        port <- neutron.ports.create(stub.create)
-        updated <- neutron.ports.update(port.id, stub.update)
+        stub <- createStub
+        port <- neutron.ports.create(stub)
+        updated <- neutron.ports.update(port.id, updateStub)
       } yield assert {
-        updated.name == stub.update.name.get
+        updated.name == updateStub.name.get
       }
     }
   }

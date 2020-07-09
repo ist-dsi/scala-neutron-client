@@ -12,9 +12,7 @@ abstract class CrudSpec[T <: Model](val name: String, val service: NeutronClient
   extends Utils {
 
   val displayName: String = name.capitalize
-
   val createStub: IO[T#Create]
-  val updateStub: IO[T#Update]
 
   val withSubCreated: IO[(WithId[T#Read], CrudService[IO, T])] =
     for {
