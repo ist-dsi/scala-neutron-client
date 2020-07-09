@@ -7,13 +7,13 @@ object Network {
 
   object Read {
 
-    def decoderAfterRename[T](m: Map[String, String])(implicit d: Decoder[T]): Decoder[T] = {
+    def decoderAfterRename[T](m: Map[String, String], d: Decoder[T]): Decoder[T] = {
       d.prepare {
         _.withFocus {
           _.mapObject { x =>
             m.foldLeft(x) { (a, b) =>
               val value = x(b._1)
-              a.add(b._2, value.get)
+              a.add(b._2, value.get).remove(b._1)
             }
           }
         }
@@ -26,8 +26,7 @@ object Network {
         "provider:physical_network" -> "provider_physical_network",
         "provider:segmentation_id" -> "provider_segmentation_id",
         "router:external" -> "router_external",
-      )
-    )(deriveDecoder(renaming.snakeCase))
+      ), deriveDecoder(renaming.snakeCase))
   }
 
   sealed case class Read(
