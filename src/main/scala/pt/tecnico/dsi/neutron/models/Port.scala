@@ -58,7 +58,7 @@ object Port {
     qosPolicyId: Option[String] = None,
     projectId: Option[String] = None,
     name: Option[String] = None,
-    networkId: Option[String] = None,
+    networkId: String,
     portSecurityEnabled: Option[Boolean] = None,
     adminStateUp: Option[Boolean] = None,
     allowedAddressPairs: Option[List[String]] = None,

@@ -1,58 +1,63 @@
 package pt.tecnico.dsi.neutron.models
 
-import java.time.LocalDateTime
-
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
-import io.circe.{Decoder, Encoder, HCursor}
+import io.circe.{Decoder, Encoder}
 
 object Network {
 
-  // TODO: Rethink this
   object Read {
-    implicit val decoder: Decoder[Read] = (c: HCursor) => {
-      for {
-        providerNetworkType <- c.downField("provider:network_type").as[String]
-        providerPhysicalNetwork <- c.downField("provider:physical_network").as[String]
-        providerSegmentationId <- c.downField("provider:segmentation_id").as[Integer]
-        routerExternal <- c.downField("router:external").as[Boolean]
-        network <- c.as[Read](deriveDecoder(renaming.snakeCase))
-      } yield network.copy(
-        providerNetworkType = providerNetworkType,
-        providerPhysicalNetwork = providerPhysicalNetwork,
-        providerSegmentationId = providerSegmentationId,
-        routerExternal = routerExternal
-      )
+
+    def decoderAfterRename[T](m: Map[String, String])(implicit d: Decoder[T]): Decoder[T] = {
+      d.prepare {
+        _.withFocus {
+          _.mapObject { x =>
+            m.foldLeft(x) { (a, b) =>
+              val value = x(b._1)
+              a.add(b._2, value.get)
+            }
+          }
+        }
+      }
     }
+
+    implicit val decoder: Decoder[Read] = decoderAfterRename[Read](
+      Map(
+        "provider:network_type" -> "provider_network_type",
+        "provider:physical_network" -> "provider_physical_network",
+        "provider:segmentation_id" -> "provider_segmentation_id",
+        "router:external" -> "router_external",
+      )
+    )(deriveDecoder(renaming.snakeCase))
   }
 
   sealed case class Read(
     adminStateUp: Boolean,
     availabilityZoneHints: List[String], // ???
     availabilityZones: List[String], // ???
-    createdAt: LocalDateTime,
+    createdAt: String,
     dnsDomain: String,
-    ipv4AddressScope: String,
-    ipv6AddressScope: String,
-    l2Adjacency: Boolean,
+    ipv4AddressScope: Option[String],
+    ipv6AddressScope: Option[String],
+    l2Adjacency: Option[Boolean],
     mtu: Integer,
     name: String,
     portSecurityEnabled: Boolean,
     projectId: String,
     // provider:network_type
     providerNetworkType: String,
-    providerPhysicalNetwork: String,
+    providerPhysicalNetwork: Option[String],
     providerSegmentationId: Integer,
-    qosPolicyId: String,
+    qosPolicyId: Option[String],
     revision_number: Integer,
     // router:external
     routerExternal: Boolean,
-    segments: List[String], // ???
+    segments: List[String] = List.empty, // ???
     shared: Boolean,
     subnets: List[String], //???
-    updatedAt: LocalDateTime,
-    vlanTransparent: Boolean,
+    updatedAt: String,
+    vlanTransparent: Boolean = false, // Where is this?
     description: String,
-    isDefault: Boolean,
+    isDefault: Boolean = false, // missing also
     tags: List[String],
   )
 
