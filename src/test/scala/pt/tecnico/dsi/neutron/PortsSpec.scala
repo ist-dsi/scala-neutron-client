@@ -1,6 +1,7 @@
 package pt.tecnico.dsi.neutron
 
 import cats.effect.IO
+import org.scalatest.OptionValues._
 import pt.tecnico.dsi.neutron.models.{Network, Port}
 import pt.tecnico.dsi.neutron.services.BulkCreate
 
@@ -20,9 +21,7 @@ class PortsSpec extends CrudSpec[Port]("port", _.ports) with BulkCreateSpec[Port
         stub <- createStub
         port <- neutron.ports.create(stub)
         updated <- neutron.ports.update(port.id, updateStub)
-      } yield assert {
-        updated.name == updateStub.name.get
-      }
+      } yield updated.name shouldBe updateStub.name.value
     }
   }
 }

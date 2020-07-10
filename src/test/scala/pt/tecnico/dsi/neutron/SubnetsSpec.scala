@@ -1,6 +1,7 @@
 package pt.tecnico.dsi.neutron
 
 import cats.effect.IO
+import org.scalatest.OptionValues._
 import pt.tecnico.dsi.neutron.models.{Network, Subnet}
 import pt.tecnico.dsi.neutron.services.BulkCreate
 
@@ -20,9 +21,7 @@ class SubnetsSpec extends CrudSpec[Subnet]("subnet", _.subnets) with BulkCreateS
         stub <- createStub
         port <- neutron.subnets.create(stub)
         updated <- neutron.subnets.update(port.id, updateStub)
-      } yield assert {
-        updated.name == updateStub.name.get
-      }
+      } yield updated.name shouldBe updateStub.name.value
     }
   }
 }

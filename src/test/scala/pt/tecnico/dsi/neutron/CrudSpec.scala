@@ -59,15 +59,10 @@ trait BulkCreateSpec[T <: Model] {
     "create in bulk" in {
       for {
         neutron <- client
-        stubs <- (1 to n).map(_ => createStub).toList.sequence
-
-        bulk = bulkService(neutron)
-        expected <- bulk.create(stubs)
-
-        lst <- expected.map { x =>
-          service(neutron).get(x.id).map(y => y == x)
-        }.sequence
-      } yield assert(lst.forall(identity))
+        stubs <- List.fill(n)(createStub).sequence
+        createdStubs <- bulkService(neutron).create(stubs)
+        fetchedStubs <- createdStubs.traverse(t => service(neutron).get(t.id))
+      } yield assert(fetchedStubs.zip(createdStubs).forall(a => a._1 == a._2))
     }
   }
 }

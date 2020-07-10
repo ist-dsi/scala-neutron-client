@@ -1,21 +1,21 @@
 package pt.tecnico.dsi.neutron.models
 
+import java.time.ZonedDateTime
+
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
-import io.circe.{Decoder, Encoder}
+import io.circe.{Decoder, Encoder, JsonObject}
 
 object Network {
 
   object Read {
 
-    def decoderAfterRename[T](m: Map[String, String], d: Decoder[T]): Decoder[T] = {
-      d.prepare {
-        _.withFocus {
-          _.mapObject { x =>
-            m.foldLeft(x) { (a, b) =>
-              val value = x(b._1)
-              a.add(b._2, value.get).remove(b._1)
-            }
+    def decoderAfterRename[T](renames: Map[String, String], d: Decoder[T]): Decoder[T] = d.prepare {
+      _.withFocus {
+        _.mapObject { obj =>
+          val newMap = obj.toMap.map { case (key, value) =>
+            renames.getOrElse(key, key) -> value
           }
+          JsonObject.fromMap(newMap)
         }
       }
     }
@@ -33,7 +33,7 @@ object Network {
     adminStateUp: Boolean,
     availabilityZoneHints: List[String], // ???
     availabilityZones: List[String], // ???
-    createdAt: String,
+    createdAt: ZonedDateTime,
     dnsDomain: String,
     ipv4AddressScope: Option[String],
     ipv6AddressScope: Option[String],
@@ -53,7 +53,7 @@ object Network {
     segments: List[String] = List.empty, // ???
     shared: Boolean,
     subnets: List[String], //???
-    updatedAt: String,
+    updatedAt: ZonedDateTime,
     vlanTransparent: Boolean = false, // Where is this?
     description: String,
     isDefault: Boolean = false, // missing also
