@@ -2,6 +2,7 @@ package pt.tecnico.dsi.neutron
 
 import cats.effect.IO
 import cats.implicits._
+import cats.syntax.flatMap._
 import io.circe.{Decoder, Encoder}
 import pt.tecnico.dsi.neutron.models.Model
 import pt.tecnico.dsi.neutron.services.{BulkCreate, CrudService}
@@ -25,11 +26,8 @@ abstract class CrudSpec[T <: Model](val name: String, val service: NeutronClient
 
   s"$displayName service" should {
 
-    "create and get" in {
-      for {
-        (stub, service) <- withSubCreated
-        actual <- service.get(stub.id)
-      } yield actual shouldBe stub
+    "create and get" in withSubCreated .flatMap { case (stub, service) =>
+      service.get(stub.id) .idempotently(_ shouldBe stub)
     }
 
     "delete" in {
@@ -62,7 +60,7 @@ trait BulkCreateSpec[T <: Model] {
         stubs <- List.fill(n)(createStub).sequence
         createdStubs <- bulkService(neutron).create(stubs)
         fetchedStubs <- createdStubs.traverse(t => service(neutron).get(t.id))
-      } yield assert(fetchedStubs.zip(createdStubs).forall(a => a._1 == a._2))
+      } yield assert(fetchedStubs.zip(createdStubs).forall { case (a, b) => a == b })
     }
   }
 }
