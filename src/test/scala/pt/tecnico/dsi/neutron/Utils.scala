@@ -6,7 +6,6 @@ import cats.syntax.traverse._
 import org.http4s.Uri
 import org.http4s.client.Client
 import org.http4s.client.blaze.BlazeClientBuilder
-import org.http4s.client.middleware.Logger
 import org.log4s._
 import org.scalatest._
 import org.scalatest.exceptions.TestFailedException
@@ -33,11 +32,11 @@ abstract class Utils extends AsyncWordSpec with Matchers with BeforeAndAfterAll 
 
   override protected def afterAll(): Unit = finalizer.unsafeRunSync()
 
+  import org.http4s.client.middleware.Logger
   implicit val httpClient: Client[IO] = Logger(logBody = true, logHeaders = true)(_httpClient)
   //implicit val httpClient: Client[IO] = _httpClient
 
   //TODO: fix the fact that we are reauthenticating in every test. Change to only be once per suite
-
   val keystoneClient: IO[KeystoneClient[IO]] = KeystoneClient.fromEnvironment()
 
   val client: IO[NeutronClient[IO]] = for {
@@ -77,32 +76,5 @@ abstract class Utils extends AsyncWordSpec with Matchers with BeforeAndAfterAll 
   }
 
   import scala.language.implicitConversions
-
-  implicit def io2Future[T](io: IO[T]): Future[T] = io.unsafeToFuture()
-
-  private def ordinalSuffix(number: Int): String =
-    number % 100 match {
-      case 1 => "st"
-      case 2 => "nd"
-      case 3 => "rd"
-      case _ => "th"
-    }
-
-  def idempotently(test: NeutronClient[IO] => IO[Assertion], repetitions: Int = 3): Future[Assertion] = {
-    require(repetitions >= 2, "To test for idempotency at least 2 repetitions must be made")
-
-    // If the first run fails we do not want to mask its exception, because failing in the first attempt means
-    // whatever is being tested in `test` is not implemented correctly.
-    client.flatMap(test).unsafeToFuture().flatMap { _ =>
-      // For the subsequent iterations we mask TestFailed with "Operation is not idempotent"
-      Future.traverse(2 to repetitions) { repetition =>
-        client.flatMap(test).unsafeToFuture().transform(identity, {
-          case e: TestFailedException =>
-            val text = s"$repetition${ordinalSuffix(repetition)}"
-            e.modifyMessage(_.map(m => s"Operation is not idempotent. On $text repetition got:\n$m"))
-          case e => e
-        })
-      } map (_ should contain only Succeeded) // Scalatest flatten :P
-    }
-  }
+  implicit def ioAssertion2FutureAssertion(io: IO[Assertion]): Future[Assertion] = io.unsafeToFuture()
 }
