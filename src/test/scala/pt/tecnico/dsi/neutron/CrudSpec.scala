@@ -2,8 +2,8 @@ package pt.tecnico.dsi.neutron
 
 import cats.effect.IO
 import cats.implicits._
-import cats.syntax.flatMap._
 import io.circe.{Decoder, Encoder}
+import org.scalatest.Assertion
 import pt.tecnico.dsi.neutron.models.Model
 import pt.tecnico.dsi.neutron.services.{BulkCreate, CrudService}
 import pt.tecnico.dsi.openstack.common.models.WithId
@@ -14,6 +14,8 @@ abstract class CrudSpec[T <: Model](val name: String, val service: NeutronClient
 
   val displayName: String = name.capitalize
   val createStub: IO[T#Create]
+  val updateStub: IO[T#Update]
+  def updateComparator(read: T#Read, update: T#Update): Assertion
 
   val withSubCreated: IO[(WithId[T#Read], CrudService[IO, T])] =
     for {
@@ -43,6 +45,14 @@ abstract class CrudSpec[T <: Model](val name: String, val service: NeutronClient
         (stub, service) <- withSubCreated
         lst <- service.list().compile.toList
       } yield assert(lst.exists(_.id == stub.id))
+    }
+
+    "update" in {
+      for {
+        ustub <- updateStub
+        (stub, service) <- withSubCreated
+        updated <- service.update(stub.id, ustub)
+      } yield updateComparator(updated, ustub)
     }
   }
 }

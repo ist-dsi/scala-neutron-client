@@ -14,7 +14,7 @@ object Port {
   case class Read(
     adminStateUp: Boolean,
     allowedAddressPairs: List[String],
-    bindingHostId: String,
+    bindingHostId: Option[String],
     bindingProfile: Map[String, String],
     bindingVifDetails: Map[String, String],
     bindingVifType: String,

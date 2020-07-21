@@ -1,6 +1,6 @@
 package pt.tecnico.dsi.neutron.models
 
-import java.time.LocalDateTime
+import java.time.{LocalDateTime, OffsetDateTime}
 
 import enumeratum.{Enum, EnumEntry}
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
@@ -87,7 +87,7 @@ object Subnet {
     ipVersion: Integer,
     gatewayIp: String,
     cidr: String,
-    createdAt: LocalDateTime,
+    createdAt: OffsetDateTime,
     /*
     "allocation_pools": [
       {
