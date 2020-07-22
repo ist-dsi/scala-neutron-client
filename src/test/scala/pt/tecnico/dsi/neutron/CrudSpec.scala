@@ -33,7 +33,7 @@ abstract class CrudSpec[T <: Model](val name: String)
 
     "delete" in withStubCreated.use[IO, Assertion] { stub =>
       for {
-        _ <- service.delete(stub.id)
+        _ <- service.delete(stub.id).idempotently(_ shouldBe ())
         lst <- service.list().compile.toList
       } yield assert(!lst.exists(_.id == stub.id))
     }
@@ -47,8 +47,8 @@ abstract class CrudSpec[T <: Model](val name: String)
     "update" in withStubCreated.use[IO, Assertion] { stub =>
       for {
         ustub <- updateStub
-        updated <- service.update(stub.id, ustub)
-      } yield updateComparator(updated, ustub)
+        isIdempotent <- service.update(stub.id, ustub).idempotently(x => updateComparator(x, ustub))
+      } yield isIdempotent
     }
   }
 }
