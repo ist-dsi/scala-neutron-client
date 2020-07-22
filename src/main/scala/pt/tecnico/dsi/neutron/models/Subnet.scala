@@ -1,6 +1,6 @@
 package pt.tecnico.dsi.neutron.models
 
-import java.time.{LocalDateTime, OffsetDateTime}
+import java.time.OffsetDateTime
 
 import enumeratum.{Enum, EnumEntry}
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
@@ -97,15 +97,15 @@ object Subnet {
     ],
     */
     allocationPools: List[Map[String, String]],
-    description: String,
+    description: Option[String],
     ipv6AddressMode: Option[Ipv6Mode],
     ipv6RaMode: Option[Ipv6Mode],
     revisionNumber: Integer,
-    segmentId: String,
-    subnetpoolId: String,
-    updatedAt: LocalDateTime,
+    segmentId: Option[String],
+    subnetpoolId: Option[String],
+    updatedAt: OffsetDateTime,
     tags: List[String],
-    dnsPublishFixedIp: Boolean,
+    dnsPublishFixedIp: Option[Boolean],
     //serviceTypes: List[???],
   )
 

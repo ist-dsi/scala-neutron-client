@@ -41,10 +41,10 @@ abstract class Utils extends AsyncWordSpec with Matchers with BeforeAndAfterAll 
   val keystoneClient: KeystoneClient[IO] = KeystoneClient.fromEnvironment().unsafeRunSync()
 
   val client: NeutronClient[IO] = {
-    val designateUrl = keystoneClient.session.catalog.collectFirst {
-      case entry@CatalogEntry("dns", _, _, _) => entry.urlOf(sys.env("OS_REGION_NAME"), Interface.Public)
-    }.flatten.getOrElse(throw new Exception("Could not find \"dns\" service in the catalog"))
-    new NeutronClient[IO](Uri.unsafeFromString(designateUrl), keystoneClient.authToken)
+    val neutronUrl = keystoneClient.session.catalog.collectFirst {
+      case entry@CatalogEntry("network", _, _, _) => entry.urlOf(sys.env("OS_REGION_NAME"), Interface.Public)
+    }.flatten.getOrElse(throw new Exception("Could not find \"network\" service in the catalog"))
+    new NeutronClient[IO](Uri.unsafeFromString(neutronUrl), keystoneClient.authToken)
   }
 
   implicit class RichIO[T](io: IO[T]) {
@@ -93,10 +93,10 @@ abstract class Utils extends AsyncWordSpec with Matchers with BeforeAndAfterAll 
 
     // If the first run fails we do not want to mask its exception, because failing in the first attempt means
     // whatever is being tested in `test` is not implemented correctly.
-    client.flatMap(test).unsafeToFuture().flatMap { _ =>
+    test(client).unsafeToFuture().flatMap { _ =>
       // For the subsequent iterations we mask TestFailed with "Operation is not idempotent"
       Future.traverse(2 to repetitions) { repetition =>
-        client.flatMap(test).unsafeToFuture().transform(identity, {
+        test(client).unsafeToFuture().transform(identity, {
           case e: TestFailedException =>
             val text = s"$repetition${ordinalSuffix(repetition)}"
             e.modifyMessage(_.map(m => s"Operation is not idempotent. On $text repetition got:\n$m"))

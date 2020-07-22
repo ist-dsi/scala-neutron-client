@@ -2,6 +2,7 @@ package pt.tecnico.dsi.neutron
 
 import cats.effect.{IO, Resource}
 import org.scalatest.Assertion
+import cats.implicits._
 import org.scalatest.OptionValues._
 import pt.tecnico.dsi.neutron.models.Network
 import pt.tecnico.dsi.neutron.services.{BulkCreate, CrudService}
@@ -17,5 +18,9 @@ class NetworksSpec extends CrudSpec[Network]("network") with BulkCreateSpec[Netw
     read.name shouldBe update.name.value
 
   override val withStubCreated: Resource[IO, WithId[Network.Read]] = withNetworkCreated
-  override val withBulkCreated: Resource[IO, List[WithId[Network.Read]]] = _
+  override def withBulkCreated(n: Int): Resource[IO, List[WithId[Network.Read]]] = {
+    val created = client.networks.create { List.fill(n)(Network.Create()) }
+    Resource.make(created)(x => x.traverse_(y => service.delete(y.id)))
+  }
+
 }

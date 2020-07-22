@@ -12,7 +12,7 @@ abstract class CrudSpec[T <: Model](val name: String)
   (implicit val encoder: Encoder[T#Create], val decoder: Decoder[WithId[T#Read]])
   extends Utils {
 
-  abstract val service: CrudService[IO, T]
+  val service: CrudService[IO, T]
 
   val displayName: String = name.capitalize
   val updateStub: IO[T#Update]
@@ -56,14 +56,14 @@ abstract class CrudSpec[T <: Model](val name: String)
 trait BulkCreateSpec[T <: Model] {
   self: CrudSpec[T] =>
 
-  val service: BulkCreate[IO, T]
+  val service: CrudService[IO, T] with BulkCreate[IO, T]
+  def withBulkCreated(quantity: Int): Resource[IO, List[WithId[T#Read]]]
   val n = 5
 
   s"$displayName service" should {
-    "create in bulk and get" in withBulkCreated.use[IO, Assertion] { createdStubs =>
+    "create in bulk and get" in withBulkCreated(n).use[IO, Assertion] { createdStubs =>
       for {
-        neutron <- client
-        fetchedStubs <- createdStubs.traverse(t => service(neutron).get(t.id))
+        fetchedStubs <- createdStubs.traverse(t => service.get(t.id))
       } yield assert(fetchedStubs.zip(createdStubs).forall { case (a, b) => a == b })
     }
   }
