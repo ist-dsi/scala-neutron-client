@@ -2,7 +2,6 @@ package pt.tecnico.dsi.neutron
 
 import cats.effect.IO
 import cats.implicits._
-import cats.syntax.flatMap._
 import io.circe.{Decoder, Encoder}
 import pt.tecnico.dsi.neutron.models.Model
 import pt.tecnico.dsi.neutron.services.{BulkCreate, CrudService}

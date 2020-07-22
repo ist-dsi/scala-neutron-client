@@ -1,0 +1,34 @@
+language: scala
+
+scala:
+  - 2.13.3
+
+# We are using this because its the only environment with IPv6
+os: linux
+arch: arm64
+dist: bionic
+
+jdk:
+  - openjdk11
+
+# To ensure we use the latest SNAPSHOTS
+env:
+  - COURSIER_TTL="1h"
+
+before_cache:
+  - rm -fv $HOME/.ivy2/.sbt.ivy.lock
+  - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
+  - find $HOME/.sbt        -name "*.lock"               -print -delete
+
+cache:
+  directories:
+    - $HOME/.cache/coursier
+    - $HOME/.ivy2/cache
+    - $HOME/.sbt
+
+before_script:
+  - source openrc-neutron.sh
+
+script: sbt -Dsbt.color=true clean coverage test
+
+after_success: sbt -Dsbt.color=true coverageReport codacyCoverage
