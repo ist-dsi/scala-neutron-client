@@ -38,14 +38,14 @@ abstract class Utils extends AsyncWordSpec with Matchers with BeforeAndAfterAll 
 
   //TODO: fix the fact that we are reauthenticating in every test. Change to only be once per suite
 
-  val keystoneClient: IO[KeystoneClient[IO]] = KeystoneClient.fromEnvironment()
+  val keystoneClient: KeystoneClient[IO] = KeystoneClient.fromEnvironment().unsafeRunSync()
 
-  val client: IO[NeutronClient[IO]] = for {
-    keystone <- keystoneClient
-    session = keystone.session
-    neutronUrlOpt = session.catalog.collectFirst { case entry @ CatalogEntry("network", _, _, _) => entry.urlOf(sys.env("OS_REGION_NAME"), Interface.Public) }
-    neutronUrl <- IO.fromEither(neutronUrlOpt.flatten.toRight(new Throwable("Could not find \"network\" service in the catalog")))
-  } yield new NeutronClient[IO](Uri.unsafeFromString(neutronUrl), keystone.authToken)
+  val client: NeutronClient[IO] = {
+    val designateUrl = keystoneClient.session.catalog.collectFirst {
+      case entry@CatalogEntry("dns", _, _, _) => entry.urlOf(sys.env("OS_REGION_NAME"), Interface.Public)
+    }.flatten.getOrElse(throw new Exception("Could not find \"dns\" service in the catalog"))
+    new NeutronClient[IO](Uri.unsafeFromString(designateUrl), keystoneClient.authToken)
+  }
 
   implicit class RichIO[T](io: IO[T]) {
     def idempotently(test: T => Assertion, repetitions: Int = 3): IO[Assertion] = {
