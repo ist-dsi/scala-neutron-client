@@ -12,23 +12,27 @@ class PortsSpec extends CrudSpec[Port]("port") with BulkCreateSpec[Port] { self 
 
   val service: CrudService[IO, Port] with BulkCreate[IO, Port] = client.ports
   val bulkService: NeutronClient[IO] => BulkCreate[IO, Port] = _.ports
-  val updateStub: IO[Port.Update] = IO { Port.Update(name = Some("cool-port")) }
+  val updateStub: IO[Port.Update] = withRandomName { name => IO { Port.Update(name = Some(name)) } }
 
   override val withStubCreated: Resource[IO, WithId[Port#Read]] = withNetworkCreated.flatMap { network =>
-    val stub = service.create {
-        Port.Create(name = Some("hello"), networkId = network.id)
+    val stub = withRandomName { name =>
+      service.create {
+        Port.Create(name = Some(name), networkId = network.id)
+      }
     }
-    Resource.make(stub) { s => service.delete(s.id) }
+    Resource.make(stub) { stub => service.delete(stub.id) }
   }
 
   override def updateComparator(read: Port#Read, update: Port#Update): Assertion =
     read.name shouldBe update.name.value
 
   override def withBulkCreated(n: Int): Resource[IO, List[WithId[Port#Read]]] = withNetworkCreated.flatMap { network =>
-    val created = client.ports.create { List.fill(n) {
-      Port.Create(name = Some("hello"), networkId = network.id)
+    val created = withRandomName { name => client.ports.create {
+      (1 to n).map { x =>
+          Port.Create(name = Some(s"$name$x"), networkId = network.id)
+        }.toList
+      }
     }
-    }
-    Resource.make(created)(_.traverse_(y => service.delete(y.id)))
+    Resource.make(created)(_.traverse_(stub => service.delete(stub.id)))
   }
 }

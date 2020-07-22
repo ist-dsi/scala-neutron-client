@@ -23,7 +23,7 @@ object Port {
     allowedAddressPairs: List[String],
     bindingHostId: Option[String],
     bindingProfile: Map[String, String],
-    bindingVifDetails: Map[String, String],
+    // bindingVifDetails: Map[String, Any], ?? (investigate)
     bindingVifType: String,
     bindingVnicType: String,
     createdAt: OffsetDateTime,
@@ -35,7 +35,7 @@ object Port {
     dnsDomain: Option[String],
     dnsName: String,
     extraDhcpOpts: List[Map[String, String]],
-    fixedIps: List[String],
+    //  fixedIps: List[String],
     ipAllocation: Option[String],
     macAddress: String,
     name: String,

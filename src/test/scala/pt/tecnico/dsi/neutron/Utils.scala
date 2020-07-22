@@ -13,10 +13,13 @@ import org.scalatest.exceptions.TestFailedException
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
 import pt.tecnico.dsi.openstack.keystone.KeystoneClient
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import pt.tecnico.dsi.openstack.keystone.models.{CatalogEntry, Interface}
+
+import scala.util.Random
 
 abstract class Utils extends AsyncWordSpec with Matchers with BeforeAndAfterAll {
   val logger: Logger = getLogger
@@ -46,6 +49,10 @@ abstract class Utils extends AsyncWordSpec with Matchers with BeforeAndAfterAll 
     }.flatten.getOrElse(throw new Exception("Could not find \"network\" service in the catalog"))
     new NeutronClient[IO](Uri.unsafeFromString(neutronUrl), keystoneClient.authToken)
   }
+
+  val random = new Random()
+  def randomName(): String = random.alphanumeric.take(10).mkString.dropWhile(_.isDigit).toLowerCase
+  def withRandomName[T](f: String => IO[T]): IO[T] = IO.delay(randomName()).flatMap(f)
 
   implicit class RichIO[T](io: IO[T]) {
     def idempotently(test: T => Assertion, repetitions: Int = 3): IO[Assertion] = {

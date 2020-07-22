@@ -22,7 +22,7 @@ abstract class CrudSpec[T <: Model](val name: String)
 
   val withNetworkCreated: Resource[IO, WithId[Network.Read]] = {
     val created = client.networks.create { Network.Create() }
-    Resource.make(created)(x => client.networks.delete(x.id))
+    Resource.make(created)(stub => client.networks.delete(stub.id))
   }
 
   s"$displayName service" should {
@@ -57,13 +57,12 @@ trait BulkCreateSpec[T <: Model] {
   self: CrudSpec[T] =>
 
   val service: CrudService[IO, T] with BulkCreate[IO, T]
-  def withBulkCreated(quantity: Int): Resource[IO, List[WithId[T#Read]]]
-  val n = 5
+  def withBulkCreated(quantity: Int = 5): Resource[IO, List[WithId[T#Read]]]
 
   s"$displayName service" should {
-    "create in bulk and get" in withBulkCreated(n).use[IO, Assertion] { createdStubs =>
+    "create in bulk and get" in withBulkCreated().use[IO, Assertion] { createdStubs =>
       for {
-        fetchedStubs <- createdStubs.traverse(t => service.get(t.id))
+        fetchedStubs <- createdStubs.traverse(stub => service.get(stub.id))
       } yield assert(fetchedStubs.zip(createdStubs).forall { case (a, b) => a == b })
     }
   }
