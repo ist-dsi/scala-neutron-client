@@ -8,10 +8,9 @@ import pt.tecnico.dsi.neutron.models.Port
 import pt.tecnico.dsi.neutron.services.{BulkCreate, CrudService}
 import pt.tecnico.dsi.openstack.common.models.WithId
 
-class PortsSpec extends CrudSpec[Port]("port") with BulkCreateSpec[Port] { self =>
+class PortsSpec extends CrudSpec[Port]("port") with BulkCreateSpec[Port] {
 
-  val service: CrudService[IO, Port] with BulkCreate[IO, Port] = client.ports
-  val bulkService: NeutronClient[IO] => BulkCreate[IO, Port] = _.ports
+  val service: CrudService[IO, Port] with BulkCreate[IO, Port] = neutron.ports
   val updateStub: IO[Port.Update] = withRandomName { name => IO { Port.Update(name = Some(name)) } }
 
   override val withStubCreated: Resource[IO, WithId[Port#Read]] = withNetworkCreated.flatMap { network =>
@@ -27,11 +26,9 @@ class PortsSpec extends CrudSpec[Port]("port") with BulkCreateSpec[Port] { self 
     read.name shouldBe update.name.value
 
   override def withBulkCreated(n: Int): Resource[IO, List[WithId[Port#Read]]] = withNetworkCreated.flatMap { network =>
-    val created = withRandomName { name => client.ports.create {
-      (1 to n).map { x =>
-          Port.Create(name = Some(s"$name$x"), networkId = network.id)
-        }.toList
-      }
+    val created = withRandomName { name =>
+      val ports = List.tabulate(n)(i => Port.Create(name = Some(s"$name$i"), networkId = network.id))
+      neutron.ports.create(ports)
     }
     Resource.make(created)(_.traverse_(stub => service.delete(stub.id)))
   }

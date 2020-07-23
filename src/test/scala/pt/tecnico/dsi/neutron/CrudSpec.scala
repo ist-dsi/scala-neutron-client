@@ -21,8 +21,8 @@ abstract class CrudSpec[T <: Model](val name: String)
   val withStubCreated: Resource[IO, WithId[T#Read]]
 
   val withNetworkCreated: Resource[IO, WithId[Network.Read]] = {
-    val created = client.networks.create { Network.Create() }
-    Resource.make(created)(stub => client.networks.delete(stub.id))
+    val created = neutron.networks.create { Network.Create() }
+    Resource.make(created)(stub => neutron.networks.delete(stub.id))
   }
 
   s"$displayName service" should {

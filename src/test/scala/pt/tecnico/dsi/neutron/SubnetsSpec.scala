@@ -10,7 +10,7 @@ import pt.tecnico.dsi.openstack.common.models.WithId
 
 class SubnetsSpec extends CrudSpec[Subnet]("subnet") with BulkCreateSpec[Subnet] { self =>
 
-  val service: CrudService[IO, Subnet] with BulkCreate[IO, Subnet] = client.subnets
+  val service: CrudService[IO, Subnet] with BulkCreate[IO, Subnet] = neutron.subnets
   val bulkService: NeutronClient[IO] => BulkCreate[IO, Subnet] = _.subnets
   val updateStub: IO[Subnet.Update] = withRandomName { name => IO { Subnet.Update(name = Some(name)) } }
 
@@ -29,10 +29,8 @@ class SubnetsSpec extends CrudSpec[Subnet]("subnet") with BulkCreateSpec[Subnet]
 
   override def withBulkCreated(n: Int): Resource[IO, List[WithId[Subnet#Read]]] = withNetworkCreated.flatMap { network =>
     val created = withRandomName { name =>
-        client.subnets.create { (1 to n).map { x =>
-          Subnet.Create(Some(s"$name$x"), networkId = network.id, cidr = s"192.168.199.0/$x", ipVersion = 4)
-        }.toList
-      }
+        val subnets = List.tabulate(n)(i => Subnet.Create(Some(s"$name$i"), networkId = network.id, cidr = s"192.168.199.0/$i", ipVersion = 4) )
+        neutron.subnets.create(subnets)
     }
     Resource.make(created)(_.traverse_(stub => service.delete(stub.id)))
   }

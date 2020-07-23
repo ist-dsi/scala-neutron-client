@@ -8,9 +8,9 @@ import pt.tecnico.dsi.openstack.keystone.models.Project
 class QuotasSpec extends Utils {
 
   val withStubProject: Resource[IO, String] = {
-    Resource.make(keystoneClient.projects.create(
+    Resource.make(keystone.projects.create(
       Project("dummy", "dummy project", "default")
-    ).map(_.id))(x => keystoneClient.projects.delete(x))
+    ).map(_.id))(x => keystone.projects.delete(x))
   }
 
   // These are the default quotas for the Neutron we are testing against
@@ -25,8 +25,6 @@ class QuotasSpec extends Utils {
     subnet = 100,
     subnetpool = -1,
   )
-
-  val neutron: NeutronClient[IO] = client
 
   "Quotas service" should {
     "list quotas" in withStubProject.use[IO, Assertion] { dummyProjectId =>

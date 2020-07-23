@@ -41,13 +41,13 @@ abstract class Utils extends AsyncWordSpec with Matchers with BeforeAndAfterAll 
 
   //TODO: fix the fact that we are reauthenticating in every test. Change to only be once per suite
 
-  val keystoneClient: KeystoneClient[IO] = KeystoneClient.fromEnvironment().unsafeRunSync()
+  val keystone: KeystoneClient[IO] = KeystoneClient.fromEnvironment().unsafeRunSync()
 
-  val client: NeutronClient[IO] = {
-    val neutronUrl = keystoneClient.session.catalog.collectFirst {
+  val neutron: NeutronClient[IO] = {
+    val neutronUrl = keystone.session.catalog.collectFirst {
       case entry@CatalogEntry("network", _, _, _) => entry.urlOf(sys.env("OS_REGION_NAME"), Interface.Public)
     }.flatten.getOrElse(throw new Exception("Could not find \"network\" service in the catalog"))
-    new NeutronClient[IO](Uri.unsafeFromString(neutronUrl), keystoneClient.authToken)
+    new NeutronClient[IO](Uri.unsafeFromString(neutronUrl), keystone.authToken)
   }
 
   val random = new Random()
@@ -100,10 +100,10 @@ abstract class Utils extends AsyncWordSpec with Matchers with BeforeAndAfterAll 
 
     // If the first run fails we do not want to mask its exception, because failing in the first attempt means
     // whatever is being tested in `test` is not implemented correctly.
-    test(client).unsafeToFuture().flatMap { _ =>
+    test(neutron).unsafeToFuture().flatMap { _ =>
       // For the subsequent iterations we mask TestFailed with "Operation is not idempotent"
       Future.traverse(2 to repetitions) { repetition =>
-        test(client).unsafeToFuture().transform(identity, {
+        test(neutron).unsafeToFuture().transform(identity, {
           case e: TestFailedException =>
             val text = s"$repetition${ordinalSuffix(repetition)}"
             e.modifyMessage(_.map(m => s"Operation is not idempotent. On $text repetition got:\n$m"))
