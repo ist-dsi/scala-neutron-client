@@ -2,11 +2,11 @@ package pt.tecnico.dsi.neutron
 
 import cats.effect.{ContextShift, IO, Timer}
 import cats.instances.list._
+import scala.language.implicitConversions
 import cats.syntax.traverse._
 import org.http4s.Uri
 import org.http4s.client.Client
 import org.http4s.client.blaze.BlazeClientBuilder
-import org.http4s.client.middleware.Logger
 import org.log4s._
 import org.scalatest._
 import org.scalatest.exceptions.TestFailedException
@@ -36,6 +36,7 @@ abstract class Utils extends AsyncWordSpec with Matchers with BeforeAndAfterAll 
 
   override protected def afterAll(): Unit = finalizer.unsafeRunSync()
 
+  import org.http4s.client.middleware.Logger
   implicit val httpClient: Client[IO] = Logger(logBody = true, logHeaders = true)(_httpClient)
   //implicit val httpClient: Client[IO] = _httpClient
 
@@ -83,7 +84,6 @@ abstract class Utils extends AsyncWordSpec with Matchers with BeforeAndAfterAll 
     }
   }
 
-  import scala.language.implicitConversions
 
   implicit def io2Future[T](io: IO[T]): Future[T] = io.unsafeToFuture()
 
@@ -112,4 +112,5 @@ abstract class Utils extends AsyncWordSpec with Matchers with BeforeAndAfterAll 
       } map (_ should contain only Succeeded) // Scalatest flatten :P
     }
   }
+  implicit def ioAssertion2FutureAssertion(io: IO[Assertion]): Future[Assertion] = io.unsafeToFuture()
 }

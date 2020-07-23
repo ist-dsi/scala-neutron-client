@@ -11,6 +11,7 @@ scalacOptions ++= Seq(
   "-encoding", "utf-8",            // Specify character encoding used by source files.
   "-explaintypes",                 // Explain type errors in more detail.
   "-feature",                      // Emit warning and location for usages of features that should be imported explicitly.
+  "-language:higherKinds",         // Just to help Intellij, otherwise he keeps asking to import/enable the higherKinds flag
   "-Ybackend-parallelism", "8",    // Maximum worker threads for backend.
   "-Ybackend-worker-queue", "10",  // Backend threads worker queue size.
   "-Ymacro-annotations",           // Enable support for macro annotations, formerly in macro paradise.
@@ -24,16 +25,11 @@ scalacOptions ++= Seq(
   "-Wdead-code",                   // Warn when dead code is identified.
   "-Wextra-implicit",              // Warn when more than one implicit parameter section is defined.
   "-Wnumeric-widen",               // Warn when numerics are widened.
-  //"-Woctal-literal",               // Warn on obsolete octal syntax.
+  "-Woctal-literal",               // Warn on obsolete octal syntax.
   "-Wvalue-discard",               // Warn when non-Unit expression results are unused.
   "-Wunused:_",                    // Enables every warning of unused members/definitions/etc
-  // https://github.com/scala/bug/issues/11980
-  "-Wconf:cat=unused-privates&site=pt\\.tecnico\\.dsi\\.keystone\\.models\\.auth\\..*:silent",
-  "-language:higherKinds"
 )
 
-// These lines ensure that in sbt console or sbt test:console the -Ywarn* and the -Xfatal-warning are not bothersome.
-// https://stackoverflow.com/questions/26940253/in-sbt-how-do-you-override-scalacoptions-for-console-in-all-configurations
 scalacOptions in (Compile, console) ~= (_.filterNot { option =>
   option.startsWith("-W") || option.startsWith("-Xlint")
 })
@@ -54,29 +50,32 @@ libraryDependencies ++= Seq("blaze-client", "circe").map { module =>
 )
 addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
 
+resolvers += Resolver.sonatypeRepo("snapshots")
+
 // ======================================================================================================================
 // ==== Testing =========================================================================================================
 // ======================================================================================================================
+// http://www.scalatest.org/user_guide/using_the_runner
+//   -o[configs...] - causes test results to be written to the standard output.
+//      D - show all durations
+//      F - show full stack traces
+Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-oDF")
+
 // By default, logging is buffered for each test source file until all tests for that file complete. This disables it.
 Test / logBuffered := false
 // By default, tests executed in a forked JVM are executed sequentially.
 Test / fork := true
 // So we make them run in parallel.
 Test / testForkedParallel := true
+// We need to force IPv6 addresses otherwise Java resolves names to IPv4 and Travis will fail because the VM test is not reachable by IPv4
+Test / javaOptions += "-Djava.net.preferIPv6Addresses=true"
 // The tests in a single group are run sequentially. We run 4 suites per forked VM.
 Test / testGrouping := {
   import sbt.Tests.{Group, SubProcess}
   (Test / definedTests).value.grouped(4).zipWithIndex.map { case (tests, index) =>
-    Group(index.toString, tests, SubProcess(ForkOptions()))
+    Group(index.toString, tests, SubProcess(ForkOptions().withRunJVMOptions((Test / javaOptions).value.toVector)))
   }.toSeq
 }
-
-// http://www.scalatest.org/user_guide/using_the_runner
-//   -o[configs...] - causes test results to be written to the standard output. The D configs shows all durations.
-// -F shows the complete stack trace in case of exception thrown.
-testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oDF")
-
-coverageEnabled := true
 
 // ======================================================================================================================
 // ==== Scaladoc ========================================================================================================
@@ -132,12 +131,10 @@ developers ++= List(
 )
 
 // Fail the build/release if updates there are updates for the dependencies
-//dependencyUpdatesFailBuild := true
+dependencyUpdatesFailBuild := true
 
 releaseUseGlobalVersion := false
 releaseNextCommitMessage := s"Setting version to ${ReleasePlugin.runtimeVersion.value} [skip ci]"
-
-resolvers += Resolver.sonatypeRepo("snapshots")
 
 releasePublishArtifactsAction := PgpKeys.publishSigned.value // Maven Central requires packages to be signed
 import ReleaseTransformations._
