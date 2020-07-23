@@ -1,8 +1,8 @@
 package pt.tecnico.dsi.neutron
 
 import cats.effect.{IO, Resource}
-import org.scalatest.Assertion
 import cats.implicits._
+import org.scalatest.Assertion
 import org.scalatest.OptionValues._
 import pt.tecnico.dsi.neutron.models.Network
 import pt.tecnico.dsi.neutron.services.{BulkCreate, CrudService}
