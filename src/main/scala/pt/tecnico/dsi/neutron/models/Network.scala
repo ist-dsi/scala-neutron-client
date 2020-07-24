@@ -3,23 +3,11 @@ package pt.tecnico.dsi.neutron.models
 import java.time.ZonedDateTime
 
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
-import io.circe.{Decoder, Encoder, JsonObject}
+import io.circe.{Decoder, Encoder}
 
 object Network {
 
   object Read {
-
-    def decoderAfterRename[T](renames: Map[String, String], d: Decoder[T]): Decoder[T] = d.prepare {
-      _.withFocus {
-        _.mapObject { obj =>
-          val newMap = obj.toMap.map { case (key, value) =>
-            renames.getOrElse(key, key) -> value
-          }
-          JsonObject.fromMap(newMap)
-        }
-      }
-    }
-
     implicit val decoder: Decoder[Read] = decoderAfterRename[Read](
       Map(
         "provider:network_type" -> "provider_network_type",

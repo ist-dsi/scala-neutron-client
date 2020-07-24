@@ -1,22 +1,25 @@
 package pt.tecnico.dsi.neutron
 
-import cats.effect.IO
+import cats.effect.{IO, Resource}
+import cats.implicits._
+import org.scalatest.Assertion
 import org.scalatest.OptionValues._
 import pt.tecnico.dsi.neutron.models.Network
-import pt.tecnico.dsi.neutron.services.BulkCreate
+import pt.tecnico.dsi.neutron.services.{BulkCreate, CrudService}
+import pt.tecnico.dsi.openstack.common.models.WithId
 
-class NetworksSpec extends CrudSpec[Network]("network", _.networks) with BulkCreateSpec[Network] {
+class NetworksSpec extends CrudSpec[Network]("network") with BulkCreateSpec[Network] {
 
-  val bulkService: NeutronClient[IO] => BulkCreate[IO, Network] = _.networks
-  val createStub: IO[Network.Create] = IO { Network.Create() }
-  val updateStub: Network.Update = Network.Update(name = Some("port-name"))
+  val service: CrudService[IO, Network] with BulkCreate[IO, Network] = neutron.networks
+  val updateStub: IO[Network.Update] = withRandomName { name => IO { Network.Update(name = Some(name)) } }
 
-  "Networks service" should {
-    "update" in {
-      for {
-        (stub, service) <- withSubCreated
-        updated <- service.update(stub.id, updateStub)
-      } yield updated.name shouldBe updateStub.name.value
-    }
+  override def updateComparator(read: Network#Read, update: Network#Update): Assertion =
+    read.name shouldBe update.name.value
+
+  override val withStubCreated: Resource[IO, WithId[Network.Read]] = withNetworkCreated
+  override def withBulkCreated(n: Int): Resource[IO, List[WithId[Network.Read]]] = {
+    val created = neutron.networks.create { List.fill(n)(Network.Create()) }
+    Resource.make(created)(_.traverse_(stub => service.delete(stub.id)))
   }
+
 }

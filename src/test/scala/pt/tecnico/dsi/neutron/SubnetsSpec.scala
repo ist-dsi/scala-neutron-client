@@ -1,27 +1,37 @@
 package pt.tecnico.dsi.neutron
 
-import cats.effect.IO
+import cats.effect.{IO, Resource}
+import cats.implicits._
+import org.scalatest.Assertion
 import org.scalatest.OptionValues._
-import pt.tecnico.dsi.neutron.models.{Network, Subnet}
-import pt.tecnico.dsi.neutron.services.BulkCreate
+import pt.tecnico.dsi.neutron.models.Subnet
+import pt.tecnico.dsi.neutron.services.{BulkCreate, CrudService}
+import pt.tecnico.dsi.openstack.common.models.WithId
 
-class SubnetsSpec extends CrudSpec[Subnet]("subnet", _.subnets) with BulkCreateSpec[Subnet] {
+class SubnetsSpec extends CrudSpec[Subnet]("subnet") with BulkCreateSpec[Subnet] { self =>
 
-  val bulkService: NeutronClient[IO] => BulkCreate[IO, Subnet] = _.subnets
-  val updateStub: Subnet.Update = Subnet.Update(name = Some("cool-port"))
-  val createStub: IO[Subnet.Create] = for {
-    neutron <- client
-    net <- neutron.networks.create(Network.Create())
-  } yield Subnet.Create(name = Some("hello"), networkId = net.id, cidr = "192.168.199.0/24", ipVersion = 4)
+  val service: CrudService[IO, Subnet] with BulkCreate[IO, Subnet] = neutron.subnets
+  val updateStub: IO[Subnet.Update] = withRandomName { name => IO { Subnet.Update(name = Some(name)) } }
 
-  "Subnets service" should {
-    "update" in {
-      for {
-        neutron <- client
-        stub <- createStub
-        port <- neutron.subnets.create(stub)
-        updated <- neutron.subnets.update(port.id, updateStub)
-      } yield updated.name shouldBe updateStub.name.value
+  override def updateComparator(read: Subnet#Read, update: Subnet#Update): Assertion =
+    read.name shouldBe update.name.value
+
+  override val withStubCreated: Resource[IO, WithId[Subnet.Read]] =
+    withNetworkCreated.flatMap { network =>
+      val create = withRandomName { name =>
+        service.create {
+          Subnet.Create(name = Some(name), networkId = network.id, cidr = "192.168.199.0/24", ipVersion = 4)
+        }
+      }
+      Resource.make(create) { stub => service.delete(stub.id) }
     }
+
+  override def withBulkCreated(n: Int): Resource[IO, List[WithId[Subnet#Read]]] = withNetworkCreated.flatMap { network =>
+    val created = withRandomName { name =>
+        val subnets = List.tabulate(n)(i => Subnet.Create(Some(s"$name$i"), networkId = network.id, cidr = s"192.168.199.0/$i", ipVersion = 4) )
+        neutron.subnets.create(subnets)
+    }
+    Resource.make(created)(_.traverse_(stub => service.delete(stub.id)))
   }
+
 }

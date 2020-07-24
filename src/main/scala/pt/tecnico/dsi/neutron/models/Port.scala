@@ -1,6 +1,6 @@
 package pt.tecnico.dsi.neutron.models
 
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
 import io.circe.{Decoder, Encoder}
@@ -8,43 +8,50 @@ import io.circe.{Decoder, Encoder}
 object Port {
 
   object Read {
-    implicit val codec: Decoder[Read] = deriveDecoder(renaming.snakeCase)
+    implicit val decoder: Decoder[Read] = decoderAfterRename[Read](
+      Map(
+        "binding:profile" -> "binding_profile",
+        "binding:vif_details" -> "binding_vif_details",
+        "binding:vif_type" -> "binding_vif_type",
+        "binding:host_id" -> "binding_host_id",
+        "binding:vnic_type" -> "binding_vnic_type"
+      ), deriveDecoder(renaming.snakeCase))
   }
 
   case class Read(
     adminStateUp: Boolean,
     allowedAddressPairs: List[String],
-    bindingHostId: String,
+    bindingHostId: Option[String],
     bindingProfile: Map[String, String],
-    bindingVifDetails: Map[String, String],
+    // bindingVifDetails: Map[String, Any], ?? (investigate)
     bindingVifType: String,
     bindingVnicType: String,
-    createdAt: LocalDateTime,
-    dataPlaneStatus: String,
+    createdAt: OffsetDateTime,
+    dataPlaneStatus: Option[String],
     description: String,
     deviceId: String,
     deviceOwner: String,
-    dnsAssignment: Map[String, String],
-    dnsDomain: String,
+    dnsAssignment: List[Map[String, String]],
+    dnsDomain: Option[String],
     dnsName: String,
     extraDhcpOpts: List[Map[String, String]],
-    fixedIps: List[String],
-    ipAllocation: String,
+    //  fixedIps: List[String],
+    ipAllocation: Option[String],
     macAddress: String,
     name: String,
     networkId: String,
     portSecurityEnabled: Boolean,
     projectId: String,
-    qosNetworkPolicyId: String,
-    qosPolicyId: String,
+    qosNetworkPolicyId: Option[String],
+    qosPolicyId: Option[String],
     revisionNumber: Integer,
     resourceRequest: Option[Map[String, String]],
-    securityGrous: List[String],
+    securityGroups: List[String],
     status: String,
     tags: List[String],
-    updatedAt: LocalDateTime,
-    uplinkStatusPropagation: Boolean,
-    macLearningEnabled: Boolean
+    updatedAt: OffsetDateTime,
+    uplinkStatusPropagation: Option[Boolean],
+    macLearningEnabled: Option[Boolean],
   )
 
   object Create {
@@ -54,7 +61,7 @@ object Port {
   case class Create(
     uplinkStatusPropagation: Option[Boolean] = None,
     macLearningEnabled: Option[Boolean] = None,
-    securityGrous: Option[List[String]] = None,
+    securityGroups: Option[List[String]] = None,
     qosPolicyId: Option[String] = None,
     projectId: Option[String] = None,
     name: Option[String] = None,
@@ -94,7 +101,7 @@ object Port {
     extraDhcpOpts: Option[List[Map[String, String]]] = None,
     fixedIps: Option[List[String]] = None,
     macAddress: Option[String] = None,
-    securityGrous: Option[List[String]] = None,
+    securityGroups: Option[List[String]] = None,
     qosPolicyId: Option[String] = None,
     macLearningEnabled: Option[Boolean] = None,
   )

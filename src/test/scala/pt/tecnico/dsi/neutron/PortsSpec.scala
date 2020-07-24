@@ -1,27 +1,35 @@
 package pt.tecnico.dsi.neutron
 
-import cats.effect.IO
+import cats.effect.{IO, Resource}
+import cats.implicits._
+import org.scalatest.Assertion
 import org.scalatest.OptionValues._
-import pt.tecnico.dsi.neutron.models.{Network, Port}
-import pt.tecnico.dsi.neutron.services.BulkCreate
+import pt.tecnico.dsi.neutron.models.Port
+import pt.tecnico.dsi.neutron.services.{BulkCreate, CrudService}
+import pt.tecnico.dsi.openstack.common.models.WithId
 
-class PortsSpec extends CrudSpec[Port]("port", _.ports) with BulkCreateSpec[Port] {
+class PortsSpec extends CrudSpec[Port]("port") with BulkCreateSpec[Port] {
 
-  val bulkService: NeutronClient[IO] => BulkCreate[IO, Port] = _.ports
-  val updateStub: Port.Update = Port.Update(name = Some("cool-port"))
-  val createStub: IO[Port.Create] = for {
-    neutron <- client
-    net <- neutron.networks.create(Network.Create())
-  } yield Port.Create(name = Some("hello"), networkId = net.id)
+  val service: CrudService[IO, Port] with BulkCreate[IO, Port] = neutron.ports
+  val updateStub: IO[Port.Update] = withRandomName { name => IO { Port.Update(name = Some(name)) } }
 
-  "Ports service" should {
-    "update" in {
-      for {
-        neutron <- client
-        stub <- createStub
-        port <- neutron.ports.create(stub)
-        updated <- neutron.ports.update(port.id, updateStub)
-      } yield updated.name shouldBe updateStub.name.value
+  override val withStubCreated: Resource[IO, WithId[Port#Read]] = withNetworkCreated.flatMap { network =>
+    val stub = withRandomName { name =>
+      service.create {
+        Port.Create(name = Some(name), networkId = network.id)
+      }
     }
+    Resource.make(stub) { stub => service.delete(stub.id) }
+  }
+
+  override def updateComparator(read: Port#Read, update: Port#Update): Assertion =
+    read.name shouldBe update.name.value
+
+  override def withBulkCreated(n: Int): Resource[IO, List[WithId[Port#Read]]] = withNetworkCreated.flatMap { network =>
+    val created = withRandomName { name =>
+      val ports = List.tabulate(n)(i => Port.Create(name = Some(s"$name$i"), networkId = network.id))
+      neutron.ports.create(ports)
+    }
+    Resource.make(created)(_.traverse_(stub => service.delete(stub.id)))
   }
 }
