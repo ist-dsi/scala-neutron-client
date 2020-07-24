@@ -11,7 +11,6 @@ import pt.tecnico.dsi.openstack.common.models.WithId
 class SubnetsSpec extends CrudSpec[Subnet]("subnet") with BulkCreateSpec[Subnet] { self =>
 
   val service: CrudService[IO, Subnet] with BulkCreate[IO, Subnet] = neutron.subnets
-  val bulkService: NeutronClient[IO] => BulkCreate[IO, Subnet] = _.subnets
   val updateStub: IO[Subnet.Update] = withRandomName { name => IO { Subnet.Update(name = Some(name)) } }
 
   override def updateComparator(read: Subnet#Read, update: Subnet#Update): Assertion =
