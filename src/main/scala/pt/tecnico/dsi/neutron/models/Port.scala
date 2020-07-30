@@ -4,6 +4,7 @@ import java.time.OffsetDateTime
 
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
 import io.circe.{Decoder, Encoder}
+import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link}
 
 object Port {
 
@@ -19,6 +20,7 @@ object Port {
   }
 
   case class Read(
+    id: String,
     adminStateUp: Boolean,
     allowedAddressPairs: List[String],
     bindingHostId: Option[String],
@@ -52,7 +54,8 @@ object Port {
     updatedAt: OffsetDateTime,
     uplinkStatusPropagation: Option[Boolean],
     macLearningEnabled: Option[Boolean],
-  )
+    links: List[Link] = List.empty
+  ) extends Identifiable
 
   object Create {
     implicit val codec: Encoder[Create] = deriveEncoder(renaming.snakeCase)

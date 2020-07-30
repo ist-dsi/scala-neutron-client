@@ -6,7 +6,6 @@ import org.scalatest.Assertion
 import org.scalatest.OptionValues._
 import pt.tecnico.dsi.neutron.models.Subnet
 import pt.tecnico.dsi.neutron.services.{BulkCreate, CrudService}
-import pt.tecnico.dsi.openstack.common.models.WithId
 
 class SubnetsSpec extends CrudSpec[Subnet]("subnet") with BulkCreateSpec[Subnet] { self =>
 
@@ -17,7 +16,7 @@ class SubnetsSpec extends CrudSpec[Subnet]("subnet") with BulkCreateSpec[Subnet]
   override def updateComparator(read: Subnet#Read, update: Subnet#Update): Assertion =
     read.name shouldBe update.name.value
 
-  override val withStubCreated: Resource[IO, WithId[Subnet.Read]] =
+  override val withStubCreated: Resource[IO, Subnet.Read] =
     withNetworkCreated.flatMap { network =>
       val create = withRandomName { name =>
         service.create {
@@ -27,9 +26,9 @@ class SubnetsSpec extends CrudSpec[Subnet]("subnet") with BulkCreateSpec[Subnet]
       Resource.make(create) { stub => service.delete(stub.id) }
     }
 
-  override def withBulkCreated(n: Int): Resource[IO, List[WithId[Subnet#Read]]] = withNetworkCreated.flatMap { network =>
+  override def withBulkCreated(n: Int): Resource[IO, List[Subnet#Read]] = withNetworkCreated.flatMap { network =>
     val created = withRandomName { name =>
-        val subnets = List.tabulate(n)(i => Subnet.Create(Some(s"$name$i"), networkId = network.id, cidr = s"192.168.199.0/$i", ipVersion = 4) )
+        val subnets = List.tabulate(n)(i => Subnet.Create(Some(s"$name$i"), networkId = network.id, cidr = s"192.168.$i.0/24", ipVersion = 4) )
         neutron.subnets.create(subnets)
     }
     Resource.make(created)(_.traverse_(stub => service.delete(stub.id)))

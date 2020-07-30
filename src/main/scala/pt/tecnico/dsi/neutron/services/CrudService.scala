@@ -5,7 +5,6 @@ import io.circe.{Decoder, Encoder}
 import org.http4s.client.Client
 import org.http4s.{Header, Uri}
 import pt.tecnico.dsi.neutron.models.Model
-import pt.tecnico.dsi.openstack.common.models.WithId
 import pt.tecnico.dsi.openstack.common.services.{CrudService => CommonCrudService}
 
 abstract class CrudService[F[_] : Sync : Client, T <: Model]
@@ -17,5 +16,5 @@ abstract class CrudService[F[_] : Sync : Client, T <: Model]
   type Update = T#Update
   type Model = T#Read
 
-  override def update(id: String, value: Update, extraHeaders: Header*): F[WithId[Model]] = super.put(wrappedAt = Some(name), value, uri / id, extraHeaders:_*)
+  override def update(id: String, value: Update, extraHeaders: Header*): F[Model] = super.put(wrappedAt = Some(name), value, uri / id, extraHeaders:_*)
 }

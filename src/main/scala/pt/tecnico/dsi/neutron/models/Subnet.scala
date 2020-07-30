@@ -5,6 +5,7 @@ import java.time.OffsetDateTime
 import enumeratum.{Enum, EnumEntry}
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
 import io.circe.{Decoder, Encoder}
+import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link}
 
 object Subnet {
   // For lack of a better name
@@ -80,6 +81,7 @@ object Subnet {
   }
 
   case class Read(
+    id: String,
     name: String,
     enableDhcp: Boolean,
     networkId: String,
@@ -107,7 +109,8 @@ object Subnet {
     tags: List[String],
     dnsPublishFixedIp: Option[Boolean],
     //serviceTypes: List[???],
-  )
+    links: List[Link] = List.empty
+  ) extends Identifiable
 
 }
 

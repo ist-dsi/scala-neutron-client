@@ -4,6 +4,7 @@ import java.time.LocalDateTime
 
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
 import io.circe.{Decoder, Encoder}
+import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link}
 
 object SecurityGroup {
 
@@ -33,6 +34,7 @@ object SecurityGroup {
   }
 
   case class Read(
+    id: String,
     name: String,
     status: String,
     description: String,
@@ -42,8 +44,9 @@ object SecurityGroup {
     revisionNumber: Integer,
     tags: List[String],
     securityGroupRoles: List[SecurityGroupRule], // Security Group Roles Object
-    stateful: Option[String]
-  )
+    stateful: Option[String],
+    links: List[Link] = List.empty
+  ) extends Identifiable
 }
 
 sealed trait SecurityGroup extends Model {

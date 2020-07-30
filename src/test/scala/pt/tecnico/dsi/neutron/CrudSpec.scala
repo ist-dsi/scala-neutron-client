@@ -6,10 +6,9 @@ import io.circe.{Decoder, Encoder}
 import org.scalatest.Assertion
 import pt.tecnico.dsi.neutron.models.{Model, Network}
 import pt.tecnico.dsi.neutron.services.{BulkCreate, CrudService}
-import pt.tecnico.dsi.openstack.common.models.WithId
 
 abstract class CrudSpec[T <: Model](val name: String)
-  (implicit val encoder: Encoder[T#Create], val decoder: Decoder[WithId[T#Read]])
+  (implicit val encoder: Encoder[T#Create], val decoder: Decoder[T#Read])
   extends Utils {
 
   val service: CrudService[IO, T]
@@ -18,9 +17,9 @@ abstract class CrudSpec[T <: Model](val name: String)
   val updateStub: IO[T#Update]
   def updateComparator(read: T#Read, update: T#Update): Assertion
 
-  val withStubCreated: Resource[IO, WithId[T#Read]]
+  val withStubCreated: Resource[IO, T#Read]
 
-  val withNetworkCreated: Resource[IO, WithId[Network.Read]] = {
+  val withNetworkCreated: Resource[IO, Network.Read] = {
     val created = neutron.networks.create { Network.Create() }
     Resource.make(created)(stub => neutron.networks.delete(stub.id))
   }
@@ -28,7 +27,7 @@ abstract class CrudSpec[T <: Model](val name: String)
   s"$displayName service" should {
 
     "create and get" in withStubCreated.use[IO, Assertion] {
-      stub => service.get(stub.id).idempotently(_ shouldBe stub)
+      stub => service.get(stub.id).idempotently(_.get shouldBe stub)
     }
 
     "delete" in withStubCreated.use[IO, Assertion] { stub =>
@@ -57,13 +56,13 @@ trait BulkCreateSpec[T <: Model] {
   self: CrudSpec[T] =>
 
   val service: CrudService[IO, T] with BulkCreate[IO, T]
-  def withBulkCreated(quantity: Int = 5): Resource[IO, List[WithId[T#Read]]]
+  def withBulkCreated(quantity: Int = 5): Resource[IO, List[T#Read]]
 
   s"$displayName service" should {
     "create in bulk and get" in withBulkCreated().use[IO, Assertion] { createdStubs =>
       for {
         fetchedStubs <- createdStubs.traverse(stub => service.get(stub.id))
-      } yield assert(fetchedStubs.zip(createdStubs).forall { case (a, b) => a == b })
+      } yield assert(fetchedStubs.zip(createdStubs).forall { case (a, b) => a.get == b })
     }
   }
 }

@@ -6,7 +6,7 @@ import org.http4s.{Header, Uri}
 import pt.tecnico.dsi.neutron.services._
 
 class NeutronClient[F[_]: Sync](baseUri: Uri, authToken: Header)(implicit client: Client[F]) {
-  val uri: Uri = if (baseUri.path.endsWith("v2.0") || baseUri.path.endsWith("v2.0/")) baseUri else baseUri / "v2.0"
+  val uri: Uri = if (baseUri.path.dropEndsWithSlash.toString.endsWith("v2.0")) baseUri else baseUri / "v2.0"
 
   val networks: Networks[F] = new Networks[F](uri, authToken)
   val subnets: Subnets[F] = new Subnets[F](uri, authToken)

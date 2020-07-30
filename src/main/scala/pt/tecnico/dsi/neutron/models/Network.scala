@@ -4,6 +4,7 @@ import java.time.ZonedDateTime
 
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
 import io.circe.{Decoder, Encoder}
+import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link}
 
 object Network {
 
@@ -18,6 +19,7 @@ object Network {
   }
 
   sealed case class Read(
+    id: String,
     adminStateUp: Boolean,
     availabilityZoneHints: List[String], // ???
     availabilityZones: List[String], // ???
@@ -46,7 +48,8 @@ object Network {
     description: String,
     isDefault: Boolean = false, // missing also
     tags: List[String],
-  )
+    links: List[Link] = List.empty
+  ) extends Identifiable
 
   object Create {
     implicit val encoder: Encoder[Create] = deriveEncoder(renaming.snakeCase)
