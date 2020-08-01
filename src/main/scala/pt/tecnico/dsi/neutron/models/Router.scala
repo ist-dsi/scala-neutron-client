@@ -5,6 +5,7 @@ import java.time.LocalDateTime
 
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
 import io.circe.{Decoder, Encoder}
+import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link}
 
 object Router extends Model {
 
@@ -13,6 +14,7 @@ object Router extends Model {
   }
 
   case class Read(
+    id: String,
     projectId: String,
     name: String,
     description: String,
@@ -32,8 +34,9 @@ object Router extends Model {
     createdAt: LocalDateTime,
     updatedAt: LocalDateTime,
     tags: List[String],
-    conntrack_helpers: List[ConntrackHelper]
-  )
+    conntrack_helpers: List[ConntrackHelper],
+    links: List[Link] = List.empty
+  ) extends Identifiable
 
   object Create {
     implicit val codec: Encoder[Create] = deriveEncoder(renaming.snakeCase)

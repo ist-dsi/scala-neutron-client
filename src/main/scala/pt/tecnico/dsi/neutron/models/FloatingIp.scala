@@ -5,6 +5,7 @@ import java.time.LocalDateTime
 
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
 import io.circe.{Decoder, Encoder}
+import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link}
 
 object FloatingIp {
 
@@ -22,6 +23,7 @@ object FloatingIp {
     implicit val decoder: Decoder[Read] = deriveDecoder(renaming.snakeCase)
   }
   case class Read(
+    id: String,
     routerId: String,
     status: String,
     description: String,
@@ -37,8 +39,9 @@ object FloatingIp {
     floatingIpAddress: String,
     portId: String,
     tags: List[String],
-    portForwardings: List[PortForwarding]
-  )
+    portForwardings: List[PortForwarding],
+    links: List[Link]
+  ) extends Identifiable
 
   object Create {
     implicit val decoder: Encoder[Create] = deriveEncoder(renaming.snakeCase)

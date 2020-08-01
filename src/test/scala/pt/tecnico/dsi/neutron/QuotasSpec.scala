@@ -9,7 +9,7 @@ class QuotasSpec extends Utils {
 
   val withStubProject: Resource[IO, String] = {
     Resource.make(keystone.projects.create(
-      Project("dummy", "dummy project", "default")
+      Project.Create("dummy", Some("dummy project"), Some("default"))
     ).map(_.id))(x => keystone.projects.delete(x))
   }
 

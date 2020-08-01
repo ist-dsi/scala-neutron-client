@@ -4,6 +4,7 @@ import java.time.LocalDateTime
 
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
 import io.circe.{Decoder, Encoder}
+import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link}
 
 object SecurityGroupRule {
   implicit val decoder: Decoder[SecurityGroupRule] = deriveDecoder(renaming.snakeCase)
@@ -28,6 +29,7 @@ object SecurityGroupRule {
 }
 
 case class SecurityGroupRule(
+  id: String,
   projectId: String,
   createdAt: LocalDateTime,
   updatedAt: LocalDateTime,
@@ -41,5 +43,6 @@ case class SecurityGroupRule(
   securityGroupId: String,
   portRangeMax: Integer,
   revisionNumber: Integer,
-)
+  links: List[Link] = List.empty,
+) extends Identifiable
 
