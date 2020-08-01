@@ -112,7 +112,6 @@ createLatestSymlink := {
   if (!Files.isSymbolicLink(path)) Files.createSymbolicLink(path, new File(latestReleasedVersion.value).toPath)
 }
 ghpagesPushSite := ghpagesPushSite.dependsOn(createLatestSymlink).value
-ghpagesBranch := "pages"
 ghpagesNoJekyll := false
 envVars in ghpagesPushSite := Map("SBT_GHPAGES_COMMIT_MESSAGE" -> s"Add Scaladocs for version ${latestReleasedVersion.value}")
 
