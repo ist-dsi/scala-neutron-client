@@ -4,6 +4,7 @@ import cats.effect.{IO, Resource}
 import cats.implicits._
 import io.circe.{Decoder, Encoder}
 import org.scalatest.Assertion
+import org.scalatest.OptionValues._
 import pt.tecnico.dsi.neutron.models.{Model, Network}
 import pt.tecnico.dsi.neutron.services.{BulkCreate, CrudService}
 
@@ -27,7 +28,7 @@ abstract class CrudSpec[T <: Model](val name: String)
   s"$displayName service" should {
 
     "create and get" in withStubCreated.use[IO, Assertion] {
-      stub => service.get(stub.id).idempotently(_.get shouldBe stub)
+      stub => service.get(stub.id).idempotently(_.value shouldBe stub)
     }
 
     "delete" in withStubCreated.use[IO, Assertion] { stub =>
@@ -62,7 +63,7 @@ trait BulkCreateSpec[T <: Model] {
     "create in bulk and get" in withBulkCreated().use[IO, Assertion] { createdStubs =>
       for {
         fetchedStubs <- createdStubs.traverse(stub => service.get(stub.id))
-      } yield assert(fetchedStubs.zip(createdStubs).forall { case (a, b) => a.get == b })
+      } yield assert(fetchedStubs.zip(createdStubs).forall { case (a, b) => a.value == b })
     }
   }
 }
