@@ -1,5 +1,5 @@
 # scala-neutron-client [![license](http://img.shields.io/:license-MIT-blue.svg)](LICENSE)
-[![Scaladoc](http://javadoc-badge.appspot.com/pt.tecnico.dsi/scala-neutron-client_2.12.svg?label=scaladoc&style=plastic&maxAge=604800)](https://ist-dsi.github.io/scala-neutron-client/latest/api/pt/tecnico/dsi/scala-neutron-client/index.html)
+[![Scaladoc](http://javadoc-badge.appspot.com/pt.tecnico.dsi/scala-neutron-client_2.12.svg?label=scaladoc&style=plastic&maxAge=604800)](https://ist-dsi.github.io/scala-neutron-client/api/latest/)
 [![Latest version](https://index.scala-lang.org/ist-dsi/scala-neutron-client/scala-neutron-client/latest.svg)](https://index.scala-lang.org/ist-dsi/scala-neutron-client/scala-neutron-client)
 
 [![Build Status](https://travis-ci.org/ist-dsi/scala-neutron-client.svg?branch=master&style=plastic&maxAge=604800)](https://travis-ci.org/ist-dsi/scala-neutron-client)
