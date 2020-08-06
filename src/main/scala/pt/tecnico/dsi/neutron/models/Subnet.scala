@@ -45,10 +45,10 @@ object Subnet {
     dnsNameservers: List[String] = List.empty, // ???
     allocationPools: Option[List[Map[String, String]]] = None, // ???
     hostRoutes: Option[List[Map[String, String]]] = None, // ???
-    ipVersion: Integer,
+    ipVersion: Int,
     gatewayIp: Option[String] = None,
     cidr: String,
-    prefixlen: Option[Integer] = None,
+    prefixlen: Option[Int] = None,
     description: Option[String] = None,
     ipv6AddressMode: Option[Ipv6Mode] = None,
     ipv6RaMode: Option[Ipv6Mode] = None,
@@ -86,7 +86,7 @@ object Subnet {
     enableDhcp: Boolean,
     networkId: String,
     projectId: String,
-    ipVersion: Integer,
+    ipVersion: Int,
     gatewayIp: String,
     cidr: String,
     createdAt: OffsetDateTime,
@@ -102,7 +102,7 @@ object Subnet {
     description: Option[String],
     ipv6AddressMode: Option[Ipv6Mode],
     ipv6RaMode: Option[Ipv6Mode],
-    revisionNumber: Integer,
+    revisionNumber: Int,
     segmentId: Option[String],
     subnetpoolId: Option[String],
     updatedAt: OffsetDateTime,

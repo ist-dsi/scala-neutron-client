@@ -16,14 +16,14 @@ object SecurityGroupRule {
   case class Create(
     projectId: Option[String] = None,
     remoteIpPrefix: Option[String] = None,
-    portRangeMin: Option[Integer] = None,
+    portRangeMin: Option[Int] = None,
     remoteGroupId: Option[String] = None,
     description: Option[String] = None,
     direction: String,
     protocol: Option[String] = None,
     ethertype: Option[String] = None,
     securityGroupId: String,
-    portRangeMax: Option[Integer] = None,
+    portRangeMax: Option[Int] = None,
   )
 
 }
@@ -34,15 +34,15 @@ case class SecurityGroupRule(
   createdAt: LocalDateTime,
   updatedAt: LocalDateTime,
   remoteIpPrefix: String,
-  portRangeMin: Integer,
+  portRangeMin: Int,
   remoteGroupId: String,
   description: String,
   direction: String,
   protocol: String,
   ethertype: String,
   securityGroupId: String,
-  portRangeMax: Integer,
-  revisionNumber: Integer,
+  portRangeMax: Int,
+  revisionNumber: Int,
   links: List[Link] = List.empty,
 ) extends Identifiable
 

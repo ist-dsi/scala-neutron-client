@@ -15,8 +15,8 @@ object FloatingIp {
   case class PortForwarding(
     protocol: String,
     internalIpAddress: InetAddress,
-    internalPort: Integer,
-    externalPort: Integer
+    internalPort: Int,
+    externalPort: Int
   )
 
   object Read {
@@ -33,7 +33,7 @@ object FloatingIp {
     projectId: String,
     createdAt: LocalDateTime,
     updatedAt: LocalDateTime,
-    revisionNumber: Integer,
+    revisionNumber: Int,
     floatingNetworkId: String,
     fixedIpAddress: String,
     floatingIpAddress: String,

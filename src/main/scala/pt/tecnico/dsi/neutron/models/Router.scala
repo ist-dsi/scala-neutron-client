@@ -21,7 +21,7 @@ object Router extends Model {
     adminStateUp: Boolean,
     status: String, // ???
     externalGatewayInfo: Map[String, String], // ???
-    revisionNumber: Integer,
+    revisionNumber: Int,
     routes: List[Map[String, String]], // ???
     destination: String,
     nexthop: InetAddress,
@@ -73,7 +73,7 @@ object Router extends Model {
     implicit val decoder: Decoder[ConntrackHelper] = deriveDecoder(renaming.snakeCase)
   }
 
-  case class ConntrackHelper(protocol: String, helper: String, port: Integer)
+  case class ConntrackHelper(protocol: String, helper: String, port: Int)
 }
 
 sealed trait Router extends Model {

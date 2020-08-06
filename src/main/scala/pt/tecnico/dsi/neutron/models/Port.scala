@@ -46,7 +46,7 @@ object Port {
     projectId: String,
     qosNetworkPolicyId: Option[String],
     qosPolicyId: Option[String],
-    revisionNumber: Integer,
+    revisionNumber: Int,
     resourceRequest: Option[Map[String, String]],
     securityGroups: List[String],
     status: String,

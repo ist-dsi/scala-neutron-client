@@ -41,7 +41,7 @@ object SecurityGroup {
     projectId: String,
     createdAt: LocalDateTime,
     updatedAt: LocalDateTime,
-    revisionNumber: Integer,
+    revisionNumber: Int,
     tags: List[String],
     securityGroupRoles: List[SecurityGroupRule], // Security Group Roles Object
     stateful: Option[String],
