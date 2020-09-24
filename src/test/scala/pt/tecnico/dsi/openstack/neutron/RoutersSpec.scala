@@ -23,7 +23,7 @@ final class RoutersSpec extends CrudSpec[Router, Router.Create, Router.Update]("
   }
   
   override def compareGet(get: Router, model: Router): Assertion = {
-    // After a router create openstack performs extra operations on the router and updates it
+    // After a router create openstack performs extra operations on the router and updates it (great move right there </sarcasm>)
     // causing the revision and updatedAt to change.
     // The availabilityZones will be set by openstack (using the availabilityZoneHints) so its value wont be the same
     get.id shouldBe model.id

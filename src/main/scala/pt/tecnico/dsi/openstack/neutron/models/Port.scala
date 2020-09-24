@@ -57,7 +57,7 @@ object Port {
     macLearningEnabled: Option[Boolean] = None,
   )
   
-  implicit val decoder: Decoder[Port] = withRenames(deriveDecoder(renaming.snakeCase))(
+  implicit val decoder: Decoder[Port] = withRenames(deriveDecoder[Port](renaming.snakeCase))(
     "binding:profile" -> "binding_profile",
     "binding:vif_details" -> "binding_vif_details",
     "binding:vif_type" -> "binding_vif_type",
