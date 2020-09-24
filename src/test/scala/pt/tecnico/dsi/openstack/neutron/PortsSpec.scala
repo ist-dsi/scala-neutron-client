@@ -1,11 +1,11 @@
-package pt.tecnico.dsi.openstack.neutron
+/*package pt.tecnico.dsi.openstack.neutron
 
 import cats.effect.{IO, Resource}
 import cats.implicits._
 import org.scalatest.Assertion
 import org.scalatest.OptionValues._
-import pt.tecnico.dsi.openstack.neutron.models.Port
-import pt.tecnico.dsi.openstack.neutron.services.{BulkCreate, CrudService}
+import pt.tecnico.dsi.neutron.models.Port
+import pt.tecnico.dsi.neutron.services.{BulkCreate, CrudService}
 
 class PortsSpec extends CrudSpec[Port]("port") with BulkCreateSpec[Port] {
 
@@ -32,3 +32,4 @@ class PortsSpec extends CrudSpec[Port]("port") with BulkCreateSpec[Port] {
     Resource.make(created)(_.traverse_(stub => service.delete(stub.id)))
   }
 }
+*/
