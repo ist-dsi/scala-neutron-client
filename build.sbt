@@ -18,7 +18,7 @@ scalacOptions ++= Seq(
   "-Xcheckinit",                   // Wrap field accessors to throw an exception on uninitialized access.
   "-Xsource:3",                    // Treat compiler input as Scala source for the specified version.
   "-Xmigration:3",                 // Warn about constructs whose behavior may have changed since version.
-  "-Werror",                       // Fail the compilation if there are any warnings.
+//  "-Werror",                       // Fail the compilation if there are any warnings.
   "-Xlint:_",                      // Enables every warning. scalac -Xlint:help for a list and explanation
   "-deprecation",                  // Emit warning and location for usages of deprecated APIs.
   "-unchecked",                    // Enable additional warnings where generated code depends on assumptions.
@@ -38,13 +38,11 @@ scalacOptions in (Test, console) := (scalacOptions in (Compile, console)).value
 // ======================================================================================================================
 // ==== Dependencies ====================================================================================================
 // ======================================================================================================================
-libraryDependencies ++= Seq("blaze-client", "circe").map { module =>
-  "org.http4s"      %% s"http4s-$module" % "0.21.6"
-} ++ Seq(
-  "io.circe"        %% "circe-derivation"      % "0.13.0-M4",
+libraryDependencies ++= Seq(
+  "pt.tecnico.dsi"  %% "scala-openstack-common-clients" % "0.3.0-SNAPSHOT",
+  "com.comcast"     %% "ip4s-core"             % "1.3.0",
   "com.beachape"    %% "enumeratum-circe"      % "1.6.1",
-  "pt.tecnico.dsi"  %% "scala-keystone-client" % "0.2.0-SNAPSHOT",
-  "pt.tecnico.dsi"  %% "scala-openstack-common-clients" % "0.2.0-SNAPSHOT",
+  "pt.tecnico.dsi"  %% "scala-keystone-client" % "0.3.0-SNAPSHOT" % Test,
   "ch.qos.logback"  %  "logback-classic"       % "1.2.3" % Test,
   "org.scalatest"   %% "scalatest"             % "3.2.0" % Test,
 )

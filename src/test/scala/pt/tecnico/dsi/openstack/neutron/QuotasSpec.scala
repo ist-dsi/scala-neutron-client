@@ -2,8 +2,8 @@ package pt.tecnico.dsi.openstack.neutron
 
 import cats.effect.{IO, Resource}
 import org.scalatest.Assertion
-import pt.tecnico.dsi.openstack.neutron.models.Quota
 import pt.tecnico.dsi.openstack.keystone.models.Project
+import pt.tecnico.dsi.openstack.neutron.models.Quota
 
 class QuotasSpec extends Utils {
 

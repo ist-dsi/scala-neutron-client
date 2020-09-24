@@ -7,60 +7,9 @@ import io.circe.{Decoder, Encoder}
 import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link}
 
 object Port {
-
-  object Read {
-    implicit val decoder: Decoder[Read] = decoderAfterRename[Read](
-      Map(
-        "binding:profile" -> "binding_profile",
-        "binding:vif_details" -> "binding_vif_details",
-        "binding:vif_type" -> "binding_vif_type",
-        "binding:host_id" -> "binding_host_id",
-        "binding:vnic_type" -> "binding_vnic_type"
-      ), deriveDecoder(renaming.snakeCase))
-  }
-
-  case class Read(
-    id: String,
-    adminStateUp: Boolean,
-    allowedAddressPairs: List[String],
-    bindingHostId: Option[String],
-    bindingProfile: Map[String, String],
-    // bindingVifDetails: Map[String, Any], ?? (investigate)
-    bindingVifType: String,
-    bindingVnicType: String,
-    createdAt: OffsetDateTime,
-    dataPlaneStatus: Option[String],
-    description: String,
-    deviceId: String,
-    deviceOwner: String,
-    dnsAssignment: List[Map[String, String]],
-    dnsDomain: Option[String],
-    dnsName: String,
-    extraDhcpOpts: List[Map[String, String]],
-    //  fixedIps: List[String],
-    ipAllocation: Option[String],
-    macAddress: String,
-    name: String,
-    networkId: String,
-    portSecurityEnabled: Boolean,
-    projectId: String,
-    qosNetworkPolicyId: Option[String],
-    qosPolicyId: Option[String],
-    revisionNumber: Int,
-    resourceRequest: Option[Map[String, String]],
-    securityGroups: List[String],
-    status: String,
-    tags: List[String],
-    updatedAt: OffsetDateTime,
-    uplinkStatusPropagation: Option[Boolean],
-    macLearningEnabled: Option[Boolean],
-    links: List[Link] = List.empty
-  ) extends Identifiable
-
   object Create {
     implicit val codec: Encoder[Create] = deriveEncoder(renaming.snakeCase)
   }
-
   case class Create(
     uplinkStatusPropagation: Option[Boolean] = None,
     macLearningEnabled: Option[Boolean] = None,
@@ -87,7 +36,6 @@ object Port {
   object Update {
     implicit val codec: Encoder[Update] = deriveEncoder(renaming.snakeCase)
   }
-
   case class Update(
     name: Option[String] = None,
     adminStateUp: Option[Boolean] = None,
@@ -108,11 +56,51 @@ object Port {
     qosPolicyId: Option[String] = None,
     macLearningEnabled: Option[Boolean] = None,
   )
+  
+  implicit val decoder: Decoder[Port] = withRenames(deriveDecoder(renaming.snakeCase))(
+    "binding:profile" -> "binding_profile",
+    "binding:vif_details" -> "binding_vif_details",
+    "binding:vif_type" -> "binding_vif_type",
+    "binding:host_id" -> "binding_host_id",
+    "binding:vnic_type" -> "binding_vnic_type"
+  )
 }
-
-sealed trait Port extends Model {
-  type Update = Port.Update
-  type Create = Port.Create
-  type Read = Port.Read
-}
-
+case class Port(
+  id: String,
+  name: String,
+  description: String,
+  projectId: String,
+  
+  adminStateUp: Boolean,
+  status: String,
+  networkId: String,
+  allowedAddressPairs: List[String],
+  bindingHostId: Option[String],
+  bindingProfile: Map[String, String],
+  // bindingVifDetails: Map[String, Any], ?? (investigate)
+  bindingVifType: String,
+  bindingVnicType: String,
+  dataPlaneStatus: Option[String],
+  deviceId: String,
+  deviceOwner: String,
+  dnsAssignment: List[Map[String, String]],
+  dnsDomain: Option[String],
+  dnsName: String,
+  extraDhcpOpts: List[Map[String, String]],
+  //  fixedIps: List[String],
+  ipAllocation: Option[String],
+  macAddress: String,
+  portSecurityEnabled: Boolean,
+  qosNetworkPolicyId: Option[String],
+  qosPolicyId: Option[String],
+  resourceRequest: Option[Map[String, String]],
+  securityGroups: List[String],
+  uplinkStatusPropagation: Option[Boolean],
+  macLearningEnabled: Option[Boolean],
+  
+  revision: Int,
+  createdAt: OffsetDateTime,
+  updatedAt: OffsetDateTime,
+  tags: List[String] = List.empty,
+  links: List[Link] = List.empty
+) extends Identifiable
