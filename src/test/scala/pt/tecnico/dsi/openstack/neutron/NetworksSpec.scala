@@ -1,5 +1,6 @@
 package pt.tecnico.dsi.openstack.neutron
 
+/*
 import cats.effect.IO
 import org.scalatest.Assertion
 import org.scalatest.OptionValues._
@@ -29,3 +30,4 @@ final class NetworksSpec extends CrudSpec[Network, Network.Create, Network.Updat
     model.description shouldBe update.description
   }
 }
+*/

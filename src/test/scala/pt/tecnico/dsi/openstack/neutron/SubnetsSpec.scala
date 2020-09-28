@@ -10,7 +10,7 @@ import pt.tecnico.dsi.openstack.neutron.services.Subnets
 
 final class SubnetsSpec extends CrudSpec[Subnet[IpAddress], Subnet.Create[IpAddress], Subnet.Update[IpAddress]]("subnet")
   /*with BulkCreateSpec[Subnet[IpAddress], Subnet.Create[IpAddress]]*/ {
-  val stubNetwork: Resource[IO, Network] = resourceCreator(neutron.networks)(name => Network.Create(Some(project.id), name = Some(name)))
+  val stubNetwork: Resource[IO, Network] = resourceCreator(neutron.networks)(name => Network.Create(Some(project.id), name = name))
   // This way we use the same Network for every test, and make the logs smaller and easier to debug.
   val (network, networkDelete) = stubNetwork.allocated.unsafeRunSync()
   override protected def afterAll(): Unit = {
@@ -37,7 +37,7 @@ final class SubnetsSpec extends CrudSpec[Subnet[IpAddress], Subnet.Create[IpAddr
     model.allocationPools shouldBe List(AllocationPool.fromCidr(create.cidr.value))
   }
   
-  override def updateStub: Subnet.Update[IpAddress] = Subnet.Update(
+  override val updateStub: Subnet.Update[IpAddress] = Subnet.Update(
     name = Some(randomName()),
     Some("a better and improved description"),
     gatewayIp = Some(ip"192.168.199.10")

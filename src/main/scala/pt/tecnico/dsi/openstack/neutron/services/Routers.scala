@@ -8,10 +8,11 @@ import org.http4s.Status.Conflict
 import org.http4s.client.{Client, UnexpectedStatus}
 import org.http4s.{Header, Query, Uri}
 import pt.tecnico.dsi.openstack.common.services.CrudService
+import pt.tecnico.dsi.openstack.keystone.models.Session
 import pt.tecnico.dsi.openstack.neutron.models.{Port, Route, Router, RouterInterface, Subnet, cidrDecoder, ipDecoder, ipEncoder}
 
-final class Routers[F[_] : Sync : Client](baseUri: Uri, authToken: Header)
-  extends CrudService[F, Router, Router.Create, Router.Update](baseUri, "router", authToken) {
+final class Routers[F[_] : Sync : Client](baseUri: Uri, session: Session)
+  extends CrudService[F, Router, Router.Create, Router.Update](baseUri, "router", session.authToken) {
   
   override def update(id: String, value: Router.Update, extraHeaders: Header*): F[Router] =
     super.put(wrappedAt = Some(name), value, uri / id, extraHeaders:_*)
@@ -70,9 +71,7 @@ final class Routers[F[_] : Sync : Client](baseUri: Uri, authToken: Header)
   override def create(create: Router.Create, extraHeaders: Header*): F[Router] = {
     // A router create is not idempotent because Openstack always creates a new router and never returns a Conflict, whatever the parameters.
     // We want it to be idempotent, so we decided to make the name unique **within** a project.
-    
-    // Openstack probably infers the projectId from the token being used. We could do the same and also make this idempotent
-    create.projectId /* orElse session.scopedProjectId*/ match {
+    create.projectId orElse session.scopedProjectId match {
       case None => super.create(create, extraHeaders:_*)
       case Some(projectId) =>
         list(Query.fromPairs(

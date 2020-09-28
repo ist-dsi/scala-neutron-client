@@ -4,10 +4,10 @@ import cats.effect.IO
 import org.http4s.Query
 import org.scalatest.Assertion
 import org.scalatest.OptionValues._
-import pt.tecnico.dsi.openstack.neutron.models.SecurityGroup
+import pt.tecnico.dsi.openstack.neutron.models.{SecurityGroup, SecurityGroupRule}
 import pt.tecnico.dsi.openstack.neutron.services.SecurityGroups
 
-final class SecurityGroupsSpec extends CrudSpec[SecurityGroup, SecurityGroup.Create, SecurityGroup.Update]("security group") {
+final class SecurityGroupRulesSpec extends CrudSpec[SecurityGroupRule, SecurityGroupRule.Create, SecurityGroupRule.Update]("security group") {
   override val service: SecurityGroups[IO] = neutron.securityGroups
   
   override def createStub(name: String): SecurityGroup.Create = SecurityGroup.Create(name, project.id, "a description")

@@ -7,10 +7,11 @@ import org.http4s.Status.Conflict
 import org.http4s.client.{Client, UnexpectedStatus}
 import org.http4s.{Header, Query, Uri}
 import pt.tecnico.dsi.openstack.common.services.CrudService
+import pt.tecnico.dsi.openstack.keystone.models.Session
 import pt.tecnico.dsi.openstack.neutron.models.{AllocationPool, Subnet, ipextensions}
 
-final class Subnets[F[_] : Sync : Client](baseUri: Uri, authToken: Header)
-  extends CrudService[F, Subnet[IpAddress], Subnet.Create[IpAddress], Subnet.Update[IpAddress]](baseUri, "subnet", authToken)
+final class Subnets[F[_]: Sync: Client](baseUri: Uri, session: Session)
+  extends CrudService[F, Subnet[IpAddress], Subnet.Create[IpAddress], Subnet.Update[IpAddress]](baseUri, "subnet", session.authToken)
   with BulkCreate[F, Subnet[IpAddress], Subnet.Create[IpAddress]] {
   
   private def updateFromCreate(create: Subnet.Create[IpAddress], existing: Subnet[IpAddress], extraHeaders: Header*): F[Subnet[IpAddress]] = {
@@ -60,8 +61,8 @@ final class Subnets[F[_] : Sync : Client](baseUri: Uri, authToken: Header)
   }
   override def create(create: Subnet.Create[IpAddress], extraHeaders: Header*): F[Subnet[IpAddress]] = {
     // We want the create to be idempotent, so we decided to make the name unique **within** a (project, network).
-    create.projectId/* orElse session.scopedProjectId*/ match {
-      case None => super.create(create, extraHeaders:_*) // With the above orElse this line will most likely always result in an error
+    create.projectId orElse session.scopedProjectId match {
+      case None => super.create(create, extraHeaders:_*)
       case Some(projectId) =>
         list(Query.fromPairs(
           "name" -> create.name,

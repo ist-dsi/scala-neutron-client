@@ -40,7 +40,6 @@ package object models {
     }
   }
   
-  def withRenames[T](initial: Encoder[T])(renames: (String, String)*): Encoder[T] = initial.mapJson {
-    _.mapObject(renameJsonObjectFields(renames))
-  }
+  def withRenames[T](initial: Encoder.AsObject[T])(renames: (String, String)*): Encoder.AsObject[T] =
+    initial.mapJsonObject(renameJsonObjectFields(renames))
 }
