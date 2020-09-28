@@ -7,7 +7,7 @@ import scala.util.Random
 import cats.effect.{ContextShift, IO, Resource, Timer}
 import cats.instances.list._
 import cats.syntax.traverse._
-import org.http4s.Headers
+import org.http4s.{Headers, Query}
 import org.http4s.client.Client
 import org.http4s.client.blaze.BlazeClientBuilder
 import org.http4s.client.middleware.Logger
@@ -57,11 +57,17 @@ abstract class Utils extends AsyncWordSpec with Matchers with BeforeAndAfterAll 
   // Although this is not very purely functional :(
   val (project, deleteProject) = resourceCreator(keystone.projects)(Project.Create(_)).allocated.unsafeRunSync()
   override protected def afterAll(): Unit = {
-    deleteProject.unsafeRunSync()
-    finalizer.unsafeRunSync()
+    val deletes = for {
+      _ <- deleteProject
+      // Neutron automatically creates the default security group for the project
+      _ <- neutron.securityGroups.list(Query.fromPairs(
+        "name" -> "default",
+        "project_id" -> project.id,
+      )).evalMap(neutron.securityGroups.delete(_)).compile.drain
+      _ <- finalizer
+    } yield ()
+    deletes.unsafeRunSync()
   }
-  
-  //val withStubNetwork: Resource[IO, Network] = resourceCreator(neutron.networks)(Network.Create(_))
   
   implicit class RichIO[T](io: IO[T]) {
     def idempotently(test: T => Assertion, repetitions: Int = 3): IO[Assertion] = {

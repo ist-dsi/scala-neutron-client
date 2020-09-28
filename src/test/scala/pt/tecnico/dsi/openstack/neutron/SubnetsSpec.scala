@@ -33,7 +33,7 @@ final class SubnetsSpec extends CrudSpec[Subnet[IpAddress], Subnet.Create[IpAddr
     model.projectId shouldBe create.projectId.value
     model.networkId shouldBe create.networkId
     model.cidr shouldBe create.cidr.value
-    model.gateway shouldBe create.cidr.value.prefix.next
+    model.gateway shouldBe create.cidr.map(_.prefix.next)
     model.allocationPools shouldBe List(AllocationPool.fromCidr(create.cidr.value))
   }
   
@@ -45,6 +45,6 @@ final class SubnetsSpec extends CrudSpec[Subnet[IpAddress], Subnet.Create[IpAddr
   override def compareUpdate(update: Subnet.Update[IpAddress], model: Subnet[IpAddress]): Assertion = {
     model.name shouldBe update.name.value
     model.description shouldBe update.description.value
-    model.gateway shouldBe update.gatewayIp.value
+    model.gateway shouldBe update.gatewayIp
   }
 }

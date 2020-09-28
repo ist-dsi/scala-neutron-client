@@ -3,10 +3,9 @@ package pt.tecnico.dsi.openstack.neutron.models
 import java.time.OffsetDateTime
 import com.comcast.ip4s.{Cidr, IpAddress}
 import enumeratum.{Circe, Enum, EnumEntry}
-import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
-import io.circe.{Decoder, Encoder}
+import io.circe.derivation.{deriveEncoder, renaming}
+import io.circe.{Decoder, DecodingFailure, Encoder, HCursor}
 import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link}
-import pt.tecnico.dsi.openstack.neutron.models.IpVersion.IPv6
 import pt.tecnico.dsi.openstack.neutron.models.SecurityGroupRule.Direction
 
 object SecurityGroupRule {
@@ -67,19 +66,31 @@ object SecurityGroupRule {
     remote: Option[Either[Cidr[IpAddress], String]] = None, // Option[Cidr[IpAddress] | String] would be better
   )
   
-  implicit val decoder: Decoder[SecurityGroupRule] = {
-    implicit val remoteDecoder: Decoder[Either[Cidr[IpAddress], String]] = Decoder.decodeEither("remote_ip_prefix", "remote_group_id")
+  /*implicit val decoder: Decoder[SecurityGroupRule] = {
+    //implicit val remoteDecoder: Decoder[Either[Cidr[IpAddress], String]] = Decoder.decodeEither("remote_ip_prefix", "remote_group_id")
+  
+    implicit val remoteDecoder: Decoder[Option[Either[Cidr[IpAddress], String]]] = (cursor: HCursor) => for {
+      remoteCidr <- cursor.up.get[Option[Cidr[IpAddress]]]("remote_ip_prefix")
+      remoteSecurityGroupId <- cursor.up.get[Option[String]]("remote_group_id")
+      remote <- (remoteCidr, remoteSecurityGroupId) match {
+        case (Some(cidr), None) => Right(Some(Left(cidr)))
+        case (None, Some(securityGroupId)) => Right(Some(Right(securityGroupId)))
+        case (None, None) => Right(None)
+        case (Some(cidr), Some(securityGroupId)) => Left(DecodingFailure(s"Got both a remote_ip_prefix $cidr and a remote_group_id $securityGroupId", cursor.history))
+      }
+    } yield remote
     withRenames(deriveDecoder[SecurityGroupRule](renaming.snakeCase))("revision_number" -> "revision", "ethertype" -> "ip_version")
-  }
-  /*
+  }*/
+  
+  // Custom decoder mainly because of remote
   implicit val decoder: Decoder[SecurityGroupRule] = (cursor: HCursor) => for {
     id <- cursor.get[String]("id")
-    description <- cursor.get[String]("description")
     projectId <- cursor.get[String]("project_id")
+    description <- cursor.get[Option[String]]("description")
     securityGroupId <- cursor.get[String]("security_group_id")
     direction <- cursor.get[Direction]("direction")
-    protocol <- cursor.get[Option[Byte]]("protocol")
-    ethertype <- cursor.get[IpVersion]("ethertype")
+    protocol <- cursor.get[Option[String]]("protocol")
+    ipVersion <- cursor.get[IpVersion]("ethertype")
     min <- cursor.get[Option[Int]]("port_range_min")
     max <- cursor.get[Option[Int]]("port_range_max")
     remoteCidr <- cursor.get[Option[Cidr[IpAddress]]]("remote_ip_prefix")
@@ -90,17 +101,15 @@ object SecurityGroupRule {
       case (None, None) => Right(None)
       case (Some(cidr), Some(securityGroupId)) => Left(DecodingFailure(s"Got both a remote_ip_prefix $cidr and a remote_group_id $securityGroupId", cursor.history))
     }
-    
     revision <- cursor.get[Int]("revision_number")
     createdAt <- cursor.get[OffsetDateTime]("created_at")
     updatedAt <- cursor.get[OffsetDateTime]("updated_at")
-  } yield SecurityGroupRule(id, description, projectId, securityGroupId, direction, protocol, ethertype, min, max, remote, revision, createdAt, updatedAt)
-  */
+  } yield SecurityGroupRule(id, projectId, description, securityGroupId, direction, ipVersion, protocol, min, max, remote, revision, createdAt, updatedAt)
 }
 case class SecurityGroupRule(
   id: String,
   projectId: String,
-  description: String,
+  description: Option[String] = None,
   
   securityGroupId: String,
   direction: Direction,
@@ -108,7 +117,7 @@ case class SecurityGroupRule(
   protocol: Option[String] = None, // Option[String | Int] would be better
   portRangeMin: Option[Int] = None,
   portRangeMax: Option[Int] = None,
-  remote: Option[Either[Cidr[IpAddress], String]], // Option[Cidr[IpAddress] | String] would be better
+  remote: Option[Either[Cidr[IpAddress], String]], // Option[Cidr[IpAddress] | String] would be better. Does this really need to be an option?
   
   revision: Int,
   createdAt: OffsetDateTime,
