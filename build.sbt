@@ -39,10 +39,9 @@ scalacOptions in (Test, console) := (scalacOptions in (Compile, console)).value
 // ==== Dependencies ====================================================================================================
 // ======================================================================================================================
 libraryDependencies ++= Seq(
-  "pt.tecnico.dsi"  %% "scala-openstack-common-clients" % "0.3.0-SNAPSHOT",
+  "pt.tecnico.dsi"  %% "scala-keystone-client" % "0.4.0-SNAPSHOT",
   "com.comcast"     %% "ip4s-core"             % "1.3.0",
   "com.beachape"    %% "enumeratum-circe"      % "1.6.1",
-  "pt.tecnico.dsi"  %% "scala-keystone-client" % "0.3.0-SNAPSHOT" % Test,
   "ch.qos.logback"  %  "logback-classic"       % "1.2.3" % Test,
   "org.scalatest"   %% "scalatest"             % "3.2.0" % Test,
 )

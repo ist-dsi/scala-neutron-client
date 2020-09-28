@@ -6,10 +6,11 @@ import io.circe.Decoder
 import org.http4s.client.Client
 import org.http4s.{Header, Query, Uri}
 import pt.tecnico.dsi.openstack.common.services.CrudService
+import pt.tecnico.dsi.openstack.keystone.models.Session
 import pt.tecnico.dsi.openstack.neutron.models.Network
 
-final class Networks[F[_] : Sync : Client](baseUri: Uri, authToken: Header)
-  extends CrudService[F, Network, Network.Create, Network.Update](baseUri, "network", authToken)
+final class Networks[F[_]: Sync: Client](baseUri: Uri, session: Session)
+  extends CrudService[F, Network, Network.Create, Network.Update](baseUri, "network", session.authToken)
   with BulkCreate[F, Network, Network.Create] {
   
   override def update(id: String, value: Network.Update, extraHeaders: Header*): F[Network] =

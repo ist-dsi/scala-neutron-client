@@ -1,20 +1,29 @@
 package pt.tecnico.dsi.openstack.neutron
 
 import cats.effect.Sync
+import org.http4s.Uri
 import org.http4s.client.Client
-import org.http4s.{Header, Uri}
+import pt.tecnico.dsi.openstack.keystone.models.{ClientBuilder, Session}
 import pt.tecnico.dsi.openstack.neutron.services._
 
-class NeutronClient[F[_]: Sync](baseUri: Uri, authToken: Header)(implicit client: Client[F]) {
+object NeutronClient extends ClientBuilder {
+  final type OpenstackClient[F[_]] = NeutronClient[F]
+  final val `type`: String = "network"
+  
+  override def apply[F[_]: Sync: Client](baseUri: Uri, session: Session): NeutronClient[F] =
+    new NeutronClient[F](baseUri, session)
+}
+class NeutronClient[F[_]: Sync](baseUri: Uri, session: Session)(implicit client: Client[F]) {
   val uri: Uri = if (baseUri.path.dropEndsWithSlash.toString.endsWith("v2.0")) baseUri else baseUri / "v2.0"
 
-  val securityGroups: SecurityGroups[F] = new SecurityGroups[F](uri, authToken)
-  val routers: Routers[F] = new Routers[F](uri, authToken)
-  val subnets: Subnets[F] = new Subnets[F](uri, authToken)
-  val quotas: Quotas[F] = new Quotas[F](uri, authToken)
+  val securityGroups: SecurityGroups[F] = new SecurityGroups[F](uri, session)
+  val securityGroupRules: SecurityGroupRules[F] = new SecurityGroupRules[F](uri, session)
+  val routers: Routers[F] = new Routers[F](uri, session)
+  val subnets: Subnets[F] = new Subnets[F](uri, session)
+  val quotas: Quotas[F] = new Quotas[F](uri, session)
   
-  val networks: Networks[F] = new Networks[F](uri, authToken)
-  val ports: Ports[F] = new Ports[F](uri, authToken)
+  val networks: Networks[F] = new Networks[F](uri, session)
+  val ports: Ports[F] = new Ports[F](uri, session)
   
   /*400 BadRequest {
     "NeutronError": {

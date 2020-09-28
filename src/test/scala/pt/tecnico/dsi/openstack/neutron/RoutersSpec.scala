@@ -16,7 +16,7 @@ final class RoutersSpec extends CrudSpec[Router, Router.Create, Router.Update]("
     model.description shouldBe create.description
   }
   
-  override def updateStub: Router.Update = Router.Update(name = Some(randomName()), Some("a better and improved description"))
+  override val updateStub: Router.Update = Router.Update(name = Some(randomName()), Some("a better and improved description"))
   override def compareUpdate(update: Router.Update, model: Router): Assertion = {
     model.name shouldBe update.name.value
     model.description shouldBe update.description.value

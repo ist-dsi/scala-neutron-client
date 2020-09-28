@@ -7,10 +7,10 @@ import scala.util.Random
 import cats.effect.{ContextShift, IO, Resource, Timer}
 import cats.instances.list._
 import cats.syntax.traverse._
+import org.http4s.Headers
 import org.http4s.client.Client
 import org.http4s.client.blaze.BlazeClientBuilder
 import org.http4s.client.middleware.Logger
-import org.http4s.{Headers, Uri}
 import org.log4s._
 import org.scalatest._
 import org.scalatest.exceptions.TestFailedException
@@ -41,11 +41,8 @@ abstract class Utils extends AsyncWordSpec with Matchers with BeforeAndAfterAll 
     redactHeadersWhen = (Headers.SensitiveHeaders ++ List(CIString("X-Auth-Token"), CIString("X-Subject-Token"))).contains)(_httpClient)
 
   val keystone: KeystoneClient[IO] = KeystoneClient.fromEnvironment().unsafeRunSync()
-  val neutron: NeutronClient[IO] = {
-    val neutronUrl = keystone.session.urlOf("network", sys.env("OS_REGION_NAME"))
-                             .getOrElse(throw new Exception("Could not find \"network\" service in the catalog"))
-    new NeutronClient[IO](Uri.unsafeFromString(neutronUrl), keystone.authToken)
-  }
+  val neutron: NeutronClient[IO] = keystone.session.clientBuilder[IO](NeutronClient, sys.env("OS_REGION_NAME"))
+                                           .fold(s => throw new Exception(s), identity)
   
   // Not very purely functional :(
   val random = new Random()

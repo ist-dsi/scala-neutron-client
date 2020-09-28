@@ -1,14 +1,15 @@
 package pt.tecnico.dsi.openstack.neutron.services
 
-import fs2.Stream
 import cats.effect.Sync
+import fs2.Stream
 import io.circe.{Decoder, Encoder, HCursor}
 import org.http4s.client.Client
-import org.http4s.{Header, Query, Uri}
+import org.http4s.{Query, Uri}
 import pt.tecnico.dsi.openstack.common.services.Service
+import pt.tecnico.dsi.openstack.keystone.models.Session
 import pt.tecnico.dsi.openstack.neutron.models.Quota
 
-final class Quotas[F[_]: Sync: Client](baseUri: Uri, authToken: Header) extends Service[F](authToken) {
+final class Quotas[F[_]: Sync: Client](baseUri: Uri, session: Session) extends Service[F](session.authToken) {
   val uri: Uri = baseUri / "quotas"
   val name = "quota"
 
