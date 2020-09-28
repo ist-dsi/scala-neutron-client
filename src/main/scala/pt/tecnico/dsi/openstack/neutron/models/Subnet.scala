@@ -100,7 +100,7 @@ sealed trait Subnet[+IP <: IpAddress] extends Identifiable {
   
   def networkId: String
   def cidr: Cidr[IP]
-  def gateway: IP
+  def gateway: Option[IP]
   def allocationPools: List[AllocationPool[IP]]
   def hostRoutes: List[Route[IP]]
   def enableDhcp: Boolean
@@ -123,7 +123,7 @@ case class SubnetIpv4(
   
   networkId: String,
   cidr: Cidr[Ipv4Address],
-  gateway: Ipv4Address,
+  gateway: Option[Ipv4Address] = None,
   allocationPools: List[AllocationPool[Ipv4Address]],
   hostRoutes: List[Route[Ipv4Address]],
   enableDhcp: Boolean,
@@ -147,7 +147,7 @@ case class SubnetIpv6(
   
   networkId: String,
   cidr: Cidr[Ipv6Address],
-  gateway: Ipv6Address,
+  gateway: Option[Ipv6Address] = None,
   allocationPools: List[AllocationPool[Ipv6Address]],
   hostRoutes: List[Route[Ipv6Address]],
   enableDhcp: Boolean,

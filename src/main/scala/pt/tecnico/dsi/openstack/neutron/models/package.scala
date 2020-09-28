@@ -24,6 +24,8 @@ package object models {
     def version: IpVersion = ip.fold(_ => IpVersion.IPv4, _ => IpVersion.IPv6)
   }
   
+  // https://github.com/circe/circe-derivation/issues/245
+  
   private def renameJsonObjectFields(renames: Seq[(String, String)])(obj: JsonObject): JsonObject = {
     val renamesMap = renames.toMap
     val newMap = obj.toMap.map { case (key, value) =>
@@ -32,7 +34,6 @@ package object models {
     JsonObject.fromMap(newMap)
   }
   
-  // https://github.com/circe/circe-derivation/issues/245
   /** Creates a decoder from `initial` that performs the `renames` to the JsonObject keys before decoding. */
   def withRenames[T](initial: Decoder[T])(renames: (String, String)*): Decoder[T] = initial.prepare {
     _.withFocus {
@@ -40,6 +41,7 @@ package object models {
     }
   }
   
+  /** Creates an encoder from `initial` that performs the `renames` to the JsonObject keys before encoding. */
   def withRenames[T](initial: Encoder.AsObject[T])(renames: (String, String)*): Encoder.AsObject[T] =
     initial.mapJsonObject(renameJsonObjectFields(renames))
 }

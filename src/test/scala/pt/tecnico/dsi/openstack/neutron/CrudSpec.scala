@@ -35,9 +35,10 @@ abstract class CrudSpec[Model <: Identifiable, Create, Update](val name: String)
     s"create ${name}s" in {
       val name = randomName()
       val stub = createStub(name)
+      val repetitions = 3
       for {
-        _ <- service.create(stub).idempotently(compareCreate(stub, _))
-        list <- service.list(Query.fromPairs("name" -> name, "project_id" -> project.id, "limit" -> "2")).compile.toList
+        _ <- service.create(stub).idempotently(compareCreate(stub, _), repetitions)
+        list <- service.list(Query.fromPairs("name" -> name, "project_id" -> project.id, "limit" -> repetitions.toString)).compile.toList
         _ <- list.parTraverse_(service.delete(_))
       } yield list.size shouldBe 1
     }
