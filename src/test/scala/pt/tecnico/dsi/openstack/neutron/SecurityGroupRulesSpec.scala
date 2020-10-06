@@ -1,11 +1,11 @@
 package pt.tecnico.dsi.openstack.neutron
 
-import scala.util.Try
+import scala.util.{Random, Try}
 import cats.effect.{IO, Resource}
 import cats.implicits._
 import com.comcast.ip4s._
 import org.http4s.Query
-import org.http4s.client.UnexpectedStatus
+import pt.tecnico.dsi.openstack.common.models.UnexpectedStatus
 import org.scalatest.Assertion
 import org.scalatest.OptionValues._
 import org.scalatest.EitherValues._
@@ -21,9 +21,11 @@ final class SecurityGroupRulesSpec extends Utils {
   }
   import neutron.securityGroupRules
   
-  val createStub: SecurityGroupRule.Create = SecurityGroupRule.Create(5000, ip"192.168.1.1" / 24)(securityGroup.id)
+  def createStub: SecurityGroupRule.Create = SecurityGroupRule.Create(
+    port = 5000,
+    cidr = Ipv4Address.fromBytes(192, 168, Random.between(1, 255), 0) / 24,
+  )(securityGroup.id)
   def compareCreate(create: SecurityGroupRule.Create, model: SecurityGroupRule): Assertion = {
-    model.description.value shouldBe create.description
     model.securityGroupId shouldBe create.securityGroupId
     model.direction shouldBe create.direction
     model.ipVersion shouldBe create.ipVersion
@@ -33,28 +35,29 @@ final class SecurityGroupRulesSpec extends Utils {
     model.remote shouldBe create.remote
   }
   
-  val resource: Resource[IO, SecurityGroupRule] = Resource.make(securityGroupRules.create(createStub))(model => securityGroupRules.delete(model.id))
+  def resource: Resource[IO, SecurityGroupRule] = Resource.make(securityGroupRules.create(createStub))(model => securityGroupRules.delete(model.id))
   
   "Security Group Rules service" should {
     s"list security group rules" in resource.use[IO, Assertion] { model =>
-      securityGroupRules.list().compile.toList.idempotently { models =>
+      securityGroupRules.list().idempotently { models =>
         models.exists(m => Try(m shouldBe model).isSuccess) shouldBe true
       }
     }
     
     s"create security group rules" in {
+      val stub: SecurityGroupRule.Create = createStub
       val repetitions = 3
       for {
-        _ <- securityGroupRules.create(createStub).idempotently(compareCreate(createStub, _), repetitions)
+        _ <- securityGroupRules.createWithDeduplication(stub).idempotently(compareCreate(stub, _), repetitions)
         list <- securityGroupRules.list(Query.fromPairs(
           "security_group_id" -> securityGroup.id,
-          "direction" -> createStub.direction.toString.toLowerCase,
-          "ethertype" -> createStub.ipVersion.toString,
-          "remote_ip_prefix" -> createStub.remote.value.left.value.toString,
-          "port_range_min" -> createStub.portRangeMin.value.toString,
-          "port_range_max" -> createStub.portRangeMax.value.toString,
+          "direction" -> stub.direction.toString.toLowerCase,
+          "ethertype" -> stub.ipVersion.toString,
+          "remote_ip_prefix" -> stub.remote.value.left.value.toString,
+          "port_range_min" -> stub.portRangeMin.value.toString,
+          "port_range_max" -> stub.portRangeMax.value.toString,
           "limit" -> repetitions.toString,
-        )).compile.toList
+        ))
         _ <- list.parTraverse_(securityGroupRules.delete)
       } yield list.size shouldBe 1
     }

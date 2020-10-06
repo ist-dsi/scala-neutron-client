@@ -5,12 +5,11 @@ import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.Random
 import cats.effect.{ContextShift, IO, Resource, Timer}
-import cats.instances.list._
-import cats.syntax.traverse._
-import org.http4s.{Headers, Query}
+import cats.implicits._
 import org.http4s.client.Client
 import org.http4s.client.blaze.BlazeClientBuilder
 import org.http4s.client.middleware.Logger
+import org.http4s.{Headers, Query}
 import org.log4s._
 import org.scalatest._
 import org.scalatest.exceptions.TestFailedException
@@ -60,10 +59,11 @@ abstract class Utils extends AsyncWordSpec with Matchers with BeforeAndAfterAll 
     val deletes = for {
       _ <- deleteProject
       // Neutron automatically creates the default security group for the project
-      _ <- neutron.securityGroups.list(Query.fromPairs(
+      securityGroups <- neutron.securityGroups.list(Query.fromPairs(
         "name" -> "default",
         "project_id" -> project.id,
-      )).evalMap(neutron.securityGroups.delete(_)).compile.drain
+      ))
+      _ <- securityGroups.parTraverse_(neutron.securityGroups.delete(_))
       _ <- finalizer
     } yield ()
     deletes.unsafeRunSync()

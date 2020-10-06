@@ -5,17 +5,18 @@ import cats.syntax.flatMap._
 import com.comcast.ip4s.IpAddress
 import io.circe.{Decoder, Encoder, Json}
 import org.http4s.Status.Conflict
-import org.http4s.client.{Client, UnexpectedStatus}
+import org.http4s.client.Client
 import org.http4s.{Header, Query, Uri}
 import pt.tecnico.dsi.openstack.common.services.CrudService
 import pt.tecnico.dsi.openstack.keystone.models.Session
-import pt.tecnico.dsi.openstack.neutron.models.{Port, Route, Router, RouterInterface, Subnet, cidrDecoder, ipDecoder, ipEncoder}
+import pt.tecnico.dsi.openstack.neutron.models.Router.{ExternalGatewayInfo, ExternalIp}
+import pt.tecnico.dsi.openstack.neutron.models._
 
 final class Routers[F[_] : Sync : Client](baseUri: Uri, session: Session)
   extends CrudService[F, Router, Router.Create, Router.Update](baseUri, "router", session.authToken) {
   
-  override def update(id: String, value: Router.Update, extraHeaders: Header*): F[Router] =
-    super.put(wrappedAt = Some(name), value, uri / id, extraHeaders:_*)
+  override def update(id: String, update: Router.Update, extraHeaders: Header*): F[Router] =
+    super.put(wrappedAt = Some(name), update, uri / id, extraHeaders:_*)
   
   final class Operations(val id: String) { self =>
     private def routesOperation(routes: List[Route[IpAddress]], path: String): F[List[Route[IpAddress]]] = {
@@ -41,13 +42,8 @@ final class Routers[F[_] : Sync : Client](baseUri: Uri, session: Session)
     def removeInterfaceByPort(portId: String): F[RouterInterface] =
       interfacesOperation("port", portId, "remove_router_interface")
     
-    // union types would be awesome here:
-    //    def addInterface(subject: Subnet | Port): F[RouterInterface] = addInterfaceBySubnet(subject.id)
-    //    def removeInterface(subject: Subnet | Port): F[RouterInterface] = removeInterfaceByPort(subject.id)
     def addInterface(subnet: Subnet[_]): F[RouterInterface] = addInterfaceBySubnet(subnet.id)
-    def addInterface(port: Port): F[RouterInterface] =  addInterfaceByPort(port.id)
     def removeInterface(subnet: Subnet[_]): F[RouterInterface] = removeInterfaceBySubnet(subnet.id)
-    def removeInterface(port: Port): F[RouterInterface] =  removeInterfaceByPort(port.id)
   }
   
   /** Allows performing operations on the router with `id` */
@@ -55,20 +51,60 @@ final class Routers[F[_] : Sync : Client](baseUri: Uri, session: Session)
   /** Allows performing operations on `router`. */
   def on(router: Router): Operations = on(router.id)
   
-  private def updateFromCreate(create: Router.Create, existing: Router, extraHeaders: Header*): F[Router] = {
-    val Router.Create(_, description, adminStateUp, externalGatewayInfo, distributed, ha, _, _) = create
+  private def computeUpdatedExternalGatewayInfo(existing: Option[ExternalGatewayInfo], create: Option[ExternalGatewayInfo], keepExistingElements: Boolean): Option[ExternalGatewayInfo] =
+    (existing, create) match {
+      case (None, _) =>
+        // The existing router does not have an externalGatewayInfo. So whatever the create sets prevails
+        create
+      case (Some(_), None) =>
+        // The existing router has an externalGatewayInfo but the create is requesting for it not to have it.
+        if (keepExistingElements) existing else {
+          // This does not unset the existing ExternalGatewayInfo because the jsonEncoder drops the nulls
+          // To fix this we would need a ADT with 3 alternatives, that would be encoded like this
+          // https://github.com/circe/circe/issues/584#issuecomment-346203481
+          // However that is **really hard to implement correctly**
+          create
+        }
+      case (Some(existingInfo), Some(createInfo)) if createInfo.networkId != existingInfo.networkId =>
+        // The external IPs are set using a subnetId which must be a child of the networkId.
+        // If the network is different the create prevails without having to consider keepExistingElements because the previous elements cannot be preserved.
+        create
+      case (Some(existingInfo), Some(createInfo)) =>
+        var newExternalIps = List.empty[ExternalIp]
+        for (newExternalIp @ ExternalIp(subnetId, newIp) <- createInfo.externalFixedIps) {
+          existingInfo.externalFixedIps.find(_.subnetId == subnetId) match {
+            case None =>
+              // The existing router does not have an external IP for this subnetId
+              newExternalIps +:= newExternalIp
+            case Some(existingExternalIp) =>
+              // If the create is setting an explicit IP use that. Otherwise use the existing one.
+              newExternalIps +:= newIp.map(_ => newExternalIp).getOrElse(existingExternalIp)
+          }
+        }
+        if (keepExistingElements) {
+          // Add all existing external IPs for which the subnetId isn't in the newExternalIps
+          newExternalIps ++= existingInfo.externalFixedIps.filter(externalIp => !newExternalIps.exists(_.subnetId == externalIp.subnetId))
+        }
+        // We need to sort the fixed IPs because equals on a list considers order
+        val newInfo = createInfo.copy(externalFixedIps = newExternalIps.sortBy(_.subnetId))
+        val existingInfoSorted = existingInfo.copy(externalFixedIps = existingInfo.externalFixedIps.sortBy(_.subnetId))
+        Option.when(newInfo != existingInfoSorted)(newInfo)
+    }
+  
+  override def defaultResolveConflict(existing: Router, create: Router.Create, keepExistingElements: Boolean, extraHeaders: Seq[Header]): F[Router] = {
     val updated = Router.Update(
-      description = Option.when(description != existing.description)(description),
-      adminStateUp = Option.when(adminStateUp != existing.adminStateUp)(adminStateUp),
-      // Pretty sure this will bite us
-      externalGatewayInfo = if (externalGatewayInfo != existing.externalGatewayInfo) externalGatewayInfo else None,
-      distributed = if (!distributed.contains(existing.distributed)) distributed else None,
-      ha = if (!ha.contains(existing.ha)) ha else None,
+      description = if (!create.description.contains(existing.description)) create.description else None,
+      adminStateUp = Option(create.adminStateUp).filter(_ != existing.adminStateUp),
+      externalGatewayInfo = computeUpdatedExternalGatewayInfo(existing.externalGatewayInfo, create.externalGatewayInfo, keepExistingElements),
+      // routes cannot be set when creating the Router, so we don't have to update them.
+      distributed = if (!create.distributed.contains(existing.distributed)) create.distributed else None,
+      ha = if (!create.ha.contains(existing.ha)) create.ha else None,
     )
     if (updated.needsUpdate) update(existing.id, updated, extraHeaders:_*)
     else Sync[F].pure(existing)
   }
-  override def create(create: Router.Create, extraHeaders: Header*): F[Router] = {
+  override def createOrUpdate(create: Router.Create, keepExistingElements: Boolean = true, extraHeaders: Seq[Header] = Seq.empty)
+    (resolveConflict: (Router, Router.Create) => F[Router] = defaultResolveConflict(_, _, keepExistingElements, extraHeaders)): F[Router] = {
     // A router create is not idempotent because Openstack always creates a new router and never returns a Conflict, whatever the parameters.
     // We want it to be idempotent, so we decided to make the name unique **within** a project.
     create.projectId orElse session.scopedProjectId match {
@@ -78,11 +114,14 @@ final class Routers[F[_] : Sync : Client](baseUri: Uri, session: Session)
           "name" -> create.name,
           "project_id" -> projectId,
           "limit" -> "2")
-        ).compile.toList.flatMap {
+        ).flatMap {
           case List(_, _) =>
-            // There is more than one router with name `create.name`. We do not have enough information to disambiguate between them.
-            Sync[F].raiseError(UnexpectedStatus(Conflict)) // TODO: improve the error
-          case List(existing) =>updateFromCreate(create, existing, extraHeaders:_*)
+            val message =
+              s"""Cannot create a Router idempotently because more than one exists with:
+                 |name: ${create.name}
+                 |project: ${create.projectId}""".stripMargin
+            Sync[F].raiseError(NeutronError(Conflict.reason, message))
+          case List(existing) => resolveConflict(existing, create)
           case Nil => super.create(create, extraHeaders:_*)
         }
     }

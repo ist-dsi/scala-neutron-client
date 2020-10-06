@@ -1,13 +1,11 @@
 package pt.tecnico.dsi.openstack.neutron.models
 
 import com.comcast.ip4s.{Cidr, IpAddress}
-import io.circe.{Decoder, Encoder}
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
+import io.circe.{Decoder, Encoder}
 
 object AllocationPool {
-  implicit def encoder[IP <: IpAddress: Encoder]: Encoder[AllocationPool[IP]] = deriveEncoder(renaming.snakeCase)
-  implicit def decoder[IP <: IpAddress: Decoder]: Decoder[AllocationPool[IP]] = deriveDecoder(renaming.snakeCase)
-  
+  /** Creates an AllocationPool from `cidr`. */
   def fromCidr[IP <: IpAddress](cidr: Cidr[IP]): AllocationPool[IP] =
     AllocationPool(cidr.prefix.next.next, cidr.last.previous).asInstanceOf[AllocationPool[IP]]
   
@@ -26,5 +24,10 @@ object AllocationPool {
       Some((gatewayIP, pools.asInstanceOf[List[AllocationPool[IP]]]))
     }
   }
+  
+  implicit def encoder[IP <: IpAddress: Encoder]: Encoder[AllocationPool[IP]] = deriveEncoder(renaming.snakeCase)
+  implicit def decoder[IP <: IpAddress: Decoder]: Decoder[AllocationPool[IP]] = deriveDecoder(renaming.snakeCase)
+  
+  implicit def ordering[IP <: IpAddress: Ordering]: Ordering[AllocationPool[IP]] = Ordering.by(x => (x.start, x.end))
 }
 case class AllocationPool[+IP <: IpAddress](start: IP, end: IP)

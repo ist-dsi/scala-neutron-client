@@ -1,6 +1,0 @@
-import pt.tecnico.dsi.openstack.neutron.models.SecurityGroupRule
-import io.circe._
-import io.circe.parser._
-import pt.tecnico.dsi.openstack.neutron.models._
-val jsonString = """{"remote_group_id":null,"direction":"ingress","protocol":"tcp","description":"","remote_ip_prefix":"192.168.1.1/24","port_range_max":5000,"updated_at":"2020-09-28T11:29:15Z","security_group_id":"86bf02f7-8223-422f-bf23-13be4a792c2e","tenant_id":"c1c812936dd2403eae799102a1e98447","port_range_min":5000,"revision_number":0,"ethertype":"IPv4","id":"f31831e5-fb53-4da3-b5dd-3bb22639801a","project_id":"c1c812936dd2403eae799102a1e98447","created_at":"2020-09-28T11:29:15Z"}"""
-decode[SecurityGroupRule](jsonString)
