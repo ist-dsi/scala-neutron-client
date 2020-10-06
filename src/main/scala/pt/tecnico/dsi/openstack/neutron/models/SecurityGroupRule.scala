@@ -1,37 +1,33 @@
 package pt.tecnico.dsi.openstack.neutron.models
 
 import java.time.OffsetDateTime
+import scala.annotation.nowarn
+import cats.effect.Sync
 import com.comcast.ip4s.{Cidr, IpAddress}
-import enumeratum.{Circe, Enum, EnumEntry}
 import io.circe.derivation.{deriveEncoder, renaming}
 import io.circe.{Decoder, DecodingFailure, Encoder, HCursor}
 import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link}
-import pt.tecnico.dsi.openstack.neutron.models.SecurityGroupRule.Direction
+import pt.tecnico.dsi.openstack.keystone.KeystoneClient
+import pt.tecnico.dsi.openstack.keystone.models.Project
+import pt.tecnico.dsi.openstack.neutron.NeutronClient
 
 object SecurityGroupRule {
-  sealed trait Direction extends EnumEntry
-  case object Direction extends Enum[Direction] {
-    implicit val circeEncoder: Encoder[Direction] = Circe.encoderLowercase(this)
-    implicit val circeDecoder: Decoder[Direction] = Circe.decoderLowercaseOnly(this)
-    
-    case object Ingress extends Direction
-    case object Egress extends Direction
-    
-    val values: IndexedSeq[Direction] = findValues
-  }
-  
   object Create {
-    implicit val decoder: Encoder[Create] = {
+    implicit val encoder: Encoder[Create] = {
+      @nowarn // False negative from the compiler. This Encoder is being used in the deriveEncoder which is a macro.
       implicit val remoteEncoder: Encoder[Either[Cidr[IpAddress], String]] = Encoder.encodeEither("remote_ip_prefix", "remote_group_id")
-      val derived = withRenames(deriveEncoder[Create](renaming.snakeCase))("ip_version" -> "ethertype").mapJsonObject { obj =>
+      val derived = deriveEncoder[Create](Map("ipVersion" -> "ethertype").withDefault(renaming.snakeCase)).mapJsonObject { obj =>
         obj.remove("remote").deepMerge(obj("remote").flatMap(_.asObject).get)
       }
       (create: Create) => create.remote match {
-        case Some(Left(cidr)) => derived(create.copy(ipVersion = cidr.address.version))
+        case Some(Left(cidr)) =>
+          // If remote is set to a CIDR we set the ipVersion (even if it was already set)
+          derived(create.copy(ipVersion = cidr.address.version))
         case _ => derived(create)
       }
     }
     
+    /** Creates a rule allowing the TCP ports in `range` to be accessed by the IPs in `cidr`. */
     def apply(range: Range.Inclusive, cidr: Cidr[IpAddress])(securityGroupId: String): Create = Create(
       securityGroupId,
       direction = Direction.Ingress,
@@ -41,8 +37,10 @@ object SecurityGroupRule {
       portRangeMax = Some(range.`end`),
       remote = Some(Left(cidr)),
     )
+    /** Creates a rule allowing the TCP `port` to be accessed by the IPs in `cidr`. */
     def apply(port: Int, cidr: Cidr[IpAddress])(securityGroupId: String): Create = apply(port to port, cidr)(securityGroupId)
-    
+  
+    /** Creates a rule allowing the TCP ports in `range` to be accessed by machines in `remoteSecurityGroupId`. */
     def apply(range: Range.Inclusive, remoteSecurityGroupId: String, ipVersion: IpVersion)(securityGroupId: String): Create = Create(
       securityGroupId,
       direction = Direction.Ingress,
@@ -52,35 +50,20 @@ object SecurityGroupRule {
       portRangeMax = Some(range.`end`),
       remote = Some(Right(remoteSecurityGroupId)),
     )
+    /** Creates a rule allowing the TCP `port` to be accessed by machines in `remoteSecurityGroupId`. */
     def apply(port: Int, remoteSecurityGroupId: String, ipVersion: IpVersion)(securityGroupId: String): Create =
       apply(port to port, remoteSecurityGroupId, ipVersion)(securityGroupId)
   }
   case class Create(
     securityGroupId: String,
-    description: String = "",
     direction: Direction,
     ipVersion: IpVersion,
     protocol: Option[String] = None, // Option[String | Int] would be better
     portRangeMin: Option[Int] = None,
     portRangeMax: Option[Int] = None,
     remote: Option[Either[Cidr[IpAddress], String]] = None, // Option[Cidr[IpAddress] | String] would be better
+    description: String = "",
   )
-  
-  /*implicit val decoder: Decoder[SecurityGroupRule] = {
-    //implicit val remoteDecoder: Decoder[Either[Cidr[IpAddress], String]] = Decoder.decodeEither("remote_ip_prefix", "remote_group_id")
-  
-    implicit val remoteDecoder: Decoder[Option[Either[Cidr[IpAddress], String]]] = (cursor: HCursor) => for {
-      remoteCidr <- cursor.up.get[Option[Cidr[IpAddress]]]("remote_ip_prefix")
-      remoteSecurityGroupId <- cursor.up.get[Option[String]]("remote_group_id")
-      remote <- (remoteCidr, remoteSecurityGroupId) match {
-        case (Some(cidr), None) => Right(Some(Left(cidr)))
-        case (None, Some(securityGroupId)) => Right(Some(Right(securityGroupId)))
-        case (None, None) => Right(None)
-        case (Some(cidr), Some(securityGroupId)) => Left(DecodingFailure(s"Got both a remote_ip_prefix $cidr and a remote_group_id $securityGroupId", cursor.history))
-      }
-    } yield remote
-    withRenames(deriveDecoder[SecurityGroupRule](renaming.snakeCase))("revision_number" -> "revision", "ethertype" -> "ip_version")
-  }*/
   
   // Custom decoder mainly because of remote
   implicit val decoder: Decoder[SecurityGroupRule] = (cursor: HCursor) => for {
@@ -123,4 +106,7 @@ case class SecurityGroupRule(
   createdAt: OffsetDateTime,
   updatedAt: OffsetDateTime,
   links: List[Link] = List.empty, // Its here just so the SecurityGroupRule is identifiable. Another point for Openstack consistency
-) extends Identifiable
+) extends Identifiable {
+  def project[F[_]: Sync](implicit keystone: KeystoneClient[F]): F[Project] = keystone.projects(projectId)
+  def securityGroup[F[_]: Sync](implicit neutron: NeutronClient[F]): F[SecurityGroup] = neutron.securityGroups(securityGroupId)
+}

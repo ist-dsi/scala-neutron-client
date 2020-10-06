@@ -4,6 +4,6 @@ import io.circe.Decoder
 import io.circe.derivation.{deriveDecoder,renaming}
 
 object NeutronError {
-  implicit val decoder: Decoder[NeutronError] = deriveDecoder[NeutronError](renaming.snakeCase).at("NeutronError")
+  implicit val decoder: Decoder[NeutronError] = deriveDecoder(renaming.snakeCase).at("NeutronError")
 }
-case class NeutronError(`type`: String, message: String, detail: String) extends Exception(s"$message\n$detail")
+case class NeutronError(`type`: String, message: String, detail: String = "") extends Exception(s"$message\n$detail")

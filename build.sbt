@@ -39,7 +39,7 @@ scalacOptions in (Test, console) := (scalacOptions in (Compile, console)).value
 // ==== Dependencies ====================================================================================================
 // ======================================================================================================================
 libraryDependencies ++= Seq(
-  "pt.tecnico.dsi"  %% "scala-keystone-client" % "0.4.0-SNAPSHOT",
+  "pt.tecnico.dsi"  %% "scala-keystone-client" % "0.5.0-SNAPSHOT",
   "com.comcast"     %% "ip4s-core"             % "1.3.0",
   "com.beachape"    %% "enumeratum-circe"      % "1.6.1",
   "ch.qos.logback"  %  "logback-classic"       % "1.2.3" % Test,
@@ -103,9 +103,9 @@ excludeFilter in ghpagesCleanSite := AllPassFilter // We want to keep all the pr
 val latestFileName = "latest"
 val createLatestSymlink = taskKey[Unit](s"Creates a symlink named $latestFileName which points to the latest version.")
 createLatestSymlink := {
-  ghpagesSynchLocal.value // Ensure the ghpagesRepository already exists
   import java.nio.file.Files
-  val path = (ghpagesRepository.value / "api" / latestFileName).toPath
+  // We use ghpagesSynchLocal instead of ghpagesRepository to ensure the files in the local filesystem already exist
+  val path = (ghpagesSynchLocal.value / "api" / latestFileName).toPath
   if (!Files.isSymbolicLink(path)) Files.createSymbolicLink(path, new File(latestReleasedVersion.value).toPath)
 }
 ghpagesPushSite := ghpagesPushSite.dependsOn(createLatestSymlink).value

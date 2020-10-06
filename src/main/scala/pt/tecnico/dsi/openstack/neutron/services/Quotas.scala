@@ -14,12 +14,12 @@ final class Quotas[F[_]: Sync: Client](baseUri: Uri, session: Session) extends S
   val name = "quota"
 
   /** Lists quotas for projects with non-default quota values. */
-  def list: Stream[F, (String, Quota)] = {
+  def stream: Stream[F, (String, Quota)] = {
     val decoder: Decoder[(String, Quota)] = (cursor: HCursor) => for {
       projectId <- cursor.get[String]("project_id")
       quota <- cursor.as[Quota]
     } yield (projectId, quota)
-    super.list(wrappedAt = s"${name}s", uri, Query.empty)(decoder)
+    super.stream(wrappedAt = s"${name}s", uri, Query.empty)(decoder)
   }
   
   /**

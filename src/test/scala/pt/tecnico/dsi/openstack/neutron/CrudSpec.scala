@@ -4,7 +4,7 @@ import scala.util.Try
 import cats.effect.{IO, Resource}
 import cats.implicits._
 import org.http4s.Query
-import org.http4s.client.UnexpectedStatus
+import pt.tecnico.dsi.openstack.common.models.UnexpectedStatus
 import org.scalatest.Assertion
 import org.scalatest.EitherValues._
 import org.scalatest.OptionValues._
@@ -27,21 +27,22 @@ abstract class CrudSpec[Model <: Identifiable, Create, Update](val name: String)
   
   s"The ${name}s service" should {
     s"list ${name}s" in resource.use[IO, Assertion] { model =>
-      service.list().compile.toList.idempotently { models =>
+      service.list().idempotently { models =>
         models.exists(m => Try(compareGet(m, model)).isSuccess) shouldBe true
       }
     }
     
-    s"create ${name}s" in {
+    s"createOrUpdate ${name}s" in {
       val name = randomName()
       val stub = createStub(name)
       val repetitions = 3
       for {
-        _ <- service.create(stub).idempotently(compareCreate(stub, _), repetitions)
-        list <- service.list(Query.fromPairs("name" -> name, "project_id" -> project.id, "limit" -> repetitions.toString)).compile.toList
+        _ <- service.createOrUpdate(stub).idempotently(compareCreate(stub, _), repetitions)
+        list <- service.list(Query.fromPairs("name" -> name, "project_id" -> project.id, "limit" -> repetitions.toString))
         _ <- list.parTraverse_(service.delete(_))
       } yield list.size shouldBe 1
     }
+    // TODO: add test(s) that test the updates in the idempotency of create
     
     s"get ${name}s (existing id)" in resource.use[IO, Assertion] { model =>
       service.get(model.id).idempotently(m => compareGet(m.value, model))
@@ -68,9 +69,14 @@ abstract class CrudSpec[Model <: Identifiable, Create, Update](val name: String)
 }
 
 trait BulkCreateSpec[Model <: Identifiable, Create] { self: CrudSpec[Model, Create, _] =>
-  val service: CrudService[IO, Model, Create, _] with BulkCreate[IO, Model, Create]
-  def withBulkCreated(quantity: Int = 5): Resource[IO, List[Model]]
-
+  val bulkService: CrudService[IO, Model, Create, _] with BulkCreate[IO, Model, Create]
+  
+  def withBulkCreated(quantity: Int = 5): Resource[IO, List[Model]] = {
+    val value: List[Create] = List.tabulate(quantity)(i => createStub(s"${randomName()}$i"))
+    val createIO: IO[List[Model]] = bulkService.create(value)
+    Resource.make(createIO)(_.traverse_(stub => service.delete(stub.id)))
+  }
+  
   s"The ${name}s service" should {
     "create in bulk and get" in withBulkCreated().use[IO, Assertion] { createdStubs =>
       for {

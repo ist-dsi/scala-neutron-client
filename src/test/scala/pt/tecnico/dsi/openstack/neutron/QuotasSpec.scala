@@ -9,7 +9,7 @@ class QuotasSpec extends Utils {
 
   val withStubProject: Resource[IO, String] = {
     Resource.make(keystone.projects.create(
-      Project.Create("dummy", Some("dummy project"), Some("default"))
+      Project.Create("dummy", "a description", Some("default"))
     ).map(_.id))(x => keystone.projects.delete(x))
   }
 
@@ -31,7 +31,7 @@ class QuotasSpec extends Utils {
       for {
         // Ensure there is at least one project with non-default quotas
         _ <- neutron.quotas.update(dummyProjectId, Quota.Update(network = Some(30)))
-        quotas <- neutron.quotas.list.map(_._1).compile.toList
+        quotas <- neutron.quotas.stream.map(_._1).compile.toList
         // Reset the quotas back to default values to ensure we can run this suite multiple times
         _ <- neutron.quotas.delete(dummyProjectId)
       } yield quotas should contain(dummyProjectId)

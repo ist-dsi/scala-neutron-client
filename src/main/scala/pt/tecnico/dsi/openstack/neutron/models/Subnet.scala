@@ -1,25 +1,30 @@
 package pt.tecnico.dsi.openstack.neutron.models
 
 import java.time.OffsetDateTime
-import com.comcast.ip4s.{Cidr, Hostname, IpAddress, Ipv4Address, Ipv6Address}
+import scala.annotation.nowarn
+import cats.effect.Sync
+import com.comcast.ip4s.{Cidr, IpAddress, Ipv4Address, Ipv6Address}
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
-import io.circe.{Decoder, DecodingFailure, Encoder, HCursor}
+import io.circe.{Decoder, Encoder, HCursor}
 import io.circe.syntax._
 import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link}
+import pt.tecnico.dsi.openstack.keystone.KeystoneClient
+import pt.tecnico.dsi.openstack.keystone.models.Project
+import pt.tecnico.dsi.openstack.neutron.NeutronClient
+import pt.tecnico.dsi.openstack.neutron.models.IpVersion.{IPv4, IPv6}
 
 object Subnet {
   object Create {
-    implicit def encoder: Encoder[Create[IpAddress]] = {
-      implicit val ipVersionEncoder: Encoder[IpVersion] = Encoder[Int].contramap {
-        case IpVersion.IPv4 => 4
-        case IpVersion.IPv6 => 6
-      }
-      val derived = withRenames(deriveEncoder[Create[IpAddress]](renaming.snakeCase))("nameservers" -> "dns_nameservers")
+    implicit val encoder: Encoder[Create[IpAddress]] = {
+      @nowarn // False negative from the compiler. This Encoder is being used in the deriveEncoder which is a macro.
+      implicit val ipVersionEncoder: Encoder[IpVersion] = IpVersion.intEncoder
+      val derived = deriveEncoder[Create[IpAddress]](baseRenames)
       (create: Create[IpAddress]) => {
         val addressOption = create.cidr.map(_.address)
-                                  .orElse(create.gatewayIp)
+                                  .orElse(create.gateway)
                                   .orElse(create.allocationPools.flatMap(_.headOption).map(_.start))
                                   .orElse(create.hostRoutes.headOption.map(_.nexthop))
+        // TODO: if cidr.address != cidr.prefix (eg: 192.168.1.35/27) we could assume cidr.address to be the gateway
         addressOption match {
           case None =>
             // The user has not set cidr, gatewayIp, allocationPools, or host routes.
@@ -35,13 +40,13 @@ object Subnet {
   }
   case class Create[+IP <: IpAddress](
     name: String,
-    description: String = "",
     networkId: String,
+    description: Option[String] = None,
     cidr: Option[Cidr[IP]] = None,
-    gatewayIp: Option[IP] = None,
+    gateway: Option[IP] = None,
     allocationPools: Option[List[AllocationPool[IP]]] = None,
     hostRoutes: List[Route[IP]] = List.empty,
-    nameservers: List[Hostname] = List.empty,
+    nameservers: List[IP] = List.empty,
     enableDhcp: Boolean = true,
     subnetpoolId: Option[String] = None,
     useDefaultSubnetpool: Option[Boolean] = None,
@@ -63,7 +68,7 @@ object Subnet {
     gatewayIp: Option[IP] = None,
     allocationPools: Option[List[AllocationPool[IP]]] = None,
     hostRoutes: Option[List[Route[IP]]] = None,
-    dnsNameservers: Option[List[Hostname]] = None,
+    dnsNameservers: Option[List[IP]] = None,
     enableDhcp: Option[Boolean] = None,
     segmentId: Option[String] = None,
     serviceTypes: Option[List[String]] = None,
@@ -75,22 +80,19 @@ object Subnet {
     }
   }
   
-  private val baseRenames = List(
-    "revision_number" -> "revision",
-    "gateway_ip" -> "gateway",
-    "dns_nameservers" -> "nameservers",
-  )
-  implicit val decoderV4: Decoder[SubnetIpv4] = withRenames(deriveDecoder[SubnetIpv4](renaming.snakeCase))(baseRenames:_*)
-  implicit val decoderV6: Decoder[SubnetIpv6] = withRenames(deriveDecoder[SubnetIpv6](renaming.snakeCase))(
-    (baseRenames ++ List(
-      "ipv6_address_mode" -> "mode",
-      "ipv6_ra_mode" -> "router_advertisement_mode",
-    )):_*
-  )
-  implicit val decoder: Decoder[Subnet[IpAddress]] = (cursor: HCursor) => cursor.get[Int]("ip_version").flatMap {
-    case 4 => decoderV4(cursor)
-    case 6 => decoderV6(cursor)
-    case v => Left(DecodingFailure(s"Invalid ip_version: $v", cursor.history))
+  private val baseRenames = Map(
+    "revision" -> "revision_number",
+    "gateway" -> "gateway_ip",
+    "nameservers" -> "dns_nameservers",
+  ).withDefault(renaming.snakeCase)
+  implicit val decoderV4: Decoder[SubnetIpv4] = deriveDecoder(baseRenames)
+  implicit val decoderV6: Decoder[SubnetIpv6] = deriveDecoder(baseRenames ++ Map(
+    "mode" -> "ipv6_address_mode",
+    "router_advertisement_mode" -> "ipv6_ra_mode",
+  ))
+  implicit val decoder: Decoder[Subnet[IpAddress]] = (cursor: HCursor) => IpVersion.intDecoder.at("ip_version")(cursor).flatMap {
+    case IPv4 => decoderV4(cursor)
+    case IPv6 => decoderV6(cursor)
   }
 }
 sealed trait Subnet[+IP <: IpAddress] extends Identifiable {
@@ -104,7 +106,7 @@ sealed trait Subnet[+IP <: IpAddress] extends Identifiable {
   def allocationPools: List[AllocationPool[IP]]
   def hostRoutes: List[Route[IP]]
   def enableDhcp: Boolean
-  def nameservers: List[Hostname]
+  def nameservers: List[IP]
   def subnetpoolId: Option[String]
   def segmentId: Option[String]
   def serviceTypes: List[String]
@@ -113,6 +115,9 @@ sealed trait Subnet[+IP <: IpAddress] extends Identifiable {
   def createdAt: OffsetDateTime
   def updatedAt: OffsetDateTime
   def tags: List[String]
+  
+  def project[F[_]: Sync](implicit keystone: KeystoneClient[F]): F[Project] = keystone.projects(projectId)
+  def network[F[_]: Sync](implicit neutron: NeutronClient[F]): F[Network] = neutron.networks(networkId)
 }
 
 case class SubnetIpv4(
@@ -127,7 +132,7 @@ case class SubnetIpv4(
   allocationPools: List[AllocationPool[Ipv4Address]],
   hostRoutes: List[Route[Ipv4Address]],
   enableDhcp: Boolean,
-  nameservers: List[Hostname],
+  nameservers: List[Ipv4Address],
   subnetpoolId: Option[String] = None,
   segmentId: Option[String] = None,
   serviceTypes: List[String],
@@ -151,7 +156,7 @@ case class SubnetIpv6(
   allocationPools: List[AllocationPool[Ipv6Address]],
   hostRoutes: List[Route[Ipv6Address]],
   enableDhcp: Boolean,
-  nameservers: List[Hostname],
+  nameservers: List[Ipv6Address],
   subnetpoolId: Option[String] = None,
   segmentId: Option[String] = None,
   serviceTypes: List[String],
