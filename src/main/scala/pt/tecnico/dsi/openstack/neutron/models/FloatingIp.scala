@@ -23,13 +23,13 @@ object FloatingIp {
   )
 
   object Create {
-    implicit val decoder: Encoder[Create] = deriveEncoder(renaming.snakeCase)
+    implicit val decoder: Encoder[Create[IpAddress]] = deriveEncoder(renaming.snakeCase)
   }
-  case class Create(
+  case class Create[+IP <: IpAddress](
     floatingNetworkId: String,
     portId: Option[String] = None,
-    fixedIpAddress: Option[String] = None,
-    floatingIpAddress: Option[String] = None,
+    fixedIpAddress: Option[IP] = None,
+    floatingIpAddress: Option[IP] = None,
     description: Option[String] = None,
     subnetId: Option[String] = None,
     dnsName: Option[String] = None,
@@ -38,13 +38,19 @@ object FloatingIp {
   )
 
   object Update {
-    implicit val decoder: Encoder[Update] = deriveEncoder(renaming.snakeCase)
+    implicit val decoder: Encoder[Update[IpAddress]] = deriveEncoder(renaming.snakeCase)
   }
-  case class Update(
+  case class Update[+IP <: IpAddress](
     portId: Option[String] = None,
-    fixedIpAddress: Option[IpAddress] = None,
+    fixedIpAddress: Option[IP] = None,
     description: Option[String] = None,
-  )
+  ) {
+    lazy val needsUpdate: Boolean = {
+      // We could implement this with the next line, but that implementation is less reliable if the fields of this class change
+      //  productIterator.asInstanceOf[Iterator[Option[Any]]].exists(_.isDefined)
+      List(portId, fixedIpAddress, description).exists(_.isDefined)
+    }
+  }
   
   implicit val decoder: Decoder[FloatingIp[IpAddress]] = deriveDecoder(Map(
     "revision" -> "revision_number"
@@ -58,8 +64,8 @@ case class FloatingIp[+IP <: IpAddress](
   
   status: String, // Values are ACTIVE, DOWN and ERROR.
   floatingNetworkId: String,
-  dnsName: String,
-  dnsDomain: String, // Cannot be ip4s Hostname because it ends with '.'
+  dnsName: Option[String] = None,
+  dnsDomain: Option[String] = None, // Cannot be ip4s Hostname because it ends with '.'
   fixedIpAddress: Option[IP] = None,
   floatingIpAddress: IP,
   routerId: Option[String] = None,

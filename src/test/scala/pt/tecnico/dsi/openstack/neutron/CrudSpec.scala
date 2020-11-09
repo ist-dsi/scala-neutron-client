@@ -1,5 +1,6 @@
 package pt.tecnico.dsi.openstack.neutron
 
+import scala.annotation.nowarn
 import scala.util.Try
 import cats.effect.{IO, Resource}
 import cats.implicits._
@@ -17,6 +18,8 @@ abstract class CrudSpec[Model <: Identifiable, Create, Update](val name: String)
   
   def createStub(name: String): Create
   def compareCreate(create: Create, model: Model): Assertion
+  def createListQuery(name: String, @nowarn create: Create, repetitions: Int): Query =
+    Query.fromPairs("name" -> name, "limit" -> repetitions.toString, "project_id" -> project.id)
   
   val updateStub: Update
   def compareUpdate(update: Update, model: Model): Assertion
@@ -26,24 +29,26 @@ abstract class CrudSpec[Model <: Identifiable, Create, Update](val name: String)
   lazy val resource: Resource[IO, Model] = resourceCreator(service)(createStub)
   
   s"The ${name}s service" should {
+    /*
     s"list ${name}s" in resource.use[IO, Assertion] { model =>
       service.list().idempotently { models =>
         models.exists(m => Try(compareGet(m, model)).isSuccess) shouldBe true
       }
     }
-    
+    */
     s"createOrUpdate ${name}s" in {
       val name = randomName()
-      val stub = createStub(name)
+      val create = createStub(name)
       val repetitions = 3
       for {
-        _ <- service.createOrUpdate(stub).idempotently(compareCreate(stub, _), repetitions)
-        list <- service.list(Query.fromPairs("name" -> name, "project_id" -> project.id, "limit" -> repetitions.toString))
+        _ <- service.createOrUpdate(create).idempotently(compareCreate(create, _), repetitions)
+        list <- service.list(createListQuery(name, create, repetitions))
+        //_ = println(list.mkString("\n"))
         _ <- list.parTraverse_(service.delete(_))
       } yield list.size shouldBe 1
     }
     // TODO: add test(s) that test the updates in the idempotency of create
-    
+    /*
     s"get ${name}s (existing id)" in resource.use[IO, Assertion] { model =>
       service.get(model.id).idempotently(m => compareGet(m.value, model))
     }
@@ -65,6 +70,7 @@ abstract class CrudSpec[Model <: Identifiable, Create, Update](val name: String)
     s"delete a $name" in resource.use[IO, Assertion] { model =>
       service.delete(model.id).idempotently(_ shouldBe ())
     }
+    */
   }
 }
 

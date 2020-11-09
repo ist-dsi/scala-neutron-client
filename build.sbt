@@ -105,8 +105,12 @@ val createLatestSymlink = taskKey[Unit](s"Creates a symlink named $latestFileNam
 createLatestSymlink := {
   import java.nio.file.Files
   // We use ghpagesSynchLocal instead of ghpagesRepository to ensure the files in the local filesystem already exist
-  val path = (ghpagesSynchLocal.value / "api" / latestFileName).toPath
-  if (!Files.isSymbolicLink(path)) Files.createSymbolicLink(path, new File(latestReleasedVersion.value).toPath)
+  val linkName = (ghpagesSynchLocal.value / "api" / latestFileName).toPath
+  val target = new File(latestReleasedVersion.value).toPath
+  if (!(Files.isSymbolicLink(linkName) && Files.readSymbolicLink(linkName) == target)) {
+    Files.delete(linkName)
+    Files.createSymbolicLink(linkName, target)
+  }
 }
 ghpagesPushSite := ghpagesPushSite.dependsOn(createLatestSymlink).value
 ghpagesNoJekyll := false
