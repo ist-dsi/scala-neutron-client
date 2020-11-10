@@ -3,7 +3,7 @@ package pt.tecnico.dsi.openstack.neutron.models
 import java.time.OffsetDateTime
 import scala.annotation.nowarn
 import cats.effect.Sync
-import com.comcast.ip4s.{Cidr, IpAddress, Ipv4Address, Ipv6Address}
+import com.comcast.ip4s.{Cidr, IpAddress, IpVersion, Ipv4Address, Ipv6Address}
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
 import io.circe.{Decoder, Encoder, HCursor}
 import io.circe.syntax._
@@ -11,13 +11,12 @@ import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link}
 import pt.tecnico.dsi.openstack.keystone.KeystoneClient
 import pt.tecnico.dsi.openstack.keystone.models.Project
 import pt.tecnico.dsi.openstack.neutron.NeutronClient
-import pt.tecnico.dsi.openstack.neutron.models.IpVersion.{IPv4, IPv6}
 
 object Subnet {
   object Create {
     implicit val encoder: Encoder[Create[IpAddress]] = {
       @nowarn // False negative from the compiler. This Encoder is being used in the deriveEncoder which is a macro.
-      implicit val ipVersionEncoder: Encoder[IpVersion] = IpVersion.intEncoder
+      implicit val ipVersionEncoder: Encoder[IpVersion] = ipVersionIntEncoder
       val derived = deriveEncoder[Create[IpAddress]](baseRenames)
       (create: Create[IpAddress]) => {
         val addressOption = create.cidr.map(_.address)
@@ -90,9 +89,9 @@ object Subnet {
     "mode" -> "ipv6_address_mode",
     "router_advertisement_mode" -> "ipv6_ra_mode",
   ))
-  implicit val decoder: Decoder[Subnet[IpAddress]] = (cursor: HCursor) => IpVersion.intDecoder.at("ip_version")(cursor).flatMap {
-    case IPv4 => decoderV4(cursor)
-    case IPv6 => decoderV6(cursor)
+  implicit val decoder: Decoder[Subnet[IpAddress]] = (cursor: HCursor) => ipVersionIntDecoder.at("ip_version")(cursor).flatMap {
+    case IpVersion.V4 => decoderV4(cursor)
+    case IpVersion.V6 => decoderV6(cursor)
   }
 }
 sealed trait Subnet[+IP <: IpAddress] extends Identifiable {

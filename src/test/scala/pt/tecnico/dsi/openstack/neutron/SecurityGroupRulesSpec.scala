@@ -51,7 +51,7 @@ final class SecurityGroupRulesSpec extends Utils {
         list <- securityGroupRules.list(Query.fromPairs(
           "security_group_id" -> securityGroup.id,
           "direction" -> stub.direction.toString.toLowerCase,
-          "ethertype" -> stub.ipVersion.toString,
+          "ethertype" -> s"IP${stub.ipVersion.toString.toLowerCase}",
           "remote_ip_prefix" -> stub.remote.value.left.value.toString,
           "port_range_min" -> stub.portRangeMin.value.toString,
           "port_range_max" -> stub.portRangeMax.value.toString,
