@@ -28,7 +28,7 @@ final class SecurityGroups[F[_]: Sync: Client](baseUri: Uri, session: Session)
     list("name" -> create.name, "project_id" -> create.projectId, "limit" -> "2").flatMap {
       case List(_, _) =>
         val message =
-          s"""Cannot create a SecurityGroup idempotently because more than one exists with:
+          s"""Cannot create a $name idempotently because more than one exists with:
              |name: ${create.name}
              |project: ${create.projectId}""".stripMargin
         Sync[F].raiseError(NeutronError(Conflict.reason, message))
@@ -37,9 +37,5 @@ final class SecurityGroups[F[_]: Sync: Client](baseUri: Uri, session: Session)
         resolveConflict(existing, create)
       case Nil => super.create(create, extraHeaders:_*)
     }
-  }
-  override def update(id: String, value: SecurityGroup.Update, extraHeaders: Header*): F[SecurityGroup] = {
-    // Partial updates are done with a put, everyone knows that </sarcasm>
-    super.put(wrappedAt = Some(name), value, uri / id, extraHeaders:_*)
   }
 }

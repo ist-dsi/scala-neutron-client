@@ -21,7 +21,7 @@ final class FloatingIps[F[_] : Sync : Client](baseUri: Uri, session: Session)
       // so its really a conflict and there is nothing we can do.
       // TODO: should we implement Show for the domain classes (using kittens)
       val message =
-        s"""The following floating ip already exists and its in use (has a port associated with it):
+        s"""The following $name already exists and its in use (has a port associated with it):
            |id: ${existing.id}
            |description: ${existing.description}
            |project: ${existing.projectId}
@@ -39,7 +39,6 @@ final class FloatingIps[F[_] : Sync : Client](baseUri: Uri, session: Session)
            |updatedAt: ${existing.updatedAt}""".stripMargin
       Sync[F].raiseError(NeutronError(Conflict.reason, message))
     } else {
-      getLogger.info(s"createOrUpdate: found unique $name (id: ${existing.id}) with the correct dnsName, dnsDomain, projectId, and portId.")
       val updated = FloatingIp.Update(
         fixedIpAddress = if (existing.fixedIpAddress != create.fixedIpAddress) create.fixedIpAddress else None,
         description = if (existing.description != create.description) create.description else None,
@@ -65,21 +64,18 @@ final class FloatingIps[F[_] : Sync : Client](baseUri: Uri, session: Session)
           } match {
             case List(_, _) =>
               val message =
-                s"""Cannot create a Floating Ip idempotently because more than one exists with:
+                s"""Cannot create a $name idempotently because more than one exists with:
                    |floating network id: ${create.floatingNetworkId}
                    |project: $projectId
                    |dnsName: $dnsName
                    |dnsDomain: $dnsDomain""".stripMargin
               Sync[F].raiseError(NeutronError(Conflict.reason, message))
-            case List(existing) => resolveConflict(existing, create)
+            case List(existing) =>
+              getLogger.info(s"createOrUpdate: found unique $name (id: ${existing.id}) with the correct dnsName, dnsDomain, projectId, and portId.")
+              resolveConflict(existing, create)
             case Nil => super.create(create, extraHeaders:_*)
           }
         }
     }
-  }
-  
-  override def update(id: String, update: FloatingIp.Update[IpAddress], extraHeaders: Header*): F[FloatingIp[IpAddress]] = {
-    // Partial updates are done with a put, everyone knows that </sarcasm>
-    super.put(wrappedAt = Some(name), update, uri / id, extraHeaders:_*)
   }
 }
