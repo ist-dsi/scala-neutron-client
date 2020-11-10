@@ -3,6 +3,8 @@ language: scala
 scala:
   - 2.13.3
 
+sbt_args: --color=true -Dsbt.color=true -Dsbt.log.noformat=false -Dsbt.ci=false
+
 # We are using this because its the only environment with IPv6
 os: linux
 arch: arm64
@@ -29,6 +31,6 @@ cache:
 before_script:
   - source openrc-neutron.sh
 
-script: sbt -Dsbt.color=true clean coverage test
+script: sbt clean coverage test
 
-after_success: sbt -Dsbt.color=true coverageReport codacyCoverage
+after_success: sbt coverageReport codacyCoverage
