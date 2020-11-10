@@ -6,16 +6,14 @@ import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.Random
 import cats.effect.{ContextShift, IO, Resource, Timer}
 import cats.implicits._
+import org.http4s.Query
 import org.http4s.client.Client
 import org.http4s.client.blaze.BlazeClientBuilder
-import org.http4s.client.middleware.Logger
-import org.http4s.{Headers, Query}
 import org.log4s._
 import org.scalatest._
 import org.scalatest.exceptions.TestFailedException
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
-import org.typelevel.ci.CIString
 import pt.tecnico.dsi.openstack.common.models.Identifiable
 import pt.tecnico.dsi.openstack.common.services.CrudService
 import pt.tecnico.dsi.openstack.keystone.KeystoneClient
@@ -33,11 +31,16 @@ abstract class Utils extends AsyncWordSpec with Matchers with BeforeAndAfterAll 
     .withResponseHeaderTimeout(20.seconds)
     .withCheckEndpointAuthentication(false)
     .resource.allocated.unsafeRunSync()
-
+  
+  implicit val httpClient: Client[IO] = _httpClient
+  /*
+  import org.http4s.Headers
+  import org.http4s.client.middleware.Logger
+  import org.typelevel.ci.CIString
   implicit val httpClient: Client[IO] = Logger(
     logHeaders = true,
     logBody = true,
-    redactHeadersWhen = (Headers.SensitiveHeaders ++ List(CIString("X-Auth-Token"), CIString("X-Subject-Token"))).contains)(_httpClient)
+    redactHeadersWhen = (Headers.SensitiveHeaders ++ List(CIString("X-Auth-Token"), CIString("X-Subject-Token"))).contains)(_httpClient)*/
 
   val keystone: KeystoneClient[IO] = KeystoneClient.fromEnvironment().unsafeRunSync()
   val neutron: NeutronClient[IO] = keystone.session.clientBuilder[IO](NeutronClient, sys.env("OS_REGION_NAME"))

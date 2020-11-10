@@ -18,7 +18,7 @@ scalacOptions ++= Seq(
   "-Xcheckinit",                   // Wrap field accessors to throw an exception on uninitialized access.
   "-Xsource:3",                    // Treat compiler input as Scala source for the specified version.
   "-Xmigration:3",                 // Warn about constructs whose behavior may have changed since version.
-//  "-Werror",                       // Fail the compilation if there are any warnings.
+  "-Werror",                       // Fail the compilation if there are any warnings.
   "-Xlint:_",                      // Enables every warning. scalac -Xlint:help for a list and explanation
   "-deprecation",                  // Emit warning and location for usages of deprecated APIs.
   "-unchecked",                    // Enable additional warnings where generated code depends on assumptions.

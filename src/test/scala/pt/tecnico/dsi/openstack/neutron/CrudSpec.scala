@@ -29,13 +29,12 @@ abstract class CrudSpec[Model <: Identifiable, Create, Update](val name: String)
   lazy val resource: Resource[IO, Model] = resourceCreator(service)(createStub)
   
   s"The ${name}s service" should {
-    /*
     s"list ${name}s" in resource.use[IO, Assertion] { model =>
       service.list().idempotently { models =>
         models.exists(m => Try(compareGet(m, model)).isSuccess) shouldBe true
       }
     }
-    */
+    
     s"createOrUpdate ${name}s" in {
       val name = randomName()
       val create = createStub(name)
@@ -43,12 +42,11 @@ abstract class CrudSpec[Model <: Identifiable, Create, Update](val name: String)
       for {
         _ <- service.createOrUpdate(create).idempotently(compareCreate(create, _), repetitions)
         list <- service.list(createListQuery(name, create, repetitions))
-        //_ = println(list.mkString("\n"))
         _ <- list.parTraverse_(service.delete(_))
       } yield list.size shouldBe 1
     }
     // TODO: add test(s) that test the updates in the idempotency of create
-    /*
+    
     s"get ${name}s (existing id)" in resource.use[IO, Assertion] { model =>
       service.get(model.id).idempotently(m => compareGet(m.value, model))
     }
@@ -70,7 +68,6 @@ abstract class CrudSpec[Model <: Identifiable, Create, Update](val name: String)
     s"delete a $name" in resource.use[IO, Assertion] { model =>
       service.delete(model.id).idempotently(_ shouldBe ())
     }
-    */
   }
 }
 

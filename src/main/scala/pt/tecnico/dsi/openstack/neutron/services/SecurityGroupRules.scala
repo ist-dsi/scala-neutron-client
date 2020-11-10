@@ -5,6 +5,7 @@ import cats.syntax.flatMap._
 import fs2.Stream
 import org.http4s.client.Client
 import org.http4s.{Header, Query, Uri}
+import org.log4s.getLogger
 import pt.tecnico.dsi.openstack.common.services.Service
 import pt.tecnico.dsi.openstack.keystone.models.Session
 import pt.tecnico.dsi.openstack.neutron.models.{NeutronError, SecurityGroupRule}
@@ -15,11 +16,11 @@ final class SecurityGroupRules[F[_]: Sync: Client](baseUri: Uri, session: Sessio
   val uri: Uri = baseUri / pluralName
   protected val wrappedAt: Option[String] = Some(name)
 
-  def stream(): Stream[F, SecurityGroupRule] = stream(Query.empty)
-  def stream(query: Query): Stream[F, SecurityGroupRule] = super.stream[SecurityGroupRule](pluralName, uri, query)
+  def stream(pairs: (String, String)*): Stream[F, SecurityGroupRule] = stream(Query.fromPairs(pairs:_*))
+  def stream(query: Query): Stream[F, SecurityGroupRule] = super.stream[SecurityGroupRule](pluralName, uri.copy(query = query))
   
-  def list(): F[List[SecurityGroupRule]] = list(Query.empty)
-  def list(query: Query): F[List[SecurityGroupRule]] = super.list[SecurityGroupRule](pluralName, uri, query)
+  def list(pairs: (String, String)*): F[List[SecurityGroupRule]] = list(Query.fromPairs(pairs:_*))
+  def list(query: Query): F[List[SecurityGroupRule]] = super.list[SecurityGroupRule](pluralName, uri.copy(query = query))
   
   def create(create: SecurityGroupRule.Create, extraHeaders: Header*): F[SecurityGroupRule] =
     super.post(wrappedAt, create, uri, extraHeaders:_*)
@@ -41,6 +42,8 @@ final class SecurityGroupRules[F[_]: Sync: Client](baseUri: Uri, session: Sessio
           val SecurityGroupRule(_, _, description, _, direction, ipVersion, protocol, portRangeMin, portRangeMax, remote, _, _, _, _) = existing
           if (description.contains(create.description) && create.direction == direction && create.ipVersion == ipVersion && create.protocol == protocol &&
             create.portRangeMin == portRangeMin && create.portRangeMax == portRangeMax && create.remote == remote) {
+            getLogger.info(s"createOrUpdate $name: found existing and unique $name (id: ${existing.id}) with the correct " +
+              s"description, direction, ipVersion, protocol, portRangMin, portRangeMax, and remote.")
             F.pure(existing)
           } else {
             // The Security Group Rules API does not have an update. The only thing we could do would be to delete the rule and create it again.
