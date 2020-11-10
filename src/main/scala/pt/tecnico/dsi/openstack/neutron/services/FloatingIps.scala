@@ -39,8 +39,7 @@ final class FloatingIps[F[_] : Sync : Client](baseUri: Uri, session: Session)
            |updatedAt: ${existing.updatedAt}""".stripMargin
       Sync[F].raiseError(NeutronError(Conflict.reason, message))
     } else {
-      getLogger.info(s"createOrUpdate $name: found existing and unique $name (id: ${existing.id}) with the correct " +
-        s"dnsName, dnsDomain, projectId, and portId.")
+      getLogger.info(s"createOrUpdate: found unique $name (id: ${existing.id}) with the correct dnsName, dnsDomain, projectId, and portId.")
       val updated = FloatingIp.Update(
         fixedIpAddress = if (existing.fixedIpAddress != create.fixedIpAddress) create.fixedIpAddress else None,
         description = if (existing.description != create.description) create.description else None,

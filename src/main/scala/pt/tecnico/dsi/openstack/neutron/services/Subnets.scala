@@ -84,7 +84,7 @@ final class Subnets[F[_]: Sync: Client](baseUri: Uri, session: Session)
                  |networkId: ${create.networkId}""".stripMargin
             Sync[F].raiseError(NeutronError(Conflict.reason, message))
           case List(existing) =>
-            getLogger.info(s"createOrUpdate $name: found existing and unique $name (id: ${existing.id}) with the correct name, networkId, and projectId.")
+            getLogger.info(s"createOrUpdate: found unique $name (id: ${existing.id}) with the correct name, networkId, and projectId.")
             resolveConflict(existing, create)
           case Nil => super.create(create, extraHeaders:_*)
         }
