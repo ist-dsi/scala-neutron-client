@@ -42,7 +42,7 @@ final class SecurityGroupRules[F[_]: Sync: Client](baseUri: Uri, session: Sessio
           val SecurityGroupRule(_, _, description, _, direction, ipVersion, protocol, portRangeMin, portRangeMax, remote, _, _, _, _) = existing
           if (description.contains(create.description) && create.direction == direction && create.ipVersion == ipVersion && create.protocol == protocol &&
             create.portRangeMin == portRangeMin && create.portRangeMax == portRangeMax && create.remote == remote) {
-            getLogger.info(s"createOrUpdate $name: found existing and unique $name (id: ${existing.id}) with the correct " +
+            getLogger.info(s"createOrUpdate: found unique $name (id: ${existing.id}) with the correct " +
               s"description, direction, ipVersion, protocol, portRangMin, portRangeMax, and remote.")
             F.pure(existing)
           } else {
