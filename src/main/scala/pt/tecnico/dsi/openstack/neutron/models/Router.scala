@@ -46,44 +46,6 @@ object Router {
     }
   }
   
-  /*
-  sealed trait Updatable[+T]
-  case object KeepExistingValue extends Updatable[Nothing]
-  case object Unset extends Updatable[Nothing]
-  object ChangeTo {
-    def apply[T](valueOption: Option[T]): Updatable[T] = valueOption.fold(Unset: Updatable[T])(new ChangeTo(_))
-    def apply[T](value: T): Updatable[T] = new ChangeTo(value)
-  }
-  case class ChangeTo[T] private (value: T) extends Updatable[T]
-  
-  implicit def updatableEncoder[T](implicit valueEncoder: Encoder[T]): Encoder[Updatable[T]] = {
-    case ChangeTo(value) => valueEncoder(value)
-    case Unset => Json.Null
-    case KeepExistingValue =>
-      // Something that we can then use to filter out from the JsonObject
-  }
-  
-  
-  // https://github.com/circe/circe/issues/584
-  // Foo(bar = None) = {}                                               // KeepExistingValue
-  // Foo(bar = Some(None)) = {"bar": null}                              // Unset
-  // Foo(bar = Some(Some("actual data"))) = {"bar": "actual data"}      // Change value
-  // We cannot use nulls as the user might invoke dropNullValues or deepDropNullValues, although of she does we can never unset
-  // Foo(bar = None) =                {}                // KeepExistingValue
-  // Foo(bar = Some(None)) =          {"bar": null}     // Unset
-  // Foo(bar = Some(Some("value"))) = {"bar": "value"}  // Change value
-  
-  case class Update2(
-    name: Updatable[String] = KeepExistingValue,
-    description: Updatable[String] = KeepExistingValue,
-    adminStateUp: Updatable[Boolean] = KeepExistingValue,
-    externalGatewayInfo: Updatable[Option[ExternalGatewayInfo]] = KeepExistingValue,
-    routes: Updatable[List[Route[IpAddress]]] = KeepExistingValue,
-    distributed: Updatable[Boolean] = KeepExistingValue,
-    ha: Updatable[Boolean] = KeepExistingValue,
-  )
-  */
-  
   object ConntrackHelper {
     implicit val decoder: Decoder[ConntrackHelper] = deriveDecoder(renaming.snakeCase)
   }

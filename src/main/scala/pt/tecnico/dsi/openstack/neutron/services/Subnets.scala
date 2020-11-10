@@ -5,7 +5,8 @@ import cats.syntax.flatMap._
 import com.comcast.ip4s.IpAddress
 import org.http4s.Status.Conflict
 import org.http4s.client.Client
-import org.http4s.{Header, Query, Uri}
+import org.http4s.{Header, Uri}
+import org.log4s.getLogger
 import pt.tecnico.dsi.openstack.common.services.CrudService
 import pt.tecnico.dsi.openstack.keystone.models.Session
 import pt.tecnico.dsi.openstack.neutron.models.{AllocationPool, NeutronError, RichIp, Subnet}
@@ -74,12 +75,7 @@ final class Subnets[F[_]: Sync: Client](baseUri: Uri, session: Session)
     create.projectId orElse session.scopedProjectId match {
       case None => super.create(create, extraHeaders:_*) // When will this happen?
       case Some(projectId) =>
-        list(Query.fromPairs(
-          "name" -> create.name,
-          "project_id" -> projectId,
-          "network_id" -> create.networkId,
-          "limit" -> "2", // We only need to 2 subnets to disambiguate (no need to put extra load on the server)
-        )).flatMap {
+        list("name" -> create.name, "project_id" -> projectId, "network_id" -> create.networkId, "limit" -> "2").flatMap {
           case List(_, _) =>
             val message =
               s"""Cannot create a Subnet idempotently because more than one exists with:
@@ -87,7 +83,9 @@ final class Subnets[F[_]: Sync: Client](baseUri: Uri, session: Session)
                  |projectId: ${create.projectId}
                  |networkId: ${create.networkId}""".stripMargin
             Sync[F].raiseError(NeutronError(Conflict.reason, message))
-          case List(existing) => resolveConflict(existing, create)
+          case List(existing) =>
+            getLogger.info(s"createOrUpdate $name: found existing and unique $name (id: ${existing.id}) with the correct name, networkId, and projectId.")
+            resolveConflict(existing, create)
           case Nil => super.create(create, extraHeaders:_*)
         }
     }

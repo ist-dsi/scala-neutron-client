@@ -4,16 +4,14 @@ import cats.effect.Sync
 import cats.syntax.flatMap._
 import org.http4s.Status.Conflict
 import org.http4s.client.Client
-import org.http4s.{Header, Query, Uri}
+import org.http4s.{Header, Uri}
+import org.log4s.getLogger
 import pt.tecnico.dsi.openstack.common.services.CrudService
 import pt.tecnico.dsi.openstack.keystone.models.Session
 import pt.tecnico.dsi.openstack.neutron.models.{NeutronError, SecurityGroup}
 
 final class SecurityGroups[F[_]: Sync: Client](baseUri: Uri, session: Session)
   extends CrudService[F, SecurityGroup, SecurityGroup.Create, SecurityGroup.Update](baseUri, "security_group", session.authToken) {
-  
-  override def update(id: String, value: SecurityGroup.Update, extraHeaders: Header*): F[SecurityGroup] =
-    super.put(wrappedAt = Some(name), value, uri / id, extraHeaders:_*)
   
   override def defaultResolveConflict(existing: SecurityGroup, create: SecurityGroup.Create, keepExistingElements: Boolean, extraHeaders: Seq[Header])
   : F[SecurityGroup] = {
@@ -27,19 +25,21 @@ final class SecurityGroups[F[_]: Sync: Client](baseUri: Uri, session: Session)
     (resolveConflict: (SecurityGroup, SecurityGroup.Create) => F[SecurityGroup] = defaultResolveConflict(_, _, keepExistingElements, extraHeaders))
   : F[SecurityGroup] = {
     // We want the create to be idempotent, so we decided to make the name unique **within** the project
-    list(Query.fromPairs(
-      "name" -> create.name,
-      "project_id" -> create.projectId,
-      "limit" -> "2", // We only need to 2 to disambiguate (no need to put extra load on the server)
-    )).flatMap {
+    list("name" -> create.name, "project_id" -> create.projectId, "limit" -> "2").flatMap {
       case List(_, _) =>
         val message =
           s"""Cannot create a SecurityGroup idempotently because more than one exists with:
              |name: ${create.name}
              |project: ${create.projectId}""".stripMargin
         Sync[F].raiseError(NeutronError(Conflict.reason, message))
-      case List(existing) => resolveConflict(existing, create)
+      case List(existing) =>
+        getLogger.info(s"createOrUpdate $name: found existing and unique $name (id: ${existing.id}) with the correct name and projectId.")
+        resolveConflict(existing, create)
       case Nil => super.create(create, extraHeaders:_*)
     }
+  }
+  override def update(id: String, value: SecurityGroup.Update, extraHeaders: Header*): F[SecurityGroup] = {
+    // Partial updates are done with a put, everyone knows that </sarcasm>
+    super.put(wrappedAt = Some(name), value, uri / id, extraHeaders:_*)
   }
 }

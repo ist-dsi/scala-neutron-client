@@ -6,7 +6,8 @@ import com.comcast.ip4s.IpAddress
 import io.circe.{Decoder, Encoder, Json}
 import org.http4s.Status.Conflict
 import org.http4s.client.Client
-import org.http4s.{Header, Query, Uri}
+import org.http4s.{Header, Uri}
+import org.log4s.getLogger
 import pt.tecnico.dsi.openstack.common.services.CrudService
 import pt.tecnico.dsi.openstack.keystone.models.Session
 import pt.tecnico.dsi.openstack.neutron.models.Router.{ExternalGatewayInfo, ExternalIp}
@@ -14,9 +15,6 @@ import pt.tecnico.dsi.openstack.neutron.models._
 
 final class Routers[F[_] : Sync : Client](baseUri: Uri, session: Session)
   extends CrudService[F, Router, Router.Create, Router.Update](baseUri, "router", session.authToken) {
-  
-  override def update(id: String, update: Router.Update, extraHeaders: Header*): F[Router] =
-    super.put(wrappedAt = Some(name), update, uri / id, extraHeaders:_*)
   
   final class Operations(val id: String) { self =>
     private def routesOperation(routes: List[Route[IpAddress]], path: String): F[List[Route[IpAddress]]] = {
@@ -60,9 +58,7 @@ final class Routers[F[_] : Sync : Client](baseUri: Uri, session: Session)
         // The existing router has an externalGatewayInfo but the create is requesting for it not to have it.
         if (keepExistingElements) existing else {
           // This does not unset the existing ExternalGatewayInfo because the jsonEncoder drops the nulls
-          // To fix this we would need a ADT with 3 alternatives, that would be encoded like this
-          // https://github.com/circe/circe/issues/584#issuecomment-346203481
-          // However that is **really hard to implement correctly**
+          // https://stackoverflow.com/questions/64754830/encoder-for-update-endpoint-of-a-rest-api
           create
         }
       case (Some(existingInfo), Some(createInfo)) if createInfo.networkId != existingInfo.networkId =>
@@ -96,7 +92,7 @@ final class Routers[F[_] : Sync : Client](baseUri: Uri, session: Session)
       description = if (!create.description.contains(existing.description)) create.description else None,
       adminStateUp = Option(create.adminStateUp).filter(_ != existing.adminStateUp),
       externalGatewayInfo = computeUpdatedExternalGatewayInfo(existing.externalGatewayInfo, create.externalGatewayInfo, keepExistingElements),
-      // routes cannot be set when creating the Router, so we don't have to update them.
+      // routes cannot be set when creating the Router, so we don't have to update them, because consistency </sarcasm>.
       distributed = if (!create.distributed.contains(existing.distributed)) create.distributed else None,
       ha = if (!create.ha.contains(existing.ha)) create.ha else None,
     )
@@ -108,22 +104,27 @@ final class Routers[F[_] : Sync : Client](baseUri: Uri, session: Session)
     // A router create is not idempotent because Openstack always creates a new router and never returns a Conflict, whatever the parameters.
     // We want it to be idempotent, so we decided to make the name unique **within** a project.
     create.projectId orElse session.scopedProjectId match {
-      case None => super.create(create, extraHeaders:_*)
+      case None =>
+        // Does this ever happen?
+        super.create(create, extraHeaders:_*)
       case Some(projectId) =>
-        list(Query.fromPairs(
-          "name" -> create.name,
-          "project_id" -> projectId,
-          "limit" -> "2")
-        ).flatMap {
+        list("name" -> create.name, "project_id" -> projectId, "limit" -> "2").flatMap {
           case List(_, _) =>
             val message =
               s"""Cannot create a Router idempotently because more than one exists with:
                  |name: ${create.name}
                  |project: ${create.projectId}""".stripMargin
             Sync[F].raiseError(NeutronError(Conflict.reason, message))
-          case List(existing) => resolveConflict(existing, create)
+          case List(existing) =>
+            getLogger.info(s"createOrUpdate $name: found existing and unique $name (id: ${existing.id}) with the correct name and projectId.")
+            resolveConflict(existing, create)
           case Nil => super.create(create, extraHeaders:_*)
         }
     }
+  }
+  
+  override def update(id: String, update: Router.Update, extraHeaders: Header*): F[Router] = {
+    // Partial updates are done with a put, everyone knows that </sarcasm>
+    super.put(wrappedAt = Some(name), update, uri / id, extraHeaders:_*)
   }
 }

@@ -29,7 +29,7 @@ final class SubnetsSpec extends CrudSpec[Subnet[IpAddress], Subnet.Create[IpAddr
     name,
     network.id,
     Some("a description"),
-    Some(Ipv4Address.fromBytes(192, 168, Random.between(1, 255), 0) / 24),
+    Some(Ipv4Address.fromBytes(192, 168, Random.between(50, 250), 0) / 24),
     projectId = Some(project.id)
   )
   override def compareCreate(create: Subnet.Create[IpAddress], model: Subnet[IpAddress]): Assertion = {
