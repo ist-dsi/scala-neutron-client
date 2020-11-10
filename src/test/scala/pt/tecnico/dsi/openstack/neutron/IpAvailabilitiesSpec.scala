@@ -4,7 +4,7 @@ import cats.effect.{IO, Resource}
 import com.comcast.ip4s._
 import org.http4s.Query
 import org.scalatest.Assertion
-import pt.tecnico.dsi.openstack.neutron.models.{IpAvailability, Network, RichCidr, RichIp, Subnet}
+import pt.tecnico.dsi.openstack.neutron.models.{IpAvailability, Network, Subnet}
 
 final class IpAvailabilitiesSpec extends Utils {
   val resource: Resource[IO, (Network, Subnet[IpAddress])] = for {

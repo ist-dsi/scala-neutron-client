@@ -3,7 +3,7 @@ package pt.tecnico.dsi.openstack.neutron.models
 import java.time.OffsetDateTime
 import scala.annotation.nowarn
 import cats.effect.Sync
-import com.comcast.ip4s.{Cidr, IpAddress}
+import com.comcast.ip4s.{Cidr, IpAddress, IpVersion}
 import io.circe.derivation.{deriveEncoder, renaming}
 import io.circe.{Decoder, DecodingFailure, Encoder, HCursor}
 import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link}

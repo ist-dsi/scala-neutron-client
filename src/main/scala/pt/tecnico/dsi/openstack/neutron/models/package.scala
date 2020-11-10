@@ -1,6 +1,6 @@
 package pt.tecnico.dsi.openstack.neutron
 
-import com.comcast.ip4s.{Cidr, Hostname, IpAddress, Ipv4Address, Ipv6Address}
+import com.comcast.ip4s.{Cidr, Hostname, IpAddress, IpVersion, Ipv4Address, Ipv6Address}
 import io.circe.{Decoder, Encoder}
 
 package object models {
@@ -19,18 +19,20 @@ package object models {
   implicit val hostnameEncoder: Encoder[Hostname] = Encoder[String].contramap(_.normalized.toString)
   implicit val hostnameDecoder: Decoder[Hostname] = Decoder[String].emap(s => Hostname(s).toRight(s"Could not parse $s as a valid Hostname"))
   
-  // TODO: No longer needed when https://github.com/Comcast/ip4s/pull/177 is released
-  implicit class RichIp(ip: IpAddress) {
-    def version: IpVersion = ip.fold(_ => IpVersion.IPv4, _ => IpVersion.IPv6)
+  implicit val ipVersionEncoder: Encoder[IpVersion] = Encoder[String].contramap(v => s"IP${v.toString.toLowerCase}")
+  implicit val ipVersionDecoder: Decoder[IpVersion] = Decoder[String].emap {
+    case "IPv4" => Right(IpVersion.V4)
+    case "IPv6" => Right(IpVersion.V6)
+    case s => Left(s"Could not parse $s as a valid IpVersion")
   }
   
-  // https://github.com/Comcast/ip4s/issues/187
-  implicit class RichCidr[+A <: IpAddress](val cidr: Cidr[A]) extends AnyVal {
-    def totalIps: BigInt = {
-      import scala.math._
-      val maxPrefixBits: Double = cidr.address.fold(_ => 32.0, _ => 128.0)
-      val ips = pow(2d, maxPrefixBits - cidr.prefixBits)
-      BigDecimal(ips).setScale(0, BigDecimal.RoundingMode.HALF_UP).toBigInt
-    }
+  val ipVersionIntEncoder: Encoder[IpVersion] = Encoder[Int].contramap {
+    case IpVersion.V4 => 4
+    case IpVersion.V6 => 6
+  }
+  val ipVersionIntDecoder: Decoder[IpVersion] = Decoder[Int].emap {
+    case 4 => Right(IpVersion.V4)
+    case 6 => Right(IpVersion.V6)
+    case e => Left(s"Invalid IP version: $e")
   }
 }

@@ -2,7 +2,7 @@ package pt.tecnico.dsi.openstack.neutron.models
 
 import scala.annotation.nowarn
 import cats.effect.Sync
-import com.comcast.ip4s.{Cidr, IpAddress}
+import com.comcast.ip4s.{Cidr, IpAddress, IpVersion}
 import io.circe.Decoder
 import io.circe.derivation.{deriveDecoder, renaming}
 import pt.tecnico.dsi.openstack.keystone.KeystoneClient
@@ -12,7 +12,7 @@ import pt.tecnico.dsi.openstack.neutron.NeutronClient
 object SubnetIpAvailability {
   implicit val decoder: Decoder[SubnetIpAvailability] = {
     @nowarn // False negative from the compiler. This Encoder is being used in the deriveDecoder which is a macro.
-    implicit val ipVersionDecoder: Decoder[IpVersion] = IpVersion.intDecoder
+    implicit val ipVersionDecoder: Decoder[IpVersion] = ipVersionIntDecoder
     deriveDecoder(renaming.snakeCase)
   }
 }

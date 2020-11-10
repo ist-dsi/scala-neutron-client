@@ -9,7 +9,7 @@ import org.http4s.{Header, Uri}
 import org.log4s.getLogger
 import pt.tecnico.dsi.openstack.common.services.CrudService
 import pt.tecnico.dsi.openstack.keystone.models.Session
-import pt.tecnico.dsi.openstack.neutron.models.{AllocationPool, NeutronError, RichIp, Subnet}
+import pt.tecnico.dsi.openstack.neutron.models.{AllocationPool, NeutronError, Subnet}
 
 final class Subnets[F[_]: Sync: Client](baseUri: Uri, session: Session)
   extends CrudService[F, Subnet[IpAddress], Subnet.Create[IpAddress], Subnet.Update[IpAddress]](baseUri, "subnet", session.authToken)
