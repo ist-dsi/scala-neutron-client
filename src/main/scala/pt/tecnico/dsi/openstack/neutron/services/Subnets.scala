@@ -78,7 +78,7 @@ final class Subnets[F[_]: Sync: Client](baseUri: Uri, session: Session)
         list("name" -> create.name, "project_id" -> projectId, "network_id" -> create.networkId, "limit" -> "2").flatMap {
           case List(_, _) =>
             val message =
-              s"""Cannot create a Subnet idempotently because more than one exists with:
+              s"""Cannot create a $name idempotently because more than one exists with:
                  |name: ${create.name}
                  |projectId: ${create.projectId}
                  |networkId: ${create.networkId}""".stripMargin
@@ -89,10 +89,5 @@ final class Subnets[F[_]: Sync: Client](baseUri: Uri, session: Session)
           case Nil => super.create(create, extraHeaders:_*)
         }
     }
-  }
-  
-  override def update(id: String, value: Subnet.Update[IpAddress], extraHeaders: Header*): F[Subnet[IpAddress]] = {
-    // Partial updates are done with a put, everyone knows that </sarcasm>
-    super.put(wrappedAt = Some(name), value, uri / id, extraHeaders:_*)
   }
 }

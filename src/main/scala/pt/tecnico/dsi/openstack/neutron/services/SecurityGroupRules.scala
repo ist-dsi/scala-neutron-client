@@ -54,8 +54,12 @@ final class SecurityGroupRules[F[_]: Sync: Client](baseUri: Uri, session: Sessio
     }
   }
 
-  def apply(id: String): F[SecurityGroupRule] = super.get(wrappedAt, uri / id)
   def get(id: String): F[Option[SecurityGroupRule]] = super.getOption(wrappedAt, uri / id)
+  def apply(id: String): F[SecurityGroupRule] =
+    get(id).flatMap {
+      case Some(rule) => F.pure(rule)
+      case None => F.raiseError(new NoSuchElementException(s"""Could not find $name with id "$id"."""))
+    }
 
   def delete(rule: SecurityGroupRule): F[Unit] = delete(rule.id)
   def delete(id: String): F[Unit] = super.delete(uri / id)

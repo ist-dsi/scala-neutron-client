@@ -5,7 +5,6 @@ import scala.util.Try
 import cats.effect.{IO, Resource}
 import cats.implicits._
 import org.http4s.Query
-import pt.tecnico.dsi.openstack.common.models.UnexpectedStatus
 import org.scalatest.Assertion
 import org.scalatest.EitherValues._
 import org.scalatest.OptionValues._
@@ -58,7 +57,7 @@ abstract class CrudSpec[Model <: Identifiable, Create, Update](val name: String)
       service.apply(model.id).idempotently(m => compareGet(m, model))
     }
     s"apply ${name}s (non-existing id)" in {
-      service.apply("non-existing-id").attempt.idempotently(_.left.value shouldBe a [UnexpectedStatus])
+      service.apply("non-existing-id").attempt.idempotently(_.left.value shouldBe a [NoSuchElementException])
     }
     
     s"update ${name}s" in resource.use[IO, Assertion] { model =>

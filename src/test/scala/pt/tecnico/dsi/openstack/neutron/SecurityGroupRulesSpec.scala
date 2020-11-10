@@ -5,7 +5,6 @@ import cats.effect.{IO, Resource}
 import cats.implicits._
 import com.comcast.ip4s._
 import org.http4s.Query
-import pt.tecnico.dsi.openstack.common.models.UnexpectedStatus
 import org.scalatest.Assertion
 import org.scalatest.OptionValues._
 import org.scalatest.EitherValues._
@@ -73,7 +72,7 @@ final class SecurityGroupRulesSpec extends Utils {
       securityGroupRules.apply(model.id).idempotently(_ shouldBe model)
     }
     s"apply security group rules (non-existing id)" in {
-      securityGroupRules.apply("non-existing-id").attempt.idempotently(_.left.value shouldBe a [UnexpectedStatus])
+      securityGroupRules.apply("non-existing-id").attempt.idempotently(_.left.value shouldBe a [NoSuchElementException])
     }
     
     s"delete a security group rules" in resource.use[IO, Assertion] { model =>

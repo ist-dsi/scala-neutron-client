@@ -16,25 +16,6 @@ final class Networks[F[_]: Sync: Client](baseUri: Uri, session: Session)
   extends CrudService[F, Network, Network.Create, Network.Update](baseUri, "network", session.authToken)
   with BulkCreate[F, Network, Network.Create] {
   
-  /** @return an unsorted list of all the segmentation ids currently in use. */
-  val listSegmentationIds: F[List[Int]] = {
-    implicit val decoderInt: Decoder[Int] = Decoder.decodeInt.at("provider:segmentation_id")
-    super.list[Int](pluralName, uri.+?("fields", "provider:segmentation_id"))
-  }
-  
-  /** @return the first available segmentation id that is within `begin` <= `id` <= `end`. */
-  def firstAvailableSegmentationId(begin: Int, end: Int): F[Option[Int]] = listSegmentationIds.map { ids =>
-    val filteredAndSortedIds = ids.filter(i => i >= begin && i <= end).sorted
-    // First try to find a gap between the existing ids
-    filteredAndSortedIds.sliding(2).collectFirst {
-      case a :: b :: Nil if b - a > 1 => a + 1
-      case a :: Nil => a + 1
-    }.filter(_ <= end).orElse {
-      // if the last element is less than `end` we can return the next element
-      filteredAndSortedIds.lastOption.filter(_ < end).map(_ + 1)
-    }
-  }
-  
   override def defaultResolveConflict(existing: Network, create: Network.Create, keepExistingElements: Boolean, extraHeaders: Seq[Header]): F[Network] = {
     val updated = Network.Update(
       description = if (!create.description.contains(existing.description)) create.description else None,
@@ -60,7 +41,7 @@ final class Networks[F[_]: Sync: Client](baseUri: Uri, session: Session)
         list("name" -> create.name, "project_id" -> projectId, "limit" -> "2").flatMap {
           case List(_, _) =>
             val message =
-              s"""Cannot create a Network idempotently because more than one exists with:
+              s"""Cannot create a $name idempotently because more than one exists with:
                  |name: ${create.name}
                  |project: ${create.projectId}""".stripMargin
             Sync[F].raiseError(NeutronError(Conflict.reason, message))
@@ -72,8 +53,22 @@ final class Networks[F[_]: Sync: Client](baseUri: Uri, session: Session)
     }
   }
   
-  override def update(id: String, update: Network.Update, extraHeaders: Header*): F[Network] = {
-    // Partial updates are done with a put, everyone knows that </sarcasm>
-    super.put(wrappedAt = Some(name), update, uri / id, extraHeaders:_*)
+  /** @return an unsorted list of all the segmentation ids currently in use. */
+  val listSegmentationIds: F[List[Int]] = {
+    implicit val decoderInt: Decoder[Int] = Decoder.decodeInt.at("provider:segmentation_id")
+    super.list[Int](pluralName, uri.+?("fields", "provider:segmentation_id"))
+  }
+  
+  /** @return the first available segmentation id that is within `begin` <= `id` <= `end`. */
+  def firstAvailableSegmentationId(begin: Int, end: Int): F[Option[Int]] = listSegmentationIds.map { ids =>
+    val filteredAndSortedIds = ids.filter(i => i >= begin && i <= end).sorted
+    // First try to find a gap between the existing ids
+    filteredAndSortedIds.sliding(2).collectFirst {
+      case a :: b :: Nil if b - a > 1 => a + 1
+      case a :: Nil => a + 1
+    }.filter(_ <= end).orElse {
+      // if the last element is less than `end` we can return the next element
+      filteredAndSortedIds.lastOption.filter(_ < end).map(_ + 1)
+    }
   }
 }
