@@ -1,13 +1,14 @@
 package pt.tecnico.dsi.openstack.neutron.models
 
+import cats.derived
+import cats.derived.ShowPretty
 import io.circe.{Decoder, Encoder}
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
 
 object Quota {
-  implicit val decoder: Decoder[Quota] = deriveDecoder(renaming.snakeCase)
-
   object Update {
     implicit val encoder: Encoder[Update] = deriveEncoder(renaming.snakeCase)
+    implicit val show: ShowPretty[Update] = derived.semiauto.showPretty
   }
   case class Update(
     floatingip: Option[Int] = None,
@@ -20,6 +21,9 @@ object Quota {
     subnet: Option[Int] = None,
     subnetpool: Option[Int] = None,
   )
+  
+  implicit val decoder: Decoder[Quota] = deriveDecoder(renaming.snakeCase)
+  implicit val show: ShowPretty[Quota] = derived.semiauto.showPretty
 }
 /**
  * A value of -1 means no limit.

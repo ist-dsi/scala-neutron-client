@@ -1,6 +1,8 @@
 package pt.tecnico.dsi.openstack.neutron.models
 
 import scala.annotation.nowarn
+import cats.derived
+import cats.derived.ShowPretty
 import cats.effect.Sync
 import com.comcast.ip4s.{Cidr, IpAddress, IpVersion}
 import io.circe.Decoder
@@ -15,6 +17,7 @@ object SubnetIpAvailability {
     implicit val ipVersionDecoder: Decoder[IpVersion] = ipVersionIntDecoder
     deriveDecoder(renaming.snakeCase)
   }
+  implicit val show: ShowPretty[SubnetIpAvailability] = derived.semiauto.showPretty
 }
 case class SubnetIpAvailability(
   cidr: Cidr[IpAddress],
@@ -29,6 +32,7 @@ case class SubnetIpAvailability(
 
 object IpAvailability {
   implicit val decoder: Decoder[IpAvailability] = deriveDecoder(renaming.snakeCase)
+  implicit val show: ShowPretty[IpAvailability] = derived.semiauto.showPretty
 }
 case class IpAvailability(
   networkId: String,

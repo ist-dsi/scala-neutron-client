@@ -1,5 +1,7 @@
 package pt.tecnico.dsi.openstack.neutron.models
 
+import cats.derived
+import cats.derived.ShowPretty
 import cats.effect.Sync
 import com.comcast.ip4s.IpAddress
 import io.circe.Decoder
@@ -10,6 +12,7 @@ import pt.tecnico.dsi.openstack.neutron.NeutronClient
 
 object RouterInterface {
   implicit val decoder: Decoder[RouterInterface] = deriveDecoder(Map("routerId" -> "id").withDefault(renaming.snakeCase))
+  implicit val show: ShowPretty[RouterInterface] = derived.semiauto.showPretty
 }
 case class RouterInterface(
   routerId: String,

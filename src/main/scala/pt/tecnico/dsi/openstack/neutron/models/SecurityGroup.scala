@@ -1,6 +1,8 @@
 package pt.tecnico.dsi.openstack.neutron.models
 
 import java.time.OffsetDateTime
+import cats.derived
+import cats.derived.ShowPretty
 import cats.effect.Sync
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
 import io.circe.{Decoder, Encoder}
@@ -13,6 +15,7 @@ import pt.tecnico.dsi.openstack.neutron.NeutronClient
 object SecurityGroup {
   object Create {
     implicit val decoder: Encoder[Create] = deriveEncoder(renaming.snakeCase)
+    implicit val show: ShowPretty[Create] = derived.semiauto.showPretty
   }
   case class Create(
     name: String,
@@ -22,6 +25,7 @@ object SecurityGroup {
   
   object Update {
     implicit val decoder: Encoder[Update] = deriveEncoder(renaming.snakeCase)
+    implicit val show: ShowPretty[Update] = derived.semiauto.showPretty
   }
   case class Update(
     name: Option[String] = None,
@@ -35,6 +39,10 @@ object SecurityGroup {
   }
   
   implicit val decoder: Decoder[SecurityGroup] = deriveDecoder(Map("revision" -> "revision_number").withDefault(renaming.snakeCase))
+  implicit val show: ShowPretty[SecurityGroup] = {
+    import pt.tecnico.dsi.openstack.common.models.showOffsetDateTime
+    derived.semiauto.showPretty
+  }
 }
 case class SecurityGroup(
   id: String,

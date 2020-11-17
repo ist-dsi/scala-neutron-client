@@ -1,5 +1,6 @@
 package pt.tecnico.dsi.openstack.neutron.models
 
+import cats.Show
 import enumeratum.{Enum, EnumEntry}
 import io.circe.{Decoder, Encoder}
 
@@ -22,4 +23,6 @@ case object Ipv6Mode extends Enum[Ipv6Mode] {
   case object Dhcpv6Stateless extends Ipv6Mode
   
   val values: IndexedSeq[Ipv6Mode] = findValues
+  
+  implicit val show: Show[Ipv6Mode] = Show.fromToString
 }

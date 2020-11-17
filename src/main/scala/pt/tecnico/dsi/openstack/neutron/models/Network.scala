@@ -1,7 +1,8 @@
 package pt.tecnico.dsi.openstack.neutron.models
 
 import java.time.OffsetDateTime
-import cats.Parallel
+import cats.{Parallel, derived}
+import cats.derived.ShowPretty
 import cats.effect.Sync
 import com.comcast.ip4s.IpAddress
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
@@ -19,6 +20,8 @@ object Network {
     ).withDefault(renaming.snakeCase)
     implicit val decoder: Decoder[Segment] = deriveDecoder(providerRenames)
     implicit val encoder: Encoder[Segment] = deriveEncoder(providerRenames)
+    
+    implicit val show: ShowPretty[Segment] = derived.semiauto.showPretty
   }
   case class Segment(`type`: String, physicalNetwork: Option[String] = None, segmentationId: Option[Int] = None)
   
@@ -49,6 +52,7 @@ object Network {
   
   object Create {
     implicit val encoder: Encoder.AsObject[Create] = encoderHandleSegments(deriveEncoder[Create](baseRenames), _.segments)
+    implicit val show: ShowPretty[Create] = derived.semiauto.showPretty
   }
   case class Create(
     name: String,
@@ -67,6 +71,7 @@ object Network {
 
   object Update {
     implicit val encoder: Encoder[Update] = encoderHandleSegments(deriveEncoder[Update](baseRenames), _.segments)
+    implicit val show: ShowPretty[Update] = derived.semiauto.showPretty
   }
   sealed case class Update(
     name: Option[String] = None,
@@ -127,6 +132,10 @@ object Network {
       obj.add("segments", Json.arr(Json.fromFields(segmentSettings)))
     }
   }))
+  implicit val show: ShowPretty[Network] = {
+    import pt.tecnico.dsi.openstack.common.models.showOffsetDateTime
+    derived.semiauto.showPretty
+  }
 }
 sealed case class Network(
   id: String,
@@ -137,7 +146,7 @@ sealed case class Network(
   adminStateUp: Boolean,
   status: String, // ACTIVE, DOWN, BUILD or ERROR.
   mtu: Int,
-  dnsDomain: String, // Cannot be ip4s Hostname because it ends with '.'
+  dnsDomain: Option[String] = None, // Cannot be ip4s Hostname because it ends with '.'
   subnetIds: List[String],
   ipv4AddressScope: Option[String],
   ipv6AddressScope: Option[String],

@@ -1,5 +1,6 @@
 package pt.tecnico.dsi.openstack.neutron
 
+import cats.Show
 import com.comcast.ip4s.{Cidr, Hostname, IpAddress, IpVersion, Ipv4Address, Ipv6Address}
 import io.circe.{Decoder, Encoder}
 
@@ -16,6 +17,10 @@ package object models {
   implicit val cidrDecoder: Decoder[Cidr[IpAddress]] = Decoder[String].emap(s => Cidr.fromString(s).toRight(s"Could not parse $s as a CIDR"))
   //implicit def cidrDecoder[IP <: IpAddress]: Decoder[Cidr[IP]] = ???
   
+  // https://github.com/typelevel/kittens/issues/267
+  import shapeless.Typeable
+  implicit def typeableCidr[IP <: IpAddress]: Typeable[Cidr[IP]] = Typeable.simpleTypeable(classOf[Cidr[IP]])
+  
   implicit val hostnameEncoder: Encoder[Hostname] = Encoder[String].contramap(_.normalized.toString)
   implicit val hostnameDecoder: Decoder[Hostname] = Decoder[String].emap(s => Hostname(s).toRight(s"Could not parse $s as a valid Hostname"))
   
@@ -25,6 +30,7 @@ package object models {
     case "IPv6" => Right(IpVersion.V6)
     case s => Left(s"Could not parse $s as a valid IpVersion")
   }
+  implicit val ipVersionShow: Show[IpVersion] = Show.fromToString[IpVersion]
   
   val ipVersionIntEncoder: Encoder[IpVersion] = Encoder[Int].contramap {
     case IpVersion.V4 => 4

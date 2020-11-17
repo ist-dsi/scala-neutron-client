@@ -1,6 +1,8 @@
 package pt.tecnico.dsi.openstack.neutron.models
 
 import java.time.OffsetDateTime
+import cats.{Show, derived}
+import cats.derived.ShowPretty
 import cats.effect.Sync
 import com.comcast.ip4s.IpAddress
 import io.circe.derivation.{deriveCodec, deriveDecoder, deriveEncoder, renaming}
@@ -14,6 +16,7 @@ import pt.tecnico.dsi.openstack.neutron.models.Router.{ConntrackHelper, External
 object Router {
   object Create {
     implicit val encoder: Encoder[Create] = deriveEncoder(renaming.snakeCase)
+    implicit val show: ShowPretty[Create] = derived.semiauto.showPretty
   }
   case class Create(
     name: String,
@@ -29,6 +32,7 @@ object Router {
 
   object Update {
     implicit val encoder: Encoder[Update] = deriveEncoder(renaming.snakeCase)
+    implicit val show: ShowPretty[Update] = derived.semiauto.showPretty
   }
   case class Update(
     name: Option[String] = None,
@@ -48,11 +52,13 @@ object Router {
   
   object ConntrackHelper {
     implicit val decoder: Decoder[ConntrackHelper] = deriveDecoder(renaming.snakeCase)
+    implicit val show: ShowPretty[ConntrackHelper] = derived.semiauto.showPretty
   }
-  case class ConntrackHelper(protocol: String, helper: String, port: Int)
+  case class ConntrackHelper(protocol: String, port: Int, helper: String)
   
   object ExternalIp {
     implicit val codec: Codec[ExternalIp] = deriveCodec(renaming.snakeCase)
+    implicit val show: Show[ExternalIp] = derived.semiauto.show
   }
   case class ExternalIp(subnetId: String, ipAddress: Option[IpAddress] = None) {
     def subnet[F[_]](implicit neutron: NeutronClient[F]): F[Subnet[IpAddress]] = neutron.subnets(subnetId)
@@ -68,12 +74,17 @@ object Router {
   
   object ExternalGatewayInfo {
     implicit val codec: Codec[ExternalGatewayInfo] = deriveCodec(renaming.snakeCase)
+    implicit val show: ShowPretty[ExternalGatewayInfo] = derived.semiauto.showPretty
   }
   case class ExternalGatewayInfo(networkId: String, enableSnat: Boolean, externalFixedIps: List[ExternalIp])
   
   implicit val decoder: Decoder[Router] = deriveDecoder(Map(
     "revision" -> "revision_number"
   ).withDefault(renaming.snakeCase))
+  implicit val show: ShowPretty[Router] = {
+    import pt.tecnico.dsi.openstack.common.models.showOffsetDateTime
+    derived.semiauto.showPretty
+  }
 }
 case class Router(
   id: String,

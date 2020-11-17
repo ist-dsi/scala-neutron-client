@@ -2,6 +2,7 @@ package pt.tecnico.dsi.openstack.neutron.services
 
 import cats.effect.Sync
 import cats.syntax.flatMap._
+import cats.syntax.show._
 import com.comcast.ip4s.IpAddress
 import org.log4s.getLogger
 import org.http4s.Status.Conflict
@@ -19,24 +20,8 @@ final class FloatingIps[F[_] : Sync : Client](baseUri: Uri, session: Session)
     if (existing.portId.isDefined && create.portId != existing.portId) {
       // A VM is already using the existing Floating IP, and its not the intended VM (the portIds are different)
       // so its really a conflict and there is nothing we can do.
-      // TODO: should we implement Show for the domain classes (using kittens)
-      val message =
-        s"""The following $name already exists and its in use (has a port associated with it):
-           |id: ${existing.id}
-           |description: ${existing.description}
-           |project: ${existing.projectId}
-           |status: ${existing.status}
-           |floatingNetworkId: ${existing.floatingNetworkId}
-           |dnsName: ${existing.dnsName}
-           |dnsDomain: ${existing.dnsDomain}
-           |fixedIpAddress: ${existing.fixedIpAddress}
-           |floatingIpAddress: ${existing.floatingIpAddress}
-           |routerId: ${existing.routerId}
-           |portId: ${existing.portId}
-           |portForwardings: ${existing.portForwardings}
-           |revision: ${existing.revision}
-           |createdAt: ${existing.createdAt}
-           |updatedAt: ${existing.updatedAt}""".stripMargin
+      val message = show"""The following $name already exists and its in use (has a port associated with it):
+                          |$existing""".stripMargin
       Sync[F].raiseError(NeutronError(Conflict.reason, message))
     } else {
       val updated = FloatingIp.Update(

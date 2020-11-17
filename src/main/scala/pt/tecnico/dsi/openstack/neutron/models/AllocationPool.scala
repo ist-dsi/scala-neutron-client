@@ -1,5 +1,7 @@
 package pt.tecnico.dsi.openstack.neutron.models
 
+import cats.Show
+import cats.syntax.show._
 import com.comcast.ip4s.{Cidr, IpAddress}
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
 import io.circe.{Decoder, Encoder}
@@ -29,5 +31,7 @@ object AllocationPool {
   implicit def decoder[IP <: IpAddress: Decoder]: Decoder[AllocationPool[IP]] = deriveDecoder(renaming.snakeCase)
   
   implicit def ordering[IP <: IpAddress: Ordering]: Ordering[AllocationPool[IP]] = Ordering.by(x => (x.start, x.end))
+  
+  implicit def show[IP <: IpAddress: Show]: Show[AllocationPool[IP]] = Show.show(pool => s"${pool.start.show}-${pool.end.show}")
 }
 case class AllocationPool[+IP <: IpAddress](start: IP, end: IP)

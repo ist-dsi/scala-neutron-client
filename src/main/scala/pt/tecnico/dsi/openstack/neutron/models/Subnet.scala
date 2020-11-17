@@ -2,15 +2,18 @@ package pt.tecnico.dsi.openstack.neutron.models
 
 import java.time.OffsetDateTime
 import scala.annotation.nowarn
+import cats.derived
+import cats.derived.ShowPretty
 import cats.effect.Sync
 import com.comcast.ip4s.{Cidr, IpAddress, IpVersion, Ipv4Address, Ipv6Address}
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
-import io.circe.{Decoder, Encoder, HCursor}
 import io.circe.syntax._
-import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link}
+import io.circe.{Decoder, Encoder, HCursor}
+import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link, showOffsetDateTime}
 import pt.tecnico.dsi.openstack.keystone.KeystoneClient
 import pt.tecnico.dsi.openstack.keystone.models.Project
 import pt.tecnico.dsi.openstack.neutron.NeutronClient
+import shapeless.Typeable
 
 object Subnet {
   object Create {
@@ -36,6 +39,7 @@ object Subnet {
         }
       }
     }
+    implicit def show[IP <: IpAddress: Typeable]: ShowPretty[Create[IP]] = derived.semiauto.showPretty
   }
   case class Create[+IP <: IpAddress](
     name: String,
@@ -60,6 +64,7 @@ object Subnet {
   
   object Update {
     implicit val encoder: Encoder[Update[IpAddress]] = deriveEncoder(renaming.snakeCase)
+    implicit def show[IP <: IpAddress: Typeable]: ShowPretty[Update[IP]] = derived.semiauto.showPretty
   }
   case class Update[+IP <: IpAddress](
     name: Option[String] = None,
@@ -93,6 +98,11 @@ object Subnet {
     case IpVersion.V4 => decoderV4(cursor)
     case IpVersion.V6 => decoderV6(cursor)
   }
+  
+  implicit def show[IP <: IpAddress]: ShowPretty[Subnet[IP]] = {
+    case v4: SubnetIpv4 => SubnetIpv4.show.showLines(v4)
+    case v6: SubnetIpv6 => SubnetIpv6.show.showLines(v6)
+  }
 }
 sealed trait Subnet[+IP <: IpAddress] extends Identifiable {
   def name: String
@@ -119,6 +129,9 @@ sealed trait Subnet[+IP <: IpAddress] extends Identifiable {
   def network[F[_]: Sync](implicit neutron: NeutronClient[F]): F[Network] = neutron.networks(networkId)
 }
 
+object SubnetIpv4 {
+  implicit val show: ShowPretty[SubnetIpv4] = derived.semiauto.showPretty
+}
 case class SubnetIpv4(
   id: String,
   name: String,
@@ -143,6 +156,9 @@ case class SubnetIpv4(
   links: List[Link] = List.empty,
 ) extends Subnet[Ipv4Address]
 
+object SubnetIpv6 {
+  implicit val show: ShowPretty[SubnetIpv6] = derived.semiauto.showPretty
+}
 case class SubnetIpv6(
   id: String,
   name: String,

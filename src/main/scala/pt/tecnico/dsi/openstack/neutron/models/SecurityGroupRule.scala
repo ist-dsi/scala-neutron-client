@@ -2,6 +2,8 @@ package pt.tecnico.dsi.openstack.neutron.models
 
 import java.time.OffsetDateTime
 import scala.annotation.nowarn
+import cats.derived.ShowPretty
+import cats.derived
 import cats.effect.Sync
 import com.comcast.ip4s.{Cidr, IpAddress, IpVersion}
 import io.circe.derivation.{deriveEncoder, renaming}
@@ -27,6 +29,8 @@ object SecurityGroupRule {
       }
     }
     
+    implicit val show: ShowPretty[Create] = derived.semiauto.showPretty
+    
     /** Creates a rule allowing the TCP ports in `range` to be accessed by the IPs in `cidr`. */
     def apply(range: Range.Inclusive, cidr: Cidr[IpAddress])(securityGroupId: String): Create = Create(
       securityGroupId,
@@ -39,7 +43,7 @@ object SecurityGroupRule {
     )
     /** Creates a rule allowing the TCP `port` to be accessed by the IPs in `cidr`. */
     def apply(port: Int, cidr: Cidr[IpAddress])(securityGroupId: String): Create = apply(port to port, cidr)(securityGroupId)
-  
+    
     /** Creates a rule allowing the TCP ports in `range` to be accessed by machines in `remoteSecurityGroupId`. */
     def apply(range: Range.Inclusive, remoteSecurityGroupId: String, ipVersion: IpVersion)(securityGroupId: String): Create = Create(
       securityGroupId,
@@ -88,6 +92,11 @@ object SecurityGroupRule {
     createdAt <- cursor.get[OffsetDateTime]("created_at")
     updatedAt <- cursor.get[OffsetDateTime]("updated_at")
   } yield SecurityGroupRule(id, projectId, description, securityGroupId, direction, ipVersion, protocol, min, max, remote, revision, createdAt, updatedAt)
+  
+  implicit val show: ShowPretty[SecurityGroupRule] = {
+    import pt.tecnico.dsi.openstack.common.models.showOffsetDateTime
+    derived.semiauto.showPretty
+  }
 }
 case class SecurityGroupRule(
   id: String,

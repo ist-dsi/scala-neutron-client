@@ -56,7 +56,7 @@ final class Networks[F[_]: Sync: Client](baseUri: Uri, session: Session)
   /** @return an unsorted list of all the segmentation ids currently in use. */
   val listSegmentationIds: F[List[Int]] = {
     implicit val decoderInt: Decoder[Int] = Decoder.decodeInt.at("provider:segmentation_id")
-    super.list[Int](pluralName, uri.+?("fields", "provider:segmentation_id"))
+    super.list[Int](pluralName, uri.withQueryParam("fields", "provider:segmentation_id"))
   }
   
   /** @return the first available segmentation id that is within `begin` <= `id` <= `end`. */

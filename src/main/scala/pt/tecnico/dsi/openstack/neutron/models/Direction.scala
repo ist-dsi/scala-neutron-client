@@ -1,5 +1,6 @@
 package pt.tecnico.dsi.openstack.neutron.models
 
+import cats.Show
 import enumeratum.{Circe, Enum, EnumEntry}
 import io.circe.{Decoder, Encoder}
 
@@ -12,4 +13,6 @@ case object Direction extends Enum[Direction] {
   case object Egress extends Direction
   
   val values: IndexedSeq[Direction] = findValues
+  
+  implicit val show: Show[Direction] = Show.fromToString
 }
