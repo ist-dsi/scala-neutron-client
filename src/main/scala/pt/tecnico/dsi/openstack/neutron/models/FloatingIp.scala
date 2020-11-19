@@ -36,7 +36,7 @@ object FloatingIp {
     portId: Option[String] = None,
     fixedIpAddress: Option[IP] = None,
     floatingIpAddress: Option[IP] = None,
-    description: Option[String] = None,
+    description: String = "",
     subnetId: Option[String] = None,
     dnsName: Option[String] = None,
     dnsDomain: Option[String] = None,
@@ -68,7 +68,7 @@ object FloatingIp {
 case class FloatingIp[+IP <: IpAddress](
   id: String,
   //name: String, // For consistency with other domain classes this one does not have a name </sarcasm> It could be s"$dnsName.${dnsDomain.}"
-  description: Option[String],
+  description: String,
   projectId: String,
   
   status: String, // Values are ACTIVE, DOWN and ERROR.

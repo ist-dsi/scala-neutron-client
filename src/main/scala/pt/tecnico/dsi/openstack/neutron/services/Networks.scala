@@ -18,9 +18,9 @@ final class Networks[F[_]: Sync: Client](baseUri: Uri, session: Session)
   
   override def defaultResolveConflict(existing: Network, create: Network.Create, keepExistingElements: Boolean, extraHeaders: Seq[Header]): F[Network] = {
     val updated = Network.Update(
-      description = if (!create.description.contains(existing.description)) create.description else None,
+      description = Option(create.description).filter(_ != existing.description),
       mtu = create.mtu.filter(_ != existing.mtu),
-      dnsDomain = create.dnsDomain.filter(_ != existing.dnsDomain),
+      dnsDomain = if (create.dnsDomain != existing.dnsDomain) create.dnsDomain else None,
       // Most Networking plug-ins (e.g. ML2 Plugin) and drivers do not support updating any provider related attributes.
       // The openstack we are testing against doesn't allow it. That is why we are not setting the segments.
       adminStateUp = create.adminStateUp.filter(_ != existing.adminStateUp),
@@ -39,27 +39,27 @@ final class Networks[F[_]: Sync: Client](baseUri: Uri, session: Session)
       case None => super.create(create, extraHeaders:_*)
       case Some(projectId) =>
         list("name" -> create.name, "project_id" -> projectId, "limit" -> "2").flatMap {
-          case List(_, _) =>
+          case Nil => super.create(create, extraHeaders:_*)
+          case List(existing) =>
+            getLogger.info(s"createOrUpdate: found unique $name (id: ${existing.id}) with the correct name and projectId.")
+            resolveConflict(existing, create)
+          case _ =>
             val message =
               s"""Cannot create a $name idempotently because more than one exists with:
                  |name: ${create.name}
                  |project: ${create.projectId}""".stripMargin
             Sync[F].raiseError(NeutronError(Conflict.reason, message))
-          case List(existing) =>
-            getLogger.info(s"createOrUpdate: found unique $name (id: ${existing.id}) with the correct name and projectId.")
-            resolveConflict(existing, create)
-          case Nil => super.create(create, extraHeaders:_*)
         }
     }
   }
   
-  /** @return an unsorted list of all the segmentation ids currently in use. */
+  /** @return an unsorted list of all the segmentation ids currently in use. This is usually a slow operation. */
   val listSegmentationIds: F[List[Int]] = {
     implicit val decoderInt: Decoder[Int] = Decoder.decodeInt.at("provider:segmentation_id")
     super.list[Int](pluralName, uri.withQueryParam("fields", "provider:segmentation_id"))
   }
   
-  /** @return the first available segmentation id that is within `begin` <= `id` <= `end`. */
+  /** @return the first available segmentation id that is within `begin` <= `id` <= `end`. This is usually a slow operation. */
   def firstAvailableSegmentationId(begin: Int, end: Int): F[Option[Int]] = listSegmentationIds.map { ids =>
     val filteredAndSortedIds = ids.filter(i => i >= begin && i <= end).sorted
     // First try to find a gap between the existing ids

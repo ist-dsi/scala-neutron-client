@@ -15,15 +15,15 @@ final class NetworksSpec extends CrudSpec[Network, Network.Create, Network.Updat
   
   override def createStub(name: String): Network.Create = Network.Create(
     name,
-    Some("a description"),
+    "a description",
     segments = Some(List(Network.Segment("vxlan", segmentationId = Some(Random.between(100, 1000))))),
     projectId = Some(project.id),
   )
   override def compareCreate(create: Network.Create, model: Network): Assertion = {
     model.name shouldBe create.name
-    model.description shouldBe create.description.value
+    model.description shouldBe create.description
     model.projectId shouldBe create.projectId.value
-  
+    
     model.segments.length shouldBe create.segments.map(_.size).getOrElse(0)
     // We assume the lists are in the same order
     (model.segments zip create.segments.value).map {

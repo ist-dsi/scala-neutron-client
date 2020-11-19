@@ -12,12 +12,12 @@ final class SecurityGroupsSpec extends CrudSpec[SecurityGroup, SecurityGroup.Cre
   override def createStub(name: String): SecurityGroup.Create = SecurityGroup.Create(
     name,
     project.id,
-    Some("a description"),
+    "a description",
   )
   override def compareCreate(create: SecurityGroup.Create, model: SecurityGroup): Assertion = {
     model.name shouldBe create.name
     model.projectId shouldBe create.projectId
-    model.description shouldBe create.description.value
+    model.description shouldBe create.description
   }
   
   override val updateStub: SecurityGroup.Update = SecurityGroup.Update(

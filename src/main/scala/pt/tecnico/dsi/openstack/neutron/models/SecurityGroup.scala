@@ -20,7 +20,7 @@ object SecurityGroup {
   case class Create(
     name: String,
     projectId: String,
-    description: Option[String] = None,
+    description: String = "",
   )
   
   object Update {

@@ -73,7 +73,7 @@ object SecurityGroupRule {
   implicit val decoder: Decoder[SecurityGroupRule] = (cursor: HCursor) => for {
     id <- cursor.get[String]("id")
     projectId <- cursor.get[String]("project_id")
-    description <- cursor.get[Option[String]]("description")
+    description <- cursor.getOrElse("description")("")
     securityGroupId <- cursor.get[String]("security_group_id")
     direction <- cursor.get[Direction]("direction")
     protocol <- cursor.get[Option[String]]("protocol")
@@ -101,7 +101,7 @@ object SecurityGroupRule {
 case class SecurityGroupRule(
   id: String,
   projectId: String,
-  description: Option[String] = None,
+  description: String,
   
   securityGroupId: String,
   direction: Direction,

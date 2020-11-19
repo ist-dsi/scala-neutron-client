@@ -56,7 +56,7 @@ object Network {
   }
   case class Create(
     name: String,
-    description: Option[String] = None,
+    description: String = "",
     mtu: Option[Int] = None,
     dnsDomain: Option[String] = None,
     segments: Option[List[Segment]] = None,

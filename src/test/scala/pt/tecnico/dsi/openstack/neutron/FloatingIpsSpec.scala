@@ -38,7 +38,7 @@ final class FloatingIpsSpec extends CrudSpec[FloatingIp[IpAddress], FloatingIp.C
   
   override def createStub(name: String): FloatingIp.Create[IpAddress] = FloatingIp.Create(
     floatingNetworkId = network.id,
-    description = Some("a description"),
+    description = "a description",
     projectId = Some(project.id),
     subnetId = Some(subnet.id),
     dnsName = Some(name),
@@ -55,6 +55,6 @@ final class FloatingIpsSpec extends CrudSpec[FloatingIp[IpAddress], FloatingIp.C
   
   override val updateStub: FloatingIp.Update[IpAddress] = FloatingIp.Update(description = Some("a better and improved description"))
   override def compareUpdate(update: FloatingIp.Update[IpAddress], model: FloatingIp[IpAddress]): Assertion = {
-    model.description shouldBe update.description
+    model.description shouldBe update.description.value
   }
 }

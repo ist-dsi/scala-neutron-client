@@ -68,7 +68,7 @@ abstract class CrudSpec[Model <: Identifiable: Show, Create, Update](val name: S
     s"delete a $name" in resource.use[IO, Assertion] { model =>
       service.delete(model.id).idempotently(_ shouldBe ())
     }
-  
+    
     s"show ${name}s" in resource.use[IO, Assertion] { model =>
       //This line is a fail fast mechanism, and prevents false positives from the linter
       println(show"$model")

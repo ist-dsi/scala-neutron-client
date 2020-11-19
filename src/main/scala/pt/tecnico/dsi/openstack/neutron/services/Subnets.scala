@@ -27,7 +27,7 @@ final class Subnets[F[_]: Sync: Client](baseUri: Uri, session: Session)
   override def defaultResolveConflict(existing: Subnet[IpAddress], create: Subnet.Create[IpAddress], keepExistingElements: Boolean,
     extraHeaders: Seq[Header]): F[Subnet[IpAddress]] = {
     val updated = Subnet.Update(
-      description = if (!create.description.contains(existing.description)) create.description else None,
+      description = Option(create.description).filter(_ != existing.description),
       gatewayIp = if (create.gateway != existing.gateway) create.gateway else None,
       allocationPools = create.allocationPools.map(_.sorted).filter(_ != existing.allocationPools.sorted),
       hostRoutes = computeUpdatedCollection(existing.hostRoutes, create.hostRoutes, keepExistingElements),
@@ -73,20 +73,20 @@ final class Subnets[F[_]: Sync: Client](baseUri: Uri, session: Session)
       extraHeaders)): F[Subnet[IpAddress]] = {
     // We want the create to be idempotent, so we decided to make the name unique **within** a (project, network).
     create.projectId orElse session.scopedProjectId match {
-      case None => super.create(create, extraHeaders:_*) // When will this happen?
+      case None => super.create(create, extraHeaders:_*)
       case Some(projectId) =>
         list("name" -> create.name, "project_id" -> projectId, "network_id" -> create.networkId, "limit" -> "2").flatMap {
-          case List(_, _) =>
+          case Nil => super.create(create, extraHeaders:_*)
+          case List(existing) =>
+            getLogger.info(s"createOrUpdate: found unique $name (id: ${existing.id}) with the correct name, networkId, and projectId.")
+            resolveConflict(existing, create)
+          case _ =>
             val message =
               s"""Cannot create a $name idempotently because more than one exists with:
                  |name: ${create.name}
                  |projectId: ${create.projectId}
                  |networkId: ${create.networkId}""".stripMargin
             Sync[F].raiseError(NeutronError(Conflict.reason, message))
-          case List(existing) =>
-            getLogger.info(s"createOrUpdate: found unique $name (id: ${existing.id}) with the correct name, networkId, and projectId.")
-            resolveConflict(existing, create)
-          case Nil => super.create(create, extraHeaders:_*)
         }
     }
   }

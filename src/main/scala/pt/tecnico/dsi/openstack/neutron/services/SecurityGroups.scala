@@ -16,7 +16,7 @@ final class SecurityGroups[F[_]: Sync: Client](baseUri: Uri, session: Session)
   override def defaultResolveConflict(existing: SecurityGroup, create: SecurityGroup.Create, keepExistingElements: Boolean, extraHeaders: Seq[Header])
   : F[SecurityGroup] = {
     val updated = SecurityGroup.Update(
-      description = if (!create.description.contains(existing.description)) create.description else None,
+      description = Option(create.description).filter(_ != existing.description),
     )
     if (updated.needsUpdate) update(existing.id, updated, extraHeaders:_*)
     else Sync[F].pure(existing)
@@ -26,16 +26,16 @@ final class SecurityGroups[F[_]: Sync: Client](baseUri: Uri, session: Session)
   : F[SecurityGroup] = {
     // We want the create to be idempotent, so we decided to make the name unique **within** the project
     list("name" -> create.name, "project_id" -> create.projectId, "limit" -> "2").flatMap {
-      case List(_, _) =>
+      case Nil => super.create(create, extraHeaders:_*)
+      case List(existing) =>
+        getLogger.info(s"createOrUpdate: found unique $name (id: ${existing.id}) with the correct name and projectId.")
+        resolveConflict(existing, create)
+      case _ =>
         val message =
           s"""Cannot create a $name idempotently because more than one exists with:
              |name: ${create.name}
              |project: ${create.projectId}""".stripMargin
         Sync[F].raiseError(NeutronError(Conflict.reason, message))
-      case List(existing) =>
-        getLogger.info(s"createOrUpdate: found unique $name (id: ${existing.id}) with the correct name and projectId.")
-        resolveConflict(existing, create)
-      case Nil => super.create(create, extraHeaders:_*)
     }
   }
 }

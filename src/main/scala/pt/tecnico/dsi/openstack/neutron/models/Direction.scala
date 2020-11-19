@@ -1,14 +1,11 @@
 package pt.tecnico.dsi.openstack.neutron.models
 
 import cats.Show
-import enumeratum.{Circe, Enum, EnumEntry}
-import io.circe.{Decoder, Encoder}
+import enumeratum.EnumEntry.Lowercase
+import enumeratum.{CirceEnum, Enum, EnumEntry}
 
-sealed trait Direction extends EnumEntry
-case object Direction extends Enum[Direction] {
-  implicit val circeEncoder: Encoder[Direction] = Circe.encoderLowercase(this)
-  implicit val circeDecoder: Decoder[Direction] = Circe.decoderLowercaseOnly(this)
-  
+sealed trait Direction extends EnumEntry with Lowercase
+case object Direction extends Enum[Direction] with CirceEnum[Direction] {
   case object Ingress extends Direction
   case object Egress extends Direction
   

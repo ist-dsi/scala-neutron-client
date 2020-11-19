@@ -23,5 +23,6 @@ class NeutronClient[F[_]: Sync](baseUri: Uri, session: Session)(implicit client:
   val securityGroupRules: SecurityGroupRules[F] = new SecurityGroupRules[F](uri, session)
   val routers: Routers[F] = new Routers[F](uri, session)
   val subnets: Subnets[F] = new Subnets[F](uri, session)
+  val subnetPools: SubnetPools[F] = new SubnetPools[F](uri, session)
   val quotas: Quotas[F] = new Quotas[F](uri, session)
 }

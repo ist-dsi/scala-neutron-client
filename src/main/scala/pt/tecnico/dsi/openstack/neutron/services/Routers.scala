@@ -56,7 +56,7 @@ final class Routers[F[_] : Sync : Client](baseUri: Uri, session: Session)
   
   override def defaultResolveConflict(existing: Router, create: Router.Create, keepExistingElements: Boolean, extraHeaders: Seq[Header]): F[Router] = {
     val updated = Router.Update(
-      description = if (!create.description.contains(existing.description)) create.description else None,
+      description = Option(create.description).filter(_ != existing.description),
       adminStateUp = Option(create.adminStateUp).filter(_ != existing.adminStateUp),
       externalGatewayInfo = computeUpdatedExternalGatewayInfo(existing.externalGatewayInfo, create.externalGatewayInfo, keepExistingElements),
       // routes cannot be set when creating the Router, so we don't have to update them, because consistency </sarcasm>.
@@ -71,21 +71,19 @@ final class Routers[F[_] : Sync : Client](baseUri: Uri, session: Session)
     // A router create is not idempotent because Openstack always creates a new router and never returns a Conflict, whatever the parameters.
     // We want it to be idempotent, so we decided to make the name unique **within** a project.
     create.projectId orElse session.scopedProjectId match {
-      case None =>
-        // Does this ever happen?
-        super.create(create, extraHeaders:_*)
+      case None => super.create(create, extraHeaders:_*)
       case Some(projectId) =>
         list("name" -> create.name, "project_id" -> projectId, "limit" -> "2").flatMap {
-          case List(_, _) =>
+          case Nil => super.create(create, extraHeaders:_*)
+          case List(existing) =>
+            getLogger.info(s"createOrUpdate: found unique $name (id: ${existing.id}) with the correct name and projectId.")
+            resolveConflict(existing, create)
+          case _ =>
             val message =
               s"""Cannot create a $name idempotently because more than one exists with:
                  |name: ${create.name}
                  |project: ${create.projectId}""".stripMargin
             Sync[F].raiseError(NeutronError(Conflict.reason, message))
-          case List(existing) =>
-            getLogger.info(s"createOrUpdate: found unique $name (id: ${existing.id}) with the correct name and projectId.")
-            resolveConflict(existing, create)
-          case Nil => super.create(create, extraHeaders:_*)
         }
     }
   }

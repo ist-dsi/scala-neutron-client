@@ -11,13 +11,13 @@ final class RoutersSpec extends CrudSpec[Router, Router.Create, Router.Update]("
   
   override def createStub(name: String): Router.Create = Router.Create(
     name,
-    Some("a description"),
+    "a description",
     projectId = Some(project.id),
   )
   override def compareCreate(create: Router.Create, model: Router): Assertion = {
     model.name shouldBe create.name
     model.projectId shouldBe create.projectId.value
-    model.description shouldBe create.description.value
+    model.description shouldBe create.description
   }
   
   override val updateStub: Router.Update = Router.Update(

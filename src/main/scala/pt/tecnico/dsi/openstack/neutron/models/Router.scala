@@ -20,7 +20,7 @@ object Router {
   }
   case class Create(
     name: String,
-    description: Option[String] = None,
+    description: String = "",
     adminStateUp: Boolean = true,
     externalGatewayInfo: Option[ExternalGatewayInfo] = None,
     // its weird not being able to set the routes

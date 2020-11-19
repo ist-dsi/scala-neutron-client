@@ -26,7 +26,7 @@ final class FloatingIps[F[_] : Sync : Client](baseUri: Uri, session: Session)
     } else {
       val updated = FloatingIp.Update(
         fixedIpAddress = if (existing.fixedIpAddress != create.fixedIpAddress) create.fixedIpAddress else None,
-        description = if (existing.description != create.description) create.description else None,
+        description = Option(create.description).filter(_ != existing.description),
       )
       if (updated.needsUpdate) update(existing.id, updated, extraHeaders:_*)
       else Sync[F].pure(existing)
@@ -47,18 +47,17 @@ final class FloatingIps[F[_] : Sync : Client](baseUri: Uri, session: Session)
           floatingIps.filter { floatingIp =>
             floatingIp.dnsName.contains(dnsName) && floatingIp.dnsDomain.contains(dnsDomain)
           } match {
-            case List(_, _) =>
-              val message =
-                s"""Cannot create a $name idempotently because more than one exists with:
-                   |floating network id: ${create.floatingNetworkId}
-                   |project: $projectId
-                   |dnsName: $dnsName
-                   |dnsDomain: $dnsDomain""".stripMargin
-              Sync[F].raiseError(NeutronError(Conflict.reason, message))
+            case Nil => super.create(create, extraHeaders:_*)
             case List(existing) =>
               getLogger.info(s"createOrUpdate: found unique $name (id: ${existing.id}) with the correct dnsName, dnsDomain, projectId, and portId.")
               resolveConflict(existing, create)
-            case Nil => super.create(create, extraHeaders:_*)
+            case _ =>
+              val message = s"""Cannot create a $name idempotently because more than one exists with:
+                               |floating network id: ${create.floatingNetworkId}
+                               |project: $projectId
+                               |dnsName: $dnsName
+                               |dnsDomain: $dnsDomain""".stripMargin
+              Sync[F].raiseError(NeutronError(Conflict.reason, message))
           }
         }
     }

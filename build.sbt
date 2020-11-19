@@ -5,7 +5,7 @@ name := "scala-neutron-client"
 // ==== Compile Options =================================================================================================
 // ======================================================================================================================
 javacOptions ++= Seq("-Xlint", "-encoding", "UTF-8", "-Dfile.encoding=utf-8")
-scalaVersion := "2.13.3"
+scalaVersion := "2.13.4"
 
 scalacOptions ++= Seq(
   "-encoding", "utf-8",            // Specify character encoding used by source files.
@@ -15,9 +15,9 @@ scalacOptions ++= Seq(
   "-Ybackend-parallelism", "8",    // Maximum worker threads for backend.
   "-Ybackend-worker-queue", "10",  // Backend threads worker queue size.
   "-Ymacro-annotations",           // Enable support for macro annotations, formerly in macro paradise.
-  //"-Xcheckinit",                   // Wrap field accessors to throw an exception on uninitialized access.
-  //"-Xsource:3",                    // Treat compiler input as Scala source for the specified version.
-  //"-Xmigration:3",                 // Warn about constructs whose behavior may have changed since version.
+  "-Xcheckinit",                   // Wrap field accessors to throw an exception on uninitialized access.
+  "-Xsource:3",                    // Treat compiler input as Scala source for the specified version.
+  "-Xmigration:3",                 // Warn about constructs whose behavior may have changed since version.
   "-Werror",                       // Fail the compilation if there are any warnings.
   "-Xlint:_",                      // Enables every warning. scalac -Xlint:help for a list and explanation
   "-deprecation",                  // Emit warning and location for usages of deprecated APIs.

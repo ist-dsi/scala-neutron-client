@@ -44,7 +44,7 @@ object Subnet {
   case class Create[+IP <: IpAddress](
     name: String,
     networkId: String,
-    description: Option[String] = None,
+    description: String = "",
     cidr: Option[Cidr[IP]] = None,
     gateway: Option[IP] = None,
     allocationPools: Option[List[AllocationPool[IP]]] = None,
