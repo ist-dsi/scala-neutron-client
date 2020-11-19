@@ -31,32 +31,38 @@ object SecurityGroupRule {
     
     implicit val show: ShowPretty[Create] = derived.semiauto.showPretty
     
-    /** Creates a rule allowing the TCP ports in `range` to be accessed by the IPs in `cidr`. */
-    def apply(range: Range.Inclusive, cidr: Cidr[IpAddress])(securityGroupId: String): Create = Create(
+    def ingress(protocol: String, cidr: Cidr[IpAddress])(securityGroupId: String): Create = Create(
       securityGroupId,
       direction = Direction.Ingress,
       ipVersion = cidr.address.version,
-      protocol = Some("tcp"),
-      portRangeMin = Some(range.start),
-      portRangeMax = Some(range.`end`),
+      protocol = Some(protocol),
+      portRangeMin = None,
+      portRangeMax = None,
       remote = Some(Left(cidr)),
     )
-    /** Creates a rule allowing the TCP `port` to be accessed by the IPs in `cidr`. */
-    def apply(port: Int, cidr: Cidr[IpAddress])(securityGroupId: String): Create = apply(port to port, cidr)(securityGroupId)
-    
-    /** Creates a rule allowing the TCP ports in `range` to be accessed by machines in `remoteSecurityGroupId`. */
-    def apply(range: Range.Inclusive, remoteSecurityGroupId: String, ipVersion: IpVersion)(securityGroupId: String): Create = Create(
+    def ingress(protocol: String, cidr: Cidr[IpAddress], portRange: Range.Inclusive)(securityGroupId: String): Create =
+      ingress(protocol, cidr)(securityGroupId).copy(
+        portRangeMin = Some(portRange.start),
+        portRangeMax = Some(portRange.`end`),
+      )
+    def ingress(protocol: String, remoteSecurityGroupId: String, portRange: Range.Inclusive, ipVersion: IpVersion = IpVersion.V4)
+      (securityGroupId: String): Create = Create(
       securityGroupId,
       direction = Direction.Ingress,
       ipVersion = ipVersion,
-      protocol = Some("tcp"),
-      portRangeMin = Some(range.start),
-      portRangeMax = Some(range.`end`),
+      protocol = Some(protocol),
+      portRangeMin = Some(portRange.start),
+      portRangeMax = Some(portRange.`end`),
       remote = Some(Right(remoteSecurityGroupId)),
     )
-    /** Creates a rule allowing the TCP `port` to be accessed by machines in `remoteSecurityGroupId`. */
-    def apply(port: Int, remoteSecurityGroupId: String, ipVersion: IpVersion)(securityGroupId: String): Create =
-      apply(port to port, remoteSecurityGroupId, ipVersion)(securityGroupId)
+    
+    def egress(protocol: String, cidr: Cidr[IpAddress])(securityGroupId: String): Create =
+      ingress(protocol, cidr)(securityGroupId).copy(direction = Direction.Egress)
+    def egress(protocol: String, cidr: Cidr[IpAddress], portRange: Range.Inclusive)(securityGroupId: String): Create =
+      ingress(protocol, cidr, portRange)(securityGroupId).copy(direction = Direction.Egress)
+    def egress(protocol: String, remoteSecurityGroupId: String, portRange: Range.Inclusive, ipVersion: IpVersion = IpVersion.V4)
+      (securityGroupId: String): Create =
+      ingress(protocol, remoteSecurityGroupId, portRange, ipVersion)(securityGroupId).copy(direction = Direction.Egress)
   }
   case class Create(
     securityGroupId: String,

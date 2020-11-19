@@ -20,9 +20,10 @@ final class SecurityGroupRulesSpec extends Utils {
   }
   import neutron.securityGroupRules
   
-  def createStub: SecurityGroupRule.Create = SecurityGroupRule.Create(
-    port = 5000,
+  def createStub: SecurityGroupRule.Create = SecurityGroupRule.Create.ingress(
+    protocol = "tcp",
     cidr = Ipv4Address.fromBytes(192, 168, Random.between(1, 255), 0) / 24,
+    portRange = 5000 to 5000,
   )(securityGroup.id)
   def compareCreate(create: SecurityGroupRule.Create, model: SecurityGroupRule): Assertion = {
     model.securityGroupId shouldBe create.securityGroupId
