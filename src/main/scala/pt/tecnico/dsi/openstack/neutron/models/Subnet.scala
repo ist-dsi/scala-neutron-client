@@ -90,10 +90,10 @@ object Subnet {
     "nameservers" -> "dns_nameservers",
   ).withDefault(renaming.snakeCase)
   implicit val decoderV4: Decoder[SubnetIpv4] = deriveDecoder(baseRenames)
-  implicit val decoderV6: Decoder[SubnetIpv6] = deriveDecoder(baseRenames ++ Map(
+  implicit val decoderV6: Decoder[SubnetIpv6] = deriveDecoder(Map(
     "mode" -> "ipv6_address_mode",
     "router_advertisement_mode" -> "ipv6_ra_mode",
-  ))
+  ) ++ baseRenames)
   implicit val decoder: Decoder[Subnet[IpAddress]] = (cursor: HCursor) => ipVersionIntDecoder.at("ip_version")(cursor).flatMap {
     case IpVersion.V4 => decoderV4(cursor)
     case IpVersion.V6 => decoderV6(cursor)
