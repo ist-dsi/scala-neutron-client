@@ -7,18 +7,17 @@ import cats.effect.Sync
 import com.comcast.ip4s.IpAddress
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
 import io.circe.{Decoder, Encoder}
-import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link, showOffsetDateTime}
+import io.chrisdavenport.cats.time.offsetdatetimeInstances
+import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link}
 import pt.tecnico.dsi.openstack.keystone.KeystoneClient
 import pt.tecnico.dsi.openstack.keystone.models.Project
 import pt.tecnico.dsi.openstack.neutron.NeutronClient
 import pt.tecnico.dsi.openstack.neutron.models.FloatingIp.PortForwarding
-import shapeless.Typeable
 
 object FloatingIp {
   object PortForwarding {
     implicit val decoder: Decoder[PortForwarding[IpAddress]] = deriveDecoder(renaming.snakeCase)
-    // https://github.com/typelevel/kittens/issues/267
-    implicit def show[IP <: IpAddress: Typeable]: ShowPretty[PortForwarding[IP]] = derived.semiauto.showPretty
+    implicit def show[IP <: IpAddress]: ShowPretty[PortForwarding[IP]] = derived.semiauto.showPretty
   }
   case class PortForwarding[+IP <: IpAddress](
     protocol: String,
@@ -29,7 +28,7 @@ object FloatingIp {
   
   object Create {
     implicit val decoder: Encoder[Create[IpAddress]] = deriveEncoder(renaming.snakeCase)
-    implicit def show[IP <: IpAddress: Typeable]: ShowPretty[Create[IP]] = derived.semiauto.showPretty
+    implicit def show[IP <: IpAddress]: ShowPretty[Create[IP]] = derived.semiauto.showPretty
   }
   case class Create[+IP <: IpAddress](
     floatingNetworkId: String,
@@ -45,7 +44,7 @@ object FloatingIp {
 
   object Update {
     implicit val decoder: Encoder[Update[IpAddress]] = deriveEncoder(renaming.snakeCase)
-    implicit def show[IP <: IpAddress: Typeable]: ShowPretty[Update[IP]] = derived.semiauto.showPretty
+    implicit def show[IP <: IpAddress]: ShowPretty[Update[IP]] = derived.semiauto.showPretty
   }
   case class Update[+IP <: IpAddress](
     portId: Option[String] = None,
@@ -59,11 +58,8 @@ object FloatingIp {
     }
   }
   
-  implicit val decoder: Decoder[FloatingIp[IpAddress]] = deriveDecoder(Map(
-    "revision" -> "revision_number"
-  ).withDefault(renaming.snakeCase))
-  
-  implicit def show[IP <: IpAddress: Typeable]: ShowPretty[FloatingIp[IP]] = derived.semiauto.showPretty
+  implicit val decoder: Decoder[FloatingIp[IpAddress]] = deriveDecoder(Map("revision" -> "revision_number").withDefault(renaming.snakeCase))
+  implicit def show[IP <: IpAddress]: ShowPretty[FloatingIp[IP]] = derived.semiauto.showPretty
 }
 case class FloatingIp[+IP <: IpAddress](
   id: String,

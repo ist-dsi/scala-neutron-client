@@ -7,6 +7,7 @@ import cats.effect.Sync
 import com.comcast.ip4s.IpAddress
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
 import io.circe.{Decoder, Encoder, Json}
+import io.chrisdavenport.cats.time.offsetdatetimeInstances
 import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link}
 import pt.tecnico.dsi.openstack.neutron.NeutronClient
 import pt.tecnico.dsi.openstack.neutron.models.Network.Segment
@@ -132,10 +133,7 @@ object Network {
       obj.add("segments", Json.arr(Json.fromFields(segmentSettings)))
     }
   }))
-  implicit val show: ShowPretty[Network] = {
-    import pt.tecnico.dsi.openstack.common.models.showOffsetDateTime
-    derived.semiauto.showPretty
-  }
+  implicit val show: ShowPretty[Network] = derived.semiauto.showPretty
 }
 sealed case class Network(
   id: String,

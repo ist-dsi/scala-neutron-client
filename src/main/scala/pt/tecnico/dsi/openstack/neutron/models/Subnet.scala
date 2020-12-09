@@ -9,7 +9,8 @@ import com.comcast.ip4s.{Cidr, IpAddress, IpVersion, Ipv4Address, Ipv6Address}
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
 import io.circe.syntax._
 import io.circe.{Decoder, Encoder, HCursor}
-import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link, showOffsetDateTime}
+import io.chrisdavenport.cats.time.offsetdatetimeInstances
+import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link}
 import pt.tecnico.dsi.openstack.keystone.KeystoneClient
 import pt.tecnico.dsi.openstack.keystone.models.Project
 import pt.tecnico.dsi.openstack.neutron.NeutronClient
@@ -54,8 +55,8 @@ object Subnet {
     subnetpoolId: Option[String] = None,
     useDefaultSubnetpool: Option[Boolean] = None,
     prefixlen: Option[Int] = None,
-    ipv6AddressMode: Option[Ipv6Mode] = None,
-    ipv6RaMode: Option[Ipv6Mode] = None,
+    mode: Option[Ipv6Mode] = None,
+    routerAdvertisementMode: Option[Ipv6Mode] = None,
     ipVersion: Option[IpVersion] = None,
     segmentId: Option[String] = None,
     serviceTypes: List[String] = List.empty,
@@ -88,12 +89,12 @@ object Subnet {
     "revision" -> "revision_number",
     "gateway" -> "gateway_ip",
     "nameservers" -> "dns_nameservers",
+    "mode" -> "ipv6_address_mode",
+    "routerAdvertisementMode" -> "ipv6_ra_mode",
   ).withDefault(renaming.snakeCase)
   implicit val decoderV4: Decoder[SubnetIpv4] = deriveDecoder(baseRenames)
-  implicit val decoderV6: Decoder[SubnetIpv6] = deriveDecoder(Map(
-    "mode" -> "ipv6_address_mode",
-    "router_advertisement_mode" -> "ipv6_ra_mode",
-  ) ++ baseRenames)
+  implicit val decoderV6: Decoder[SubnetIpv6] = deriveDecoder(baseRenames)
+  
   implicit val decoder: Decoder[Subnet[IpAddress]] = (cursor: HCursor) => ipVersionIntDecoder.at("ip_version")(cursor).flatMap {
     case IpVersion.V4 => decoderV4(cursor)
     case IpVersion.V6 => decoderV6(cursor)

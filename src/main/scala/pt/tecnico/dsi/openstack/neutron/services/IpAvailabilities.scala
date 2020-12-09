@@ -2,27 +2,27 @@ package pt.tecnico.dsi.openstack.neutron.services
 
 import cats.effect.Sync
 import fs2.Stream
+import io.circe.Decoder
+import org.http4s.{Header, Query, Uri}
 import org.http4s.client.Client
-import org.http4s.{Query, Uri}
-import pt.tecnico.dsi.openstack.common.services.Service
+import pt.tecnico.dsi.openstack.common.services.{BaseCrudService, ListOperations}
 import pt.tecnico.dsi.openstack.keystone.models.Session
 import pt.tecnico.dsi.openstack.neutron.models.IpAvailability
 
-final class IpAvailabilities[F[_]: Sync: Client](baseUri: Uri, session: Session) extends Service[F](session.authToken) {
-  val uri: Uri = baseUri / "network-ip-availabilities"
-  val name = "network_ip_availability"
+final class IpAvailabilities[F[_]: Sync: Client](baseUri: Uri, session: Session)
+  extends BaseCrudService[F](baseUri, "network_ip_availability", session.authToken)
+    with ListOperations[F, IpAvailability] {
   
-  /** Streams network IP availability of all networks. */
-  def stream(pairs: (String, String)*): Stream[F, IpAvailability] = stream(Query.fromPairs(pairs:_*))
-  /** Streams network IP availability of all networks. */
-  def stream(query: Query): Stream[F, IpAvailability] =
-    super.stream[IpAvailability](wrappedAt = "network_ip_availabilities", uri.copy(query = query))
+  override implicit val modelDecoder: Decoder[IpAvailability] = IpAvailability.decoder
   
-  /** Lists network IP availability of all networks. */
-  def list(pairs: (String, String)*): F[List[IpAvailability]] = list(Query.fromPairs(pairs:_*))
-  /** Lists network IP availability of all networks. */
-  def list(query: Query): F[List[IpAvailability]] =
-    super.list[IpAvailability](wrappedAt = "network_ip_availabilities", uri.copy(query = query))
+  // This is causing an UninitializedFieldError. That is why it is commented and the methods stream and list are being overridden
+  //override val pluralName: String = "network_ip_availabilities"
+  override val uri: Uri = baseUri / "network-ip-availabilities" // Because consistency is key </sarcasm>
+  
+  override def stream(query: Query, extraHeaders: Header*): Stream[F, IpAvailability] =
+    stream[IpAvailability]("network_ip_availabilities", uri.copy(query = query), extraHeaders:_*)
+  override def list(query: Query, extraHeaders: Header*): F[List[IpAvailability]] =
+    list[IpAvailability]("network_ip_availabilities", uri.copy(query = query), extraHeaders:_*)
   
   /**
     * Shows network IP availability details for a network.

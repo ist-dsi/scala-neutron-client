@@ -2,28 +2,22 @@ package pt.tecnico.dsi.openstack.neutron.services
 
 import cats.effect.Sync
 import cats.syntax.flatMap._
-import fs2.Stream
+import io.circe.{Decoder, Encoder}
 import org.http4s.client.Client
-import org.http4s.{Header, Query, Uri}
+import org.http4s.{Header, Uri}
 import org.log4s.getLogger
-import pt.tecnico.dsi.openstack.common.services.Service
+import pt.tecnico.dsi.openstack.common.services._
 import pt.tecnico.dsi.openstack.keystone.models.Session
 import pt.tecnico.dsi.openstack.neutron.models.{NeutronError, SecurityGroupRule}
 
-final class SecurityGroupRules[F[_]: Sync: Client](baseUri: Uri, session: Session) extends Service[F](session.authToken) {
-  val name = "security_group_rule"
-  val pluralName = s"${name}s"
-  val uri: Uri = baseUri / pluralName
-  protected val wrappedAt: Option[String] = Some(name)
-
-  def stream(pairs: (String, String)*): Stream[F, SecurityGroupRule] = stream(Query.fromPairs(pairs:_*))
-  def stream(query: Query): Stream[F, SecurityGroupRule] = super.stream[SecurityGroupRule](pluralName, uri.copy(query = query))
+final class SecurityGroupRules[F[_]: Sync: Client](baseUri: Uri, session: Session) extends BaseCrudService[F](baseUri, "security_group_rule", session.authToken)
+  with CreateNonIdempotentOperations[F, SecurityGroupRule, SecurityGroupRule.Create]
+  with ListOperations[F, SecurityGroupRule]
+  with ReadOperations[F, SecurityGroupRule]
+  with DeleteOperations[F, SecurityGroupRule] {
   
-  def list(pairs: (String, String)*): F[List[SecurityGroupRule]] = list(Query.fromPairs(pairs:_*))
-  def list(query: Query): F[List[SecurityGroupRule]] = super.list[SecurityGroupRule](pluralName, uri.copy(query = query))
-  
-  def create(create: SecurityGroupRule.Create, extraHeaders: Header*): F[SecurityGroupRule] =
-    super.post(wrappedAt, create, uri, extraHeaders:_*)
+  override implicit val createEncoder: Encoder[SecurityGroupRule.Create] = SecurityGroupRule.Create.encoder
+  override implicit val modelDecoder: Decoder[SecurityGroupRule] = SecurityGroupRule.decoder
   
   /**
    * A sort of idempotent create. If a Conflict is received and the existing rule already has the same settings the existing rule
@@ -53,14 +47,4 @@ final class SecurityGroupRules[F[_]: Sync: Client](baseUri: Uri, session: Sessio
         }
     }
   }
-
-  def get(id: String): F[Option[SecurityGroupRule]] = super.getOption(wrappedAt, uri / id)
-  def apply(id: String): F[SecurityGroupRule] =
-    get(id).flatMap {
-      case Some(rule) => F.pure(rule)
-      case None => F.raiseError(new NoSuchElementException(s"""Could not find $name with id "$id"."""))
-    }
-
-  def delete(rule: SecurityGroupRule): F[Unit] = delete(rule.id)
-  def delete(id: String): F[Unit] = super.delete(uri / id)
 }

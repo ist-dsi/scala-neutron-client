@@ -58,7 +58,7 @@ final class SecurityGroupRulesSpec extends Utils {
           "port_range_max" -> stub.portRangeMax.value.toString,
           "limit" -> repetitions.toString,
         ))
-        _ <- list.parTraverse_(securityGroupRules.delete)
+        _ <- list.parTraverse_(rule => securityGroupRules.delete(rule))
       } yield list.size shouldBe 1
     }
     

@@ -7,6 +7,7 @@ import cats.effect.Sync
 import com.comcast.ip4s.IpAddress
 import io.circe.derivation.{deriveCodec, deriveDecoder, deriveEncoder, renaming}
 import io.circe.{Codec, Decoder, Encoder}
+import io.chrisdavenport.cats.time.offsetdatetimeInstances
 import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link}
 import pt.tecnico.dsi.openstack.keystone.KeystoneClient
 import pt.tecnico.dsi.openstack.keystone.models.Project
@@ -81,10 +82,7 @@ object Router {
   implicit val decoder: Decoder[Router] = deriveDecoder(Map(
     "revision" -> "revision_number"
   ).withDefault(renaming.snakeCase))
-  implicit val show: ShowPretty[Router] = {
-    import pt.tecnico.dsi.openstack.common.models.showOffsetDateTime
-    derived.semiauto.showPretty
-  }
+  implicit val show: ShowPretty[Router] = derived.semiauto.showPretty
 }
 case class Router(
   id: String,

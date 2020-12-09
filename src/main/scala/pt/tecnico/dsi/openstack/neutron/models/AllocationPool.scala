@@ -7,9 +7,18 @@ import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
 import io.circe.{Decoder, Encoder}
 
 object AllocationPool {
+  def lastAvailableAddress[IP <: IpAddress](cidr: Cidr[IP]): IP = cidr.last.fold(
+    v4 = _.previous, // In IPv4 the last address is reserved for the broadcast address. So the last available address is the previous one.
+    v6 = identity
+  ).asInstanceOf[IP]
+  
   /** Creates an AllocationPool from `cidr`. */
-  def fromCidr[IP <: IpAddress](cidr: Cidr[IP]): AllocationPool[IP] =
-    AllocationPool(cidr.prefix.next.next, cidr.last.previous).asInstanceOf[AllocationPool[IP]]
+  def fromCidr[IP <: IpAddress](cidr: Cidr[IP]): AllocationPool[IP] = {
+    // `cidr.prefix` is the network address
+    // `cidr.prefix.next` is the gateway address
+    // so `cidr.prefix.next.next` is the first available address for the allocation pool
+    AllocationPool(cidr.prefix.next.next, lastAvailableAddress(cidr)).asInstanceOf[AllocationPool[IP]]
+  }
   
   def fromCidrAndGateway[IP <: IpAddress](cidr: Cidr[IP], gateway: Option[IP] = None): Option[(IP, List[AllocationPool[IP]])] = {
     val (network, broadcast) = (cidr.prefix, cidr.last) // These addresses are reserved
@@ -17,7 +26,8 @@ object AllocationPool {
     if (!cidr.contains(gatewayIP) || gatewayIP == network || gatewayIP == broadcast) {
       None
     } else {
-      val (fistAvailable, lastAvailable) = (network.next, broadcast.previous)
+      val (fistAvailable, lastAvailable) = (network.next, lastAvailableAddress(cidr))
+      
       val pools = gatewayIP match {
         case `fistAvailable` => List(AllocationPool(gatewayIP.next, lastAvailable))
         case `lastAvailable` => List(AllocationPool(fistAvailable, gatewayIP.previous))

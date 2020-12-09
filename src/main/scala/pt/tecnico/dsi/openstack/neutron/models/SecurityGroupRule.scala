@@ -8,6 +8,7 @@ import cats.effect.Sync
 import com.comcast.ip4s.{Cidr, IpAddress, IpVersion}
 import io.circe.derivation.{deriveEncoder, renaming}
 import io.circe.{Decoder, DecodingFailure, Encoder, HCursor}
+import io.chrisdavenport.cats.time.offsetdatetimeInstances
 import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link}
 import pt.tecnico.dsi.openstack.keystone.KeystoneClient
 import pt.tecnico.dsi.openstack.keystone.models.Project
@@ -99,10 +100,7 @@ object SecurityGroupRule {
     updatedAt <- cursor.get[OffsetDateTime]("updated_at")
   } yield SecurityGroupRule(id, projectId, description, securityGroupId, direction, ipVersion, protocol, min, max, remote, revision, createdAt, updatedAt)
   
-  implicit val show: ShowPretty[SecurityGroupRule] = {
-    import pt.tecnico.dsi.openstack.common.models.showOffsetDateTime
-    derived.semiauto.showPretty
-  }
+  implicit val show: ShowPretty[SecurityGroupRule] = derived.semiauto.showPretty
 }
 case class SecurityGroupRule(
   id: String,

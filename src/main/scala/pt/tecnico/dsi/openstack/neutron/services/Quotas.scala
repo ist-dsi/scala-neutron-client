@@ -9,17 +9,14 @@ import pt.tecnico.dsi.openstack.common.services.Service
 import pt.tecnico.dsi.openstack.keystone.models.Session
 import pt.tecnico.dsi.openstack.neutron.models.Quota
 
-final class Quotas[F[_]: Sync: Client](baseUri: Uri, session: Session) extends Service[F](session.authToken) {
-  val uri: Uri = baseUri / "quotas"
-  val name = "quota"
-
+final class Quotas[F[_]: Sync: Client](baseUri: Uri, session: Session) extends Service[F](baseUri, "quota", session.authToken) {
   /** Streams quotas for projects with non-default quota values. */
   def stream: Stream[F, (String, Quota)] = {
     val decoder: Decoder[(String, Quota)] = (cursor: HCursor) => for {
       projectId <- cursor.get[String]("project_id")
       quota <- cursor.as[Quota]
     } yield (projectId, quota)
-    super.stream(wrappedAt = s"${name}s", uri)(decoder)
+    super.stream(wrappedAt = pluralName, uri)(decoder)
   }
   
   /** Lists quotas for projects with non-default quota values. */

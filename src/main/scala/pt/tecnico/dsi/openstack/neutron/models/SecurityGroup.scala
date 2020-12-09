@@ -6,6 +6,7 @@ import cats.derived.ShowPretty
 import cats.effect.Sync
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
 import io.circe.{Decoder, Encoder}
+import io.chrisdavenport.cats.time.offsetdatetimeInstances
 import org.http4s.Query
 import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link}
 import pt.tecnico.dsi.openstack.keystone.KeystoneClient
@@ -39,10 +40,7 @@ object SecurityGroup {
   }
   
   implicit val decoder: Decoder[SecurityGroup] = deriveDecoder(Map("revision" -> "revision_number").withDefault(renaming.snakeCase))
-  implicit val show: ShowPretty[SecurityGroup] = {
-    import pt.tecnico.dsi.openstack.common.models.showOffsetDateTime
-    derived.semiauto.showPretty
-  }
+  implicit val show: ShowPretty[SecurityGroup] = derived.semiauto.showPretty
 }
 case class SecurityGroup(
   id: String,

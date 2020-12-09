@@ -5,7 +5,6 @@ import cats.{Show, derived}
 import com.comcast.ip4s.{Cidr, IpAddress}
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
 import io.circe.{Decoder, Encoder}
-import shapeless.Typeable
 
 object Route {
   implicit def encoder[IP <: IpAddress: Encoder]: Encoder[Route[IP]] = deriveEncoder(renaming.snakeCase)
@@ -15,6 +14,6 @@ object Route {
   
   implicit def ordering[IP <: IpAddress: Ordering]: Ordering[Route[IP]] = Ordering.by(x => (x.destination, x.nexthop))
   
-  implicit def show[IP <: IpAddress: Typeable]: Show[Route[IP]] = derived.semiauto.show
+  implicit def show[IP <: IpAddress]: Show[Route[IP]] = derived.semiauto.show
 }
 final case class Route[+IP <: IpAddress](destination: Cidr[IP], nexthop: IP)
