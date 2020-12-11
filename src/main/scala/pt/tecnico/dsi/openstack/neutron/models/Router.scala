@@ -30,7 +30,7 @@ object Router {
     availabilityZoneHints: Option[List[String]] = None,
     projectId: Option[String] = None,
   )
-
+  
   object Update {
     implicit val encoder: Encoder[Update] = deriveEncoder(renaming.snakeCase)
     implicit val show: ShowPretty[Update] = derived.semiauto.showPretty

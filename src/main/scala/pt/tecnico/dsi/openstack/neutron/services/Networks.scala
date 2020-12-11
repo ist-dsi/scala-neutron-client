@@ -14,7 +14,7 @@ import pt.tecnico.dsi.openstack.neutron.models.{Network, NeutronError}
 
 final class Networks[F[_]: Sync: Client](baseUri: Uri, session: Session)
   extends CrudService[F, Network, Network.Create, Network.Update](baseUri, "network", session.authToken)
-  with BulkCreate[F, Network, Network.Create] {
+    with BulkCreate[F, Network, Network.Create] {
   
   override def defaultResolveConflict(existing: Network, create: Network.Create, keepExistingElements: Boolean, extraHeaders: Seq[Header]): F[Network] = {
     val updated = Network.Update(

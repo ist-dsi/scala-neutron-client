@@ -15,7 +15,7 @@ object NeutronClient extends ClientBuilder {
 }
 class NeutronClient[F[_]: Sync](baseUri: Uri, session: Session)(implicit client: Client[F]) {
   val uri: Uri = if (baseUri.path.dropEndsWithSlash.toString.endsWith("v2.0")) baseUri else baseUri / "v2.0"
-
+  
   val networks: Networks[F] = new Networks[F](uri, session)
   val ipAvailabilities: IpAvailabilities[F] = new IpAvailabilities[F](uri, session)
   val floatingIps: FloatingIps[F] = new FloatingIps[F](uri, session)

@@ -41,7 +41,7 @@ object FloatingIp {
     dnsDomain: Option[String] = None,
     projectId: Option[String] = None,
   )
-
+  
   object Update {
     implicit val decoder: Encoder[Update[IpAddress]] = deriveEncoder(renaming.snakeCase)
     implicit def show[IP <: IpAddress]: ShowPretty[Update[IP]] = derived.semiauto.showPretty

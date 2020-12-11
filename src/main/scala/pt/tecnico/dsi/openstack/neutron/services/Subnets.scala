@@ -13,7 +13,7 @@ import pt.tecnico.dsi.openstack.neutron.models.{AllocationPool, NeutronError, Su
 
 final class Subnets[F[_]: Sync: Client](baseUri: Uri, session: Session)
   extends CrudService[F, Subnet[IpAddress], Subnet.Create[IpAddress], Subnet.Update[IpAddress]](baseUri, "subnet", session.authToken)
-  with BulkCreate[F, Subnet[IpAddress], Subnet.Create[IpAddress]] {
+    with BulkCreate[F, Subnet[IpAddress], Subnet.Create[IpAddress]] {
   
   private def computeUpdatedCollection[T: Ordering](existing: List[T], create: List[T], keepExistingElements: Boolean): Option[List[T]] = {
     val newElements = if (keepExistingElements) {
