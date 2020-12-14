@@ -6,7 +6,6 @@ import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.Random
 import cats.effect.{ContextShift, IO, Resource, Timer}
 import cats.implicits._
-import org.http4s.Query
 import org.http4s.client.Client
 import org.http4s.client.blaze.BlazeClientBuilder
 import org.log4s._
@@ -62,10 +61,7 @@ abstract class Utils extends AsyncWordSpec with Matchers with BeforeAndAfterAll 
     val deletes = for {
       _ <- deleteProject
       // Neutron automatically creates the default security group for the project
-      securityGroups <- neutron.securityGroups.list(Query.fromPairs(
-        "name" -> "default",
-        "project_id" -> project.id,
-      ))
+      securityGroups <- neutron.securityGroups.list("name" -> "default", "project_id" -> project.id)
       _ <- securityGroups.parTraverse_(neutron.securityGroups.delete(_))
       _ <- finalizer
     } yield ()
