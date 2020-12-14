@@ -10,11 +10,12 @@ import pt.tecnico.dsi.openstack.common.services._
 import pt.tecnico.dsi.openstack.keystone.models.Session
 import pt.tecnico.dsi.openstack.neutron.models.{NeutronError, SecurityGroupRule}
 
-final class SecurityGroupRules[F[_]: Sync: Client](baseUri: Uri, session: Session) extends BaseCrudService[F](baseUri, "security_group_rule", session.authToken)
-  with CreateNonIdempotentOperations[F, SecurityGroupRule, SecurityGroupRule.Create]
-  with ListOperations[F, SecurityGroupRule]
-  with ReadOperations[F, SecurityGroupRule]
-  with DeleteOperations[F, SecurityGroupRule] {
+final class SecurityGroupRules[F[_]: Sync: Client](baseUri: Uri, session: Session)
+  extends PartialCrudService[F](baseUri, "security_group_rule", session.authToken)
+    with CreateNonIdempotentOperations[F, SecurityGroupRule, SecurityGroupRule.Create]
+    with ListOperations[F, SecurityGroupRule]
+    with ReadOperations[F, SecurityGroupRule]
+    with DeleteOperations[F, SecurityGroupRule] {
   
   override implicit val createEncoder: Encoder[SecurityGroupRule.Create] = SecurityGroupRule.Create.encoder
   override implicit val modelDecoder: Decoder[SecurityGroupRule] = SecurityGroupRule.decoder

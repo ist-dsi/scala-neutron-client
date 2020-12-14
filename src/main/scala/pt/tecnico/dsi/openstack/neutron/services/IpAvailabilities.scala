@@ -5,12 +5,12 @@ import fs2.Stream
 import io.circe.Decoder
 import org.http4s.{Header, Query, Uri}
 import org.http4s.client.Client
-import pt.tecnico.dsi.openstack.common.services.{BaseCrudService, ListOperations}
+import pt.tecnico.dsi.openstack.common.services.{PartialCrudService, ListOperations}
 import pt.tecnico.dsi.openstack.keystone.models.Session
 import pt.tecnico.dsi.openstack.neutron.models.IpAvailability
 
 final class IpAvailabilities[F[_]: Sync: Client](baseUri: Uri, session: Session)
-  extends BaseCrudService[F](baseUri, "network_ip_availability", session.authToken)
+  extends PartialCrudService[F](baseUri, "network_ip_availability", session.authToken)
     with ListOperations[F, IpAvailability] {
   
   override implicit val modelDecoder: Decoder[IpAvailability] = IpAvailability.decoder
