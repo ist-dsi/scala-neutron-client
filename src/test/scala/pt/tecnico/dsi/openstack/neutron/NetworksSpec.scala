@@ -50,4 +50,10 @@ final class NetworksSpec extends CrudSpec[Network, Network.Create, Network.Updat
   override def compareUpdate(update: Network.Update, model: Network): Assertion = {
     model.name shouldBe update.name.value
   }
+  
+  s"The ${name}s service" should {
+    "list segmentation ids" in {
+      service.listSegmentationIds.idempotently(_ should not be empty)
+    }
+  }
 }
