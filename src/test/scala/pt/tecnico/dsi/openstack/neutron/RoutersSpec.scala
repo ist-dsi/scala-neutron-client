@@ -1,9 +1,11 @@
 package pt.tecnico.dsi.openstack.neutron
 
+import scala.util.Random
 import cats.effect.IO
+import com.comcast.ip4s.Ipv4Address
 import org.scalatest.Assertion
 import org.scalatest.OptionValues._
-import pt.tecnico.dsi.openstack.neutron.models.Router
+import pt.tecnico.dsi.openstack.neutron.models.{Network, Router, Subnet}
 import pt.tecnico.dsi.openstack.neutron.services.Routers
 
 final class RoutersSpec extends CrudSpec[Router, Router.Create, Router.Update]("router") {
@@ -59,7 +61,6 @@ final class RoutersSpec extends CrudSpec[Router, Router.Create, Router.Update]("
   
   // These are failing because the VM to which we are testing against has incorrect permissions set and we receive:
   // The request you have made requires authentication
-  /*
   s"The ${name}s service" should {
     val resources = for {
       router <- resource
@@ -80,6 +81,8 @@ final class RoutersSpec extends CrudSpec[Router, Router.Create, Router.Update]("
       for {
         first <- service.on(router).addInterface(subnet)
         second <- service.on(router).addInterface(subnet)
+        // We must remove the subnet otherwise the deletes will fail
+        _ <- service.on(router).removeInterface(subnet)
       } yield {
         first.value.routerId shouldBe router.id
         first.value.networkId shouldBe network.id
@@ -95,5 +98,4 @@ final class RoutersSpec extends CrudSpec[Router, Router.Create, Router.Update]("
       } yield result
     }
   }
-  */
 }

@@ -5,7 +5,7 @@ import cats.syntax.flatMap._
 import cats.syntax.functor._
 import com.comcast.ip4s.IpAddress
 import io.circe.{Decoder, Encoder, Json}
-import org.http4s.Status.{Conflict, Successful}
+import org.http4s.Status.{Conflict, Successful, NotFound}
 import org.http4s.client.Client
 import org.http4s.Method.PUT
 import org.http4s.{Header, Uri}
@@ -91,6 +91,8 @@ final class Routers[F[_] : Sync : Client](baseUri: Uri, session: Session)
   }
   
   final class Operations(val id: String) { self =>
+    import dsl._
+    
     private def routesOperation(routes: List[Route[IpAddress]], path: String): F[List[Route[IpAddress]]] = {
       // Double wrapping for double the fun </sarcasm>
       // https://github.com/circe/circe/issues/1536
@@ -104,10 +106,10 @@ final class Routers[F[_] : Sync : Client](baseUri: Uri, session: Session)
     /**
      * If the router interface has already added a None will be returned, otherwise the RouterInterface.
      * Openstack does not provide a way to obtain an already existing router interface. */
-    private def interfacesOperation(`type`: String, id: String, path: String): F[Option[RouterInterface]] = {
+    private def addRouterInterface(`type`: String, id: String): F[Option[RouterInterface]] = {
       import dsl._
       val conflicting = """.*?Router already has a port on subnet ([^ ]+)\.""".r
-      client.run(PUT.apply(Map(s"${`type`}_id" -> id), uri / self.id / path)).use {
+      client.run(PUT.apply(Map(s"${`type`}_id" -> id), uri / self.id / "add_router_interface", authToken)).use {
         case Successful(response) => response.as[RouterInterface].map(ri => Some(ri))
         case response => response.as[NeutronError].flatMap {
           case NeutronError("BadRequest", conflicting(`id`), _) =>
@@ -126,15 +128,24 @@ final class Routers[F[_] : Sync : Client](baseUri: Uri, session: Session)
       }
     }
     
+    private def removeRouterInterface(`type`: String, id: String): F[Unit] = {
+      // A delete is done with a PUT! </sarcasm>
+      val request = PUT.apply(Map(s"${`type`}_id" -> id), uri / self.id / "remove_router_interface", authToken)
+      client.run(request).use {
+        case Successful(_) | NotFound(_) => F.unit
+        case response => defaultOnError(request, response)
+      }
+    }
+    
     def addInterfaceBySubnet(subnetId: String): F[Option[RouterInterface]] =
-      interfacesOperation("subnet", subnetId, "add_router_interface")
+      addRouterInterface("subnet", subnetId)
     def addInterfaceByPort(portId: String): F[Option[RouterInterface]] =
-      interfacesOperation("port", portId, "add_router_interface")
+      addRouterInterface("port", portId)
     
     def removeInterfaceBySubnet(subnetId: String): F[Unit] =
-      interfacesOperation("subnet", subnetId, "remove_router_interface").void
+      removeRouterInterface("subnet", subnetId)
     def removeInterfaceByPort(portId: String): F[Unit] =
-      interfacesOperation("port", portId, "remove_router_interface").void
+      removeRouterInterface("port", portId)
     
     def addInterface(subnet: Subnet[_]): F[Option[RouterInterface]] = addInterfaceBySubnet(subnet.id)
     def removeInterface(subnet: Subnet[_]): F[Unit] = removeInterfaceBySubnet(subnet.id)
