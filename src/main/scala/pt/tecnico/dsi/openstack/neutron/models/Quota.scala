@@ -20,7 +20,13 @@ object Quota {
     securityGroupRule: Option[Int] = None,
     subnet: Option[Int] = None,
     subnetpool: Option[Int] = None,
-  )
+  ) {
+    lazy val needsUpdate: Boolean = {
+      // We could implement this with the next line, but that implementation is less reliable if the fields of this class change
+      //  productIterator.asInstanceOf[Iterator[Option[Any]]].exists(_.isDefined)
+      List(floatingip, network, port, rbacPolicy, router, securityGroup, securityGroupRule, subnet, subnetpool).exists(_.isDefined)
+    }
+  }
   
   implicit val decoder: Decoder[Quota] = deriveDecoder(renaming.snakeCase)
   implicit val show: ShowPretty[Quota] = derived.semiauto.showPretty
