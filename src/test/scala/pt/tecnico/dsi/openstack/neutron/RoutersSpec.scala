@@ -56,4 +56,44 @@ final class RoutersSpec extends CrudSpec[Router, Router.Create, Router.Update]("
     //get.updatedAt shouldBe model.updatedAt
     get.tags shouldBe model.tags
   }
+  
+  // These are failing because the VM to which we are testing against has incorrect permissions set and we receive:
+  // The request you have made requires authentication
+  /*
+  s"The ${name}s service" should {
+    val resources = for {
+      router <- resource
+      network <- resourceCreator(neutron.networks)(name => Network.Create(
+        name = name,
+        projectId = Some(project.id),
+      ))
+      subnet <- resourceCreator(neutron.subnets)(name => Subnet.Create(
+        name,
+        network.id,
+        "a description",
+        Ipv4Address(s"192.168.${Random.between(50, 250)}.0").map(_ / 24),
+        projectId = Some(project.id)
+      ))
+    } yield (router, network, subnet)
+    
+    "addInterface" in resources.use[IO, Assertion] { case (router, network, subnet) =>
+      for {
+        first <- service.on(router).addInterface(subnet)
+        second <- service.on(router).addInterface(subnet)
+      } yield {
+        first.value.routerId shouldBe router.id
+        first.value.networkId shouldBe network.id
+        first.value.projectId shouldBe project.id
+        first.value.subnetId shouldBe subnet.id
+        second shouldBe None
+      }
+    }
+    "removeInterface" in resources.use[IO, Assertion] { case (router, _, subnet) =>
+      for {
+        _ <- service.on(router).addInterface(subnet)
+        result <- service.on(router).removeInterface(subnet).idempotently(_ shouldBe ())
+      } yield result
+    }
+  }
+  */
 }

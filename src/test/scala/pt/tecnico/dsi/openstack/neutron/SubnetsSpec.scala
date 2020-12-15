@@ -6,7 +6,7 @@ import cats.implicits._
 import com.comcast.ip4s._
 import org.scalatest.Assertion
 import org.scalatest.OptionValues._
-import pt.tecnico.dsi.openstack.neutron.models.{AllocationPool, Ipv6Mode, Network, Subnet, SubnetIpv6}
+import pt.tecnico.dsi.openstack.neutron.models.{AllocationPool, Ipv6Mode, Network, Subnet}
 import pt.tecnico.dsi.openstack.neutron.services.Subnets
 
 final class SubnetsSpec extends CrudSpec[Subnet[IpAddress], Subnet.Create[IpAddress], Subnet.Update[IpAddress]]("subnet")
@@ -32,7 +32,6 @@ final class SubnetsSpec extends CrudSpec[Subnet[IpAddress], Subnet.Create[IpAddr
     network.id,
     "a description",
     Ipv6Address(s"2606:2800:220:${Random.between(1, 100)}::").map(_ / 64),
-    mode = Some(Ipv6Mode.Slaac),
     routerAdvertisementMode = Some(Ipv6Mode.Slaac),
     projectId = Some(project.id)
   )
@@ -44,10 +43,8 @@ final class SubnetsSpec extends CrudSpec[Subnet[IpAddress], Subnet.Create[IpAddr
     model.cidr shouldBe create.cidr.value
     model.gateway shouldBe create.cidr.map(_.prefix.next)
     model.allocationPools shouldBe List(AllocationPool.fromCidr(create.cidr.value))
-    model shouldBe a [SubnetIpv6]
-    val v6Model = model.asInstanceOf[SubnetIpv6]
-    v6Model.mode shouldBe create.mode.value
-    v6Model.routerAdvertisementMode shouldBe create.routerAdvertisementMode.value
+    model.mode shouldBe create.mode
+    model.routerAdvertisementMode shouldBe create.routerAdvertisementMode
   }
   
   override val updateStub: Subnet.Update[IpAddress] = Subnet.Update(

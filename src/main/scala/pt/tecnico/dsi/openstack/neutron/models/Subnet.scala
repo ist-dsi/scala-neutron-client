@@ -5,10 +5,10 @@ import scala.annotation.nowarn
 import cats.derived
 import cats.derived.ShowPretty
 import cats.effect.Sync
-import com.comcast.ip4s.{Cidr, IpAddress, IpVersion, Ipv4Address, Ipv6Address}
+import com.comcast.ip4s.{Cidr, IpAddress, IpVersion}
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
 import io.circe.syntax._
-import io.circe.{Decoder, Encoder, HCursor}
+import io.circe.{Decoder, Encoder}
 import io.chrisdavenport.cats.time.offsetdatetimeInstances
 import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link}
 import pt.tecnico.dsi.openstack.keystone.KeystoneClient
@@ -92,97 +92,35 @@ object Subnet {
     "mode" -> "ipv6_address_mode",
     "routerAdvertisementMode" -> "ipv6_ra_mode",
   ).withDefault(renaming.snakeCase)
-  implicit val decoderV4: Decoder[SubnetIpv4] = deriveDecoder(baseRenames)
-  implicit val decoderV6: Decoder[SubnetIpv6] = deriveDecoder(baseRenames)
-  
-  implicit val decoder: Decoder[Subnet[IpAddress]] = (cursor: HCursor) => ipVersionIntDecoder.at("ip_version")(cursor).flatMap {
-    case IpVersion.V4 => decoderV4(cursor)
-    case IpVersion.V6 => decoderV6(cursor)
-  }
-  
-  implicit def show[IP <: IpAddress]: ShowPretty[Subnet[IP]] = {
-    case v4: SubnetIpv4 => SubnetIpv4.show.showLines(v4)
-    case v6: SubnetIpv6 => SubnetIpv6.show.showLines(v6)
-  }
+  implicit val decoder: Decoder[Subnet[IpAddress]] = deriveDecoder(baseRenames)
+  implicit def show[IP <: IpAddress]: ShowPretty[Subnet[IP]] = derived.semiauto.showPretty
 }
-sealed trait Subnet[+IP <: IpAddress] extends Identifiable {
-  def name: String
-  def description: String
-  def projectId: String
+case class Subnet[+IP <: IpAddress](
+  id: String,
+  name: String,
+  description: String,
+  projectId: String,
   
-  def networkId: String
-  def cidr: Cidr[IP]
-  def gateway: Option[IP]
-  def allocationPools: List[AllocationPool[IP]]
-  def hostRoutes: List[Route[IP]]
-  def enableDhcp: Boolean
-  def nameservers: List[IP]
-  def subnetpoolId: Option[String]
-  def segmentId: Option[String]
-  def serviceTypes: List[String]
+  networkId: String,
+  cidr: Cidr[IP],
+  gateway: Option[IP] = None,
+  allocationPools: List[AllocationPool[IP]],
+  hostRoutes: List[Route[IP]],
+  enableDhcp: Boolean,
+  nameservers: List[IP],
+  subnetpoolId: Option[String] = None,
+  segmentId: Option[String] = None,
+  serviceTypes: List[String],
+  // IPv6 specific fields. These are optional even for IPv6 Subnets
+  mode: Option[Ipv6Mode] = None,
+  routerAdvertisementMode: Option[Ipv6Mode] = None,
   
-  def revision: Int
-  def createdAt: OffsetDateTime
-  def updatedAt: OffsetDateTime
-  def tags: List[String]
-  
+  revision: Int,
+  createdAt: OffsetDateTime,
+  updatedAt: OffsetDateTime,
+  tags: List[String] = List.empty,
+  links: List[Link] = List.empty,
+) extends Identifiable {
   def project[F[_]: Sync](implicit keystone: KeystoneClient[F]): F[Project] = keystone.projects(projectId)
   def network[F[_]: Sync](implicit neutron: NeutronClient[F]): F[Network] = neutron.networks(networkId)
 }
-
-object SubnetIpv4 {
-  implicit val show: ShowPretty[SubnetIpv4] = derived.semiauto.showPretty
-}
-case class SubnetIpv4(
-  id: String,
-  name: String,
-  description: String,
-  projectId: String,
-  
-  networkId: String,
-  cidr: Cidr[Ipv4Address],
-  gateway: Option[Ipv4Address] = None,
-  allocationPools: List[AllocationPool[Ipv4Address]],
-  hostRoutes: List[Route[Ipv4Address]],
-  enableDhcp: Boolean,
-  nameservers: List[Ipv4Address],
-  subnetpoolId: Option[String] = None,
-  segmentId: Option[String] = None,
-  serviceTypes: List[String],
-  
-  revision: Int,
-  createdAt: OffsetDateTime,
-  updatedAt: OffsetDateTime,
-  tags: List[String] = List.empty,
-  links: List[Link] = List.empty,
-) extends Subnet[Ipv4Address]
-
-object SubnetIpv6 {
-  implicit val show: ShowPretty[SubnetIpv6] = derived.semiauto.showPretty
-}
-case class SubnetIpv6(
-  id: String,
-  name: String,
-  description: String,
-  projectId: String,
-  
-  networkId: String,
-  cidr: Cidr[Ipv6Address],
-  gateway: Option[Ipv6Address] = None,
-  allocationPools: List[AllocationPool[Ipv6Address]],
-  hostRoutes: List[Route[Ipv6Address]],
-  enableDhcp: Boolean,
-  nameservers: List[Ipv6Address],
-  subnetpoolId: Option[String] = None,
-  segmentId: Option[String] = None,
-  serviceTypes: List[String],
-  // IPv6 specific fields
-  mode: Ipv6Mode,
-  routerAdvertisementMode: Ipv6Mode,
-  
-  revision: Int,
-  createdAt: OffsetDateTime,
-  updatedAt: OffsetDateTime,
-  tags: List[String] = List.empty,
-  links: List[Link] = List.empty,
-) extends Subnet[Ipv6Address]

@@ -2,10 +2,12 @@ package pt.tecnico.dsi.openstack.neutron.services
 
 import cats.effect.Sync
 import cats.syntax.flatMap._
+import cats.syntax.functor._
 import com.comcast.ip4s.IpAddress
 import io.circe.{Decoder, Encoder, Json}
-import org.http4s.Status.Conflict
+import org.http4s.Status.{Conflict, Successful}
 import org.http4s.client.Client
+import org.http4s.Method.PUT
 import org.http4s.{Header, Uri}
 import org.log4s.getLogger
 import pt.tecnico.dsi.openstack.common.services.CrudService
@@ -99,21 +101,43 @@ final class Routers[F[_] : Sync : Client](baseUri: Uri, session: Session)
     def add(routes: List[Route[IpAddress]]): F[List[Route[IpAddress]]] = routesOperation(routes, "add_extraroutes")
     def remove(routes: List[Route[IpAddress]]): F[List[Route[IpAddress]]] = routesOperation(routes, "remove_extraroutes")
     
-    private def interfacesOperation(`type`: String, id: String, path: String): F[RouterInterface] =
-      put(wrappedAt = None, Map(s"${`type`}_id" -> id), uri / self.id / path)
+    /**
+     * If the router interface has already added a None will be returned, otherwise the RouterInterface.
+     * Openstack does not provide a way to obtain an already existing router interface. */
+    private def interfacesOperation(`type`: String, id: String, path: String): F[Option[RouterInterface]] = {
+      import dsl._
+      val conflicting = """.*?Router already has a port on subnet ([^ ]+)\.""".r
+      client.run(PUT.apply(Map(s"${`type`}_id" -> id), uri / self.id / path)).use {
+        case Successful(response) => response.as[RouterInterface].map(ri => Some(ri))
+        case response => response.as[NeutronError].flatMap {
+          case NeutronError("BadRequest", conflicting(`id`), _) =>
+            // Openstack does not provide a way to obtain an already existing router interface.
+            // We almost can compute it:
+            // search for the existing port (which is created when this method is successful)
+            // routerId = self.id
+            // networkId = port.networkId
+            // projectId = port.projectId
+            // subnetId = this should probably be an Option. What happens when `type` = port?
+            // portId = port.id
+            // tags = port.tags
+            Sync[F].pure(Option.empty)
+          case error => F.raiseError(error)
+        }
+      }
+    }
     
-    def addInterfaceBySubnet(subnetId: String): F[RouterInterface] =
+    def addInterfaceBySubnet(subnetId: String): F[Option[RouterInterface]] =
       interfacesOperation("subnet", subnetId, "add_router_interface")
-    def addInterfaceByPort(portId: String): F[RouterInterface] =
+    def addInterfaceByPort(portId: String): F[Option[RouterInterface]] =
       interfacesOperation("port", portId, "add_router_interface")
     
-    def removeInterfaceBySubnet(subnetId: String): F[RouterInterface] =
-      interfacesOperation("subnet", subnetId, "remove_router_interface")
-    def removeInterfaceByPort(portId: String): F[RouterInterface] =
-      interfacesOperation("port", portId, "remove_router_interface")
+    def removeInterfaceBySubnet(subnetId: String): F[Unit] =
+      interfacesOperation("subnet", subnetId, "remove_router_interface").void
+    def removeInterfaceByPort(portId: String): F[Unit] =
+      interfacesOperation("port", portId, "remove_router_interface").void
     
-    def addInterface(subnet: Subnet[_]): F[RouterInterface] = addInterfaceBySubnet(subnet.id)
-    def removeInterface(subnet: Subnet[_]): F[RouterInterface] = removeInterfaceBySubnet(subnet.id)
+    def addInterface(subnet: Subnet[_]): F[Option[RouterInterface]] = addInterfaceBySubnet(subnet.id)
+    def removeInterface(subnet: Subnet[_]): F[Unit] = removeInterfaceBySubnet(subnet.id)
   }
   
   /** Allows performing operations on the router with `id` */
