@@ -94,13 +94,13 @@ final class Routers[F[_] : Sync : Client](baseUri: Uri, session: Session)
       // https://github.com/circe/circe/issues/1536
       implicit val e = Encoder[List[Route[IpAddress]]].mapJson(j => Json.obj("routes" -> j))
       implicit val d = Decoder[List[Route[IpAddress]]].at("routes")
-      put(wrappedAt = Some(name), routes, baseUri / id / path)
+      put(wrappedAt = Some(name), routes, uri / id / path)
     }
     def add(routes: List[Route[IpAddress]]): F[List[Route[IpAddress]]] = routesOperation(routes, "add_extraroutes")
     def remove(routes: List[Route[IpAddress]]): F[List[Route[IpAddress]]] = routesOperation(routes, "remove_extraroutes")
     
     private def interfacesOperation(`type`: String, id: String, path: String): F[RouterInterface] =
-      put(wrappedAt = None, Map(s"${`type`}_id" -> id), baseUri / self.id / path)
+      put(wrappedAt = None, Map(s"${`type`}_id" -> id), uri / self.id / path)
     
     def addInterfaceBySubnet(subnetId: String): F[RouterInterface] =
       interfacesOperation("subnet", subnetId, "add_router_interface")
