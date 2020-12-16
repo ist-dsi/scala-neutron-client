@@ -9,6 +9,17 @@ object Quota {
   object Update {
     implicit val encoder: Encoder[Update] = deriveEncoder(renaming.snakeCase)
     implicit val show: ShowPretty[Update] = derived.semiauto.showPretty
+    val zero: Update = Update(
+      floatingip = Some(0),
+      network = Some(0),
+      port = Some(0),
+      rbacPolicy = Some(0),
+      router = Some(0),
+      securityGroup = Some(0),
+      securityGroupRule = Some(0),
+      subnet = Some(0),
+      subnetpool = Some(0),
+    )
   }
   case class Update(
     floatingip: Option[Int] = None,
