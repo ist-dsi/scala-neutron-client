@@ -32,14 +32,15 @@ abstract class Utils extends AsyncWordSpec with Matchers with BeforeAndAfterAll 
     .resource.allocated.unsafeRunSync()
   
   implicit val httpClient: Client[IO] = _httpClient
-  /*
-  import org.http4s.Headers
-  import org.http4s.client.middleware.Logger
-  import org.typelevel.ci.CIString
-  implicit val httpClient: Client[IO] = Logger(
-    logHeaders = true,
-    logBody = true,
-    redactHeadersWhen = (Headers.SensitiveHeaders ++ List(CIString("X-Auth-Token"), CIString("X-Subject-Token"))).contains)(_httpClient)*/
+  /*import org.http4s.Headers
+    import org.http4s.client.middleware.{Logger, ResponseLogger}
+    import org.typelevel.ci.CIString
+    implicit val httpClient: Client[IO] = Logger.colored(
+      logHeaders = true,
+      logBody = true,
+      redactHeadersWhen = (Headers.SensitiveHeaders ++ List(CIString("X-Auth-Token"), CIString("X-Subject-Token"))).contains,
+      responseColor = ResponseLogger.defaultResponseColor[IO] _
+    )(_httpClient)*/
 
   val keystone: KeystoneClient[IO] = KeystoneClient.fromEnvironment().unsafeRunSync()
   val neutron: NeutronClient[IO] = keystone.session.clientBuilder[IO](NeutronClient, sys.env("OS_REGION_NAME"))
