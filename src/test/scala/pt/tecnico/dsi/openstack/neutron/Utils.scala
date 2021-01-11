@@ -1,6 +1,5 @@
 package pt.tecnico.dsi.openstack.neutron
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.Random
@@ -8,7 +7,6 @@ import cats.effect.{ContextShift, IO, Resource, Timer}
 import cats.implicits._
 import org.http4s.client.Client
 import org.http4s.client.blaze.BlazeClientBuilder
-import org.log4s._
 import org.scalatest._
 import org.scalatest.exceptions.TestFailedException
 import org.scalatest.matchers.should.Matchers
@@ -19,14 +17,12 @@ import pt.tecnico.dsi.openstack.keystone.KeystoneClient
 import pt.tecnico.dsi.openstack.keystone.models.Project
 
 abstract class Utils extends AsyncWordSpec with Matchers with BeforeAndAfterAll {
-  val logger: Logger = getLogger
-
   implicit override def executionContext: ExecutionContextExecutor = ExecutionContext.global
 
   implicit val timer: Timer[IO] = IO.timer(executionContext)
   implicit val cs: ContextShift[IO] = IO.contextShift(executionContext)
 
-  val (_httpClient, finalizer) = BlazeClientBuilder[IO](global)
+  val (_httpClient, finalizer) = BlazeClientBuilder[IO](executionContext)
     .withResponseHeaderTimeout(20.seconds)
     .withCheckEndpointAuthentication(false)
     .resource.allocated.unsafeRunSync()
@@ -42,7 +38,7 @@ abstract class Utils extends AsyncWordSpec with Matchers with BeforeAndAfterAll 
       responseColor = ResponseLogger.defaultResponseColor[IO] _
     )(_httpClient)*/
 
-  val keystone: KeystoneClient[IO] = KeystoneClient.fromEnvironment().unsafeRunSync()
+  val keystone: KeystoneClient[IO] = KeystoneClient.authenticateFromEnvironment().unsafeRunSync()
   val neutron: NeutronClient[IO] = keystone.session.clientBuilder[IO](NeutronClient, sys.env("OS_REGION_NAME"))
                                            .fold(s => throw new Exception(s), identity)
   
