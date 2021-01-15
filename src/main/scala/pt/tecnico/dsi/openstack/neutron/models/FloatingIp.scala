@@ -89,4 +89,21 @@ case class FloatingIp[+IP <: IpAddress](
     case None => Sync[F].pure(Option.empty)
     case Some(id) => neutron.routers.get(id)
   }
+  
+  /** If both `dnsName` and `dnsDomain` are defined resolve the hostname `s"$$name.$$domain"`. */
+  def resolveFullDnsName[F[_]: Sync]: F[Option[List[IpAddress]]] = {
+    import com.comcast.ip4s.Hostname
+    import cats.implicits._
+    val hostnameOpt = for {
+      (name, domain) <- dnsName zip dnsDomain
+      hostname <- Hostname(s"$name.$domain".stripSuffix("."))
+    } yield hostname
+    hostnameOpt match {
+      case None => Sync[F].pure(Option.empty)
+      case Some(hostname) => hostname.resolveAll[F].map {
+        case Some(nonEmptyList) => Some(nonEmptyList.toList)
+        case None => Some(List.empty)
+      }
+    }
+  }
 }
