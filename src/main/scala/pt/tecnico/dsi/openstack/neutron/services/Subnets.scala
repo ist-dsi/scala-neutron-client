@@ -1,6 +1,6 @@
 package pt.tecnico.dsi.openstack.neutron.services
 
-import cats.effect.Sync
+import cats.effect.Concurrent
 import cats.syntax.flatMap._
 import com.comcast.ip4s.IpAddress
 import org.http4s.Status.Conflict
@@ -11,7 +11,7 @@ import pt.tecnico.dsi.openstack.common.services.CrudService
 import pt.tecnico.dsi.openstack.keystone.models.Session
 import pt.tecnico.dsi.openstack.neutron.models.{AllocationPool, NeutronError, Subnet}
 
-final class Subnets[F[_]: Sync: Client](baseUri: Uri, session: Session)
+final class Subnets[F[_]: Concurrent: Client](baseUri: Uri, session: Session)
   extends CrudService[F, Subnet[IpAddress], Subnet.Create[IpAddress], Subnet.Update[IpAddress]](baseUri, "subnet", session.authToken)
     with BulkCreate[F, Subnet[IpAddress], Subnet.Create[IpAddress]] {
   
@@ -63,9 +63,9 @@ final class Subnets[F[_]: Sync: Client](baseUri: Uri, session: Session)
           ))
       }
     } yield result) match {
-      case Left(error) => Sync[F].raiseError(error)
+      case Left(error) => Concurrent[F].raiseError(error)
       case Right(updated) if updated.needsUpdate => update(existing.id, updated, extraHeaders:_*)
-      case _ => Sync[F].pure(existing)
+      case _ => Concurrent[F].pure(existing)
     }
   }
   override def createOrUpdate(create: Subnet.Create[IpAddress], keepExistingElements: Boolean = true, extraHeaders: Seq[Header] = Seq.empty)
@@ -86,7 +86,7 @@ final class Subnets[F[_]: Sync: Client](baseUri: Uri, session: Session)
                  |name: ${create.name}
                  |projectId: ${create.projectId}
                  |networkId: ${create.networkId}""".stripMargin
-            Sync[F].raiseError(NeutronError(Conflict.reason, message))
+            Concurrent[F].raiseError(NeutronError(Conflict.reason, message))
         }
     }
   }

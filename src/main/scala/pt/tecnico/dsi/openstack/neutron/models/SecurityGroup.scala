@@ -3,7 +3,6 @@ package pt.tecnico.dsi.openstack.neutron.models
 import java.time.OffsetDateTime
 import cats.derived
 import cats.derived.ShowPretty
-import cats.effect.Sync
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
 import io.circe.{Decoder, Encoder}
 import io.chrisdavenport.cats.time.offsetdatetimeInstances
@@ -54,11 +53,12 @@ case class SecurityGroup(
   tags: List[String],
   links: List[Link] = List.empty
 ) extends Identifiable {
-  def project[F[_]: Sync](implicit keystone: KeystoneClient[F]): F[Project] = keystone.projects(projectId)
+  def project[F[_]](implicit keystone: KeystoneClient[F]): F[Project] =
+    keystone.projects(projectId)
   
-  def rules[F[_]: Sync](implicit neutron: NeutronClient[F]): F[List[SecurityGroupRule]] =
+  def rules[F[_]](implicit neutron: NeutronClient[F]): F[List[SecurityGroupRule]] =
     neutron.securityGroupRules.list(Query.fromPairs("security_group_id" -> id))
   
-  def addRule[F[_]: Sync](rule: String => SecurityGroupRule.Create)(implicit neutron: NeutronClient[F]): F[SecurityGroupRule] =
+  def addRule[F[_]](rule: String => SecurityGroupRule.Create)(implicit neutron: NeutronClient[F]): F[SecurityGroupRule] =
     neutron.securityGroupRules.create(rule(id))
 }

@@ -1,6 +1,6 @@
 package pt.tecnico.dsi.openstack.neutron.services
 
-import cats.effect.Sync
+import cats.effect.Concurrent
 import cats.syntax.flatMap._
 import org.http4s.Status.Conflict
 import org.http4s.client.Client
@@ -10,7 +10,7 @@ import pt.tecnico.dsi.openstack.common.services.CrudService
 import pt.tecnico.dsi.openstack.keystone.models.Session
 import pt.tecnico.dsi.openstack.neutron.models.{NeutronError, SubnetPool}
 
-final class SubnetPools[F[_]: Sync: Client](baseUri: Uri, session: Session)
+final class SubnetPools[F[_]: Concurrent: Client](baseUri: Uri, session: Session)
   extends CrudService[F, SubnetPool, SubnetPool.Create, SubnetPool.Update](baseUri, "subnetpool", session.authToken) {
   
   override def defaultResolveConflict(existing: SubnetPool, create: SubnetPool.Create, keepExistingElements: Boolean,
@@ -26,7 +26,7 @@ final class SubnetPools[F[_]: Sync: Client](baseUri: Uri, session: Session)
       addressScopeId = if (create.addressScopeId != existing.addressScopeId) create.addressScopeId else None,
     )
     if (updated.needsUpdate) update(existing.id, updated, extraHeaders:_*)
-    else Sync[F].pure(existing)
+    else Concurrent[F].pure(existing)
   }
   
   override def createOrUpdate(create: SubnetPool.Create, keepExistingElements: Boolean = true, extraHeaders: Seq[Header] = Seq.empty)
@@ -50,7 +50,7 @@ final class SubnetPools[F[_]: Sync: Client](baseUri: Uri, session: Session)
                    |name: ${create.name}
                    |prefixes: ${create.prefixes} (another subnet pool contains at least one of these CIDRs)
                    |project: ${create.projectId}""".stripMargin
-              Sync[F].raiseError(NeutronError(Conflict.reason, message))
+              Concurrent[F].raiseError(NeutronError(Conflict.reason, message))
           }
         }
     }

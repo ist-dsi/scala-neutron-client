@@ -4,7 +4,6 @@ import java.time.OffsetDateTime
 import scala.annotation.nowarn
 import cats.derived.ShowPretty
 import cats.derived
-import cats.effect.Sync
 import com.comcast.ip4s.{Cidr, IpAddress, IpVersion}
 import io.circe.derivation.{deriveEncoder, renaming}
 import io.circe.{Decoder, DecodingFailure, Encoder, HCursor}
@@ -120,6 +119,6 @@ case class SecurityGroupRule(
   updatedAt: OffsetDateTime,
   links: List[Link] = List.empty, // Its here just so the SecurityGroupRule is identifiable. Another point for Openstack consistency
 ) extends Identifiable {
-  def project[F[_]: Sync](implicit keystone: KeystoneClient[F]): F[Project] = keystone.projects(projectId)
-  def securityGroup[F[_]: Sync](implicit neutron: NeutronClient[F]): F[SecurityGroup] = neutron.securityGroups(securityGroupId)
+  def project[F[_]](implicit keystone: KeystoneClient[F]): F[Project] = keystone.projects(projectId)
+  def securityGroup[F[_]](implicit neutron: NeutronClient[F]): F[SecurityGroup] = neutron.securityGroups(securityGroupId)
 }

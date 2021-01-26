@@ -77,7 +77,7 @@ final class RoutersSpec extends CrudSpec[Router, Router.Create, Router.Update]("
       ))
     } yield (router, network, subnet)
     
-    "addInterface" in resources.use[IO, Assertion] { case (router, network, subnet) =>
+    "addInterface" in resources.use { case (router, network, subnet) =>
       for {
         first <- service.on(router).addInterface(subnet)
         second <- service.on(router).addInterface(subnet)
@@ -91,7 +91,7 @@ final class RoutersSpec extends CrudSpec[Router, Router.Create, Router.Update]("
         second shouldBe None
       }
     }
-    "removeInterface" in resources.use[IO, Assertion] { case (router, _, subnet) =>
+    "removeInterface" in resources.use { case (router, _, subnet) =>
       for {
         _ <- service.on(router).addInterface(subnet)
         result <- service.on(router).removeInterface(subnet).idempotently(_ shouldBe ())

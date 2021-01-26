@@ -3,7 +3,6 @@ package pt.tecnico.dsi.openstack.neutron.models
 import scala.annotation.nowarn
 import cats.derived
 import cats.derived.ShowPretty
-import cats.effect.Sync
 import com.comcast.ip4s.{Cidr, IpAddress, IpVersion}
 import io.circe.Decoder
 import io.circe.derivation.{deriveDecoder, renaming}
@@ -27,7 +26,7 @@ case class SubnetIpAvailability(
   totalIps: BigInt,
   usedIps: BigInt,
 ) {
-  def subnet[F[_]: Sync](implicit neutron: NeutronClient[F]): F[Subnet[IpAddress]] = neutron.subnets(subnetId)
+  def subnet[F[_]](implicit neutron: NeutronClient[F]): F[Subnet[IpAddress]] = neutron.subnets(subnetId)
 }
 
 object IpAvailability {
@@ -42,8 +41,8 @@ case class IpAvailability(
   usedIps: BigInt,
   subnetIpAvailability: List[SubnetIpAvailability]
 ) {
-  def network[F[_]: Sync](implicit neutron: NeutronClient[F]): F[Network] = neutron.networks(networkId)
-  def project[F[_]: Sync](implicit client: KeystoneClient[F]): F[Project] = client.projects(projectId)
+  def network[F[_]](implicit neutron: NeutronClient[F]): F[Network] = neutron.networks(networkId)
+  def project[F[_]](implicit client: KeystoneClient[F]): F[Project] = client.projects(projectId)
 }
 
 

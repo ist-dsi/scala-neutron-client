@@ -4,7 +4,6 @@ import java.time.OffsetDateTime
 import scala.annotation.nowarn
 import cats.derived
 import cats.derived.ShowPretty
-import cats.effect.Sync
 import com.comcast.ip4s.{Cidr, IpAddress, IpVersion}
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
 import io.circe.syntax._
@@ -121,6 +120,6 @@ case class Subnet[+IP <: IpAddress](
   tags: List[String] = List.empty,
   links: List[Link] = List.empty,
 ) extends Identifiable {
-  def project[F[_]: Sync](implicit keystone: KeystoneClient[F]): F[Project] = keystone.projects(projectId)
-  def network[F[_]: Sync](implicit neutron: NeutronClient[F]): F[Network] = neutron.networks(networkId)
+  def project[F[_]](implicit keystone: KeystoneClient[F]): F[Project] = keystone.projects(projectId)
+  def network[F[_]](implicit neutron: NeutronClient[F]): F[Network] = neutron.networks(networkId)
 }

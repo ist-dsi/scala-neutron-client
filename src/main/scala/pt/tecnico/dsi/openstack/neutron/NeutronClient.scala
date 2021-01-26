@@ -1,6 +1,6 @@
 package pt.tecnico.dsi.openstack.neutron
 
-import cats.effect.Sync
+import cats.effect.Concurrent
 import org.http4s.Uri
 import org.http4s.client.Client
 import pt.tecnico.dsi.openstack.keystone.models.{ClientBuilder, Session}
@@ -10,10 +10,10 @@ object NeutronClient extends ClientBuilder {
   final type OpenstackClient[F[_]] = NeutronClient[F]
   final val `type`: String = "network"
   
-  override def apply[F[_]: Sync: Client](baseUri: Uri, session: Session): NeutronClient[F] =
+  override def apply[F[_]: Concurrent: Client](baseUri: Uri, session: Session): NeutronClient[F] =
     new NeutronClient[F](baseUri, session)
 }
-class NeutronClient[F[_]: Sync](baseUri: Uri, session: Session)(implicit client: Client[F]) {
+class NeutronClient[F[_]: Concurrent](baseUri: Uri, session: Session)(implicit client: Client[F]) {
   val uri: Uri = if (baseUri.path.dropEndsWithSlash.toString.endsWith("v2.0")) baseUri else baseUri / "v2.0"
   
   val networks: Networks[F] = new Networks[F](uri, session)

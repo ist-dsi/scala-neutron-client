@@ -1,6 +1,6 @@
 package pt.tecnico.dsi.openstack.neutron.services
 
-import cats.effect.Sync
+import cats.effect.Concurrent
 import cats.syntax.flatMap._
 import cats.syntax.functor._
 import com.comcast.ip4s.IpAddress
@@ -15,7 +15,7 @@ import pt.tecnico.dsi.openstack.keystone.models.Session
 import pt.tecnico.dsi.openstack.neutron.models.Router.{ExternalGatewayInfo, ExternalIp}
 import pt.tecnico.dsi.openstack.neutron.models._
 
-final class Routers[F[_] : Sync : Client](baseUri: Uri, session: Session)
+final class Routers[F[_] : Concurrent : Client](baseUri: Uri, session: Session)
   extends CrudService[F, Router, Router.Create, Router.Update](baseUri, "router", session.authToken) {
   
   private def computeUpdatedExternalGatewayInfo(existing: Option[ExternalGatewayInfo], create: Option[ExternalGatewayInfo], keepExistingElements: Boolean): Option[ExternalGatewayInfo] =
@@ -66,7 +66,7 @@ final class Routers[F[_] : Sync : Client](baseUri: Uri, session: Session)
       ha = if (!create.ha.contains(existing.ha)) create.ha else None,
     )
     if (updated.needsUpdate) update(existing.id, updated, extraHeaders:_*)
-    else Sync[F].pure(existing)
+    else Concurrent[F].pure(existing)
   }
   override def createOrUpdate(create: Router.Create, keepExistingElements: Boolean = true, extraHeaders: Seq[Header] = Seq.empty)
     (resolveConflict: (Router, Router.Create) => F[Router] = defaultResolveConflict(_, _, keepExistingElements, extraHeaders)): F[Router] = {
@@ -85,7 +85,7 @@ final class Routers[F[_] : Sync : Client](baseUri: Uri, session: Session)
               s"""Cannot create a $name idempotently because more than one exists with:
                  |name: ${create.name}
                  |project: ${create.projectId}""".stripMargin
-            Sync[F].raiseError(NeutronError(Conflict.reason, message))
+            Concurrent[F].raiseError(NeutronError(Conflict.reason, message))
         }
     }
   }
@@ -122,7 +122,7 @@ final class Routers[F[_] : Sync : Client](baseUri: Uri, session: Session)
             // subnetId = this should probably be an Option. What happens when `type` = port?
             // portId = port.id
             // tags = port.tags
-            Sync[F].pure(Option.empty)
+            Concurrent[F].pure(Option.empty)
           case error => F.raiseError(error)
         }
       }

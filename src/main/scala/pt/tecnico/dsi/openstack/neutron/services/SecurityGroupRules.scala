@@ -1,6 +1,6 @@
 package pt.tecnico.dsi.openstack.neutron.services
 
-import cats.effect.Sync
+import cats.effect.Concurrent
 import cats.syntax.flatMap._
 import io.circe.{Decoder, Encoder}
 import org.http4s.client.Client
@@ -10,7 +10,7 @@ import pt.tecnico.dsi.openstack.common.services._
 import pt.tecnico.dsi.openstack.keystone.models.Session
 import pt.tecnico.dsi.openstack.neutron.models.{NeutronError, SecurityGroupRule}
 
-final class SecurityGroupRules[F[_]: Sync: Client](baseUri: Uri, session: Session)
+final class SecurityGroupRules[F[_]: Concurrent: Client](baseUri: Uri, session: Session)
   extends PartialCrudService[F](baseUri, "security_group_rule", session.authToken)
     with CreateNonIdempotentOperations[F, SecurityGroupRule, SecurityGroupRule.Create]
     with ListOperations[F, SecurityGroupRule]

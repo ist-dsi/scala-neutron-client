@@ -1,6 +1,6 @@
 package pt.tecnico.dsi.openstack.neutron.services
 
-import cats.effect.Sync
+import cats.effect.Concurrent
 import cats.syntax.flatMap._
 import cats.syntax.show._
 import com.comcast.ip4s.IpAddress
@@ -12,7 +12,7 @@ import pt.tecnico.dsi.openstack.common.services.CrudService
 import pt.tecnico.dsi.openstack.keystone.models.Session
 import pt.tecnico.dsi.openstack.neutron.models.{FloatingIp, NeutronError}
 
-final class FloatingIps[F[_] : Sync : Client](baseUri: Uri, session: Session)
+final class FloatingIps[F[_] : Concurrent : Client](baseUri: Uri, session: Session)
   extends CrudService[F, FloatingIp[IpAddress], FloatingIp.Create[IpAddress], FloatingIp.Update[IpAddress]](baseUri, "floatingip", session.authToken) {
   
   override def defaultResolveConflict(existing: FloatingIp[IpAddress], create: FloatingIp.Create[IpAddress],
@@ -22,14 +22,14 @@ final class FloatingIps[F[_] : Sync : Client](baseUri: Uri, session: Session)
       // so its really a conflict and there is nothing we can do.
       val message = show"""The following $name already exists and its in use (has a port associated with it):
                           |$existing""".stripMargin
-      Sync[F].raiseError(NeutronError(Conflict.reason, message))
+      Concurrent[F].raiseError(NeutronError(Conflict.reason, message))
     } else {
       val updated = FloatingIp.Update(
         fixedIpAddress = if (existing.fixedIpAddress != create.fixedIpAddress) create.fixedIpAddress else None,
         description = Option(create.description).filter(_ != existing.description),
       )
       if (updated.needsUpdate) update(existing.id, updated, extraHeaders:_*)
-      else Sync[F].pure(existing)
+      else Concurrent[F].pure(existing)
     }
   }
   override def createOrUpdate(create: FloatingIp.Create[IpAddress], keepExistingElements: Boolean = true, extraHeaders: Seq[Header] = Seq.empty)
@@ -57,7 +57,7 @@ final class FloatingIps[F[_] : Sync : Client](baseUri: Uri, session: Session)
                                |project: $projectId
                                |dnsName: $dnsName
                                |dnsDomain: $dnsDomain""".stripMargin
-              Sync[F].raiseError(NeutronError(Conflict.reason, message))
+              Concurrent[F].raiseError(NeutronError(Conflict.reason, message))
           }
         }
     }

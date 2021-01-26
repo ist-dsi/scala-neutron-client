@@ -3,7 +3,7 @@ package pt.tecnico.dsi.openstack.neutron.models
 import java.time.OffsetDateTime
 import cats.derived
 import cats.derived.ShowPretty
-import cats.effect.Sync
+import cats.effect.Concurrent
 import com.comcast.ip4s.IpAddress
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
 import io.circe.{Decoder, Encoder}
@@ -83,27 +83,10 @@ case class FloatingIp[+IP <: IpAddress](
   tags: List[String] = List.empty,
   links: List[Link] = List.empty,
 ) extends Identifiable {
-  def project[F[_]: Sync](implicit keystone: KeystoneClient[F]): F[Project] = keystone.projects(projectId)
-  def floatingNetwork[F[_]: Sync](implicit neutron: NeutronClient[F]): F[Network] = neutron.networks(floatingNetworkId)
-  def router[F[_]: Sync](implicit neutron: NeutronClient[F]): F[Option[Router]] = routerId match {
-    case None => Sync[F].pure(Option.empty)
+  def project[F[_]](implicit keystone: KeystoneClient[F]): F[Project] = keystone.projects(projectId)
+  def floatingNetwork[F[_]](implicit neutron: NeutronClient[F]): F[Network] = neutron.networks(floatingNetworkId)
+  def router[F[_]: Concurrent](implicit neutron: NeutronClient[F]): F[Option[Router]] = routerId match {
+    case None => Concurrent[F].pure(Option.empty)
     case Some(id) => neutron.routers.get(id)
-  }
-  
-  /** If both `dnsName` and `dnsDomain` are defined resolve the hostname `s"$$name.$$domain"`. */
-  def resolveFullDnsName[F[_]: Sync]: F[Option[List[IpAddress]]] = {
-    import com.comcast.ip4s.Hostname
-    import cats.implicits._
-    val hostnameOpt = for {
-      (name, domain) <- dnsName zip dnsDomain
-      hostname <- Hostname(s"$name.$domain".stripSuffix("."))
-    } yield hostname
-    hostnameOpt match {
-      case None => Sync[F].pure(Option.empty)
-      case Some(hostname) => hostname.resolveAll[F].map {
-        case Some(nonEmptyList) => Some(nonEmptyList.toList)
-        case None => Some(List.empty)
-      }
-    }
   }
 }

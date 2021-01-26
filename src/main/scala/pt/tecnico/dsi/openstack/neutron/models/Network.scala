@@ -1,9 +1,8 @@
 package pt.tecnico.dsi.openstack.neutron.models
 
 import java.time.OffsetDateTime
-import cats.{Parallel, derived}
+import cats.{Monad, Parallel, derived}
 import cats.derived.ShowPretty
-import cats.effect.Sync
 import com.comcast.ip4s.IpAddress
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
 import io.circe.{Decoder, Encoder, Json}
@@ -162,7 +161,7 @@ sealed case class Network(
   tags: List[String] = List.empty,
   links: List[Link] = List.empty
 ) extends Identifiable {
-  def subnets[F[_]: Sync: Parallel](implicit neutron: NeutronClient[F]): F[List[Subnet[IpAddress]]] = {
+  def subnets[F[_]: Monad: Parallel](implicit neutron: NeutronClient[F]): F[List[Subnet[IpAddress]]] = {
     import cats.implicits._
     subnetIds.parTraverse(subnetId => neutron.subnets(subnetId))
   }

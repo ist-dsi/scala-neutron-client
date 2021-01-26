@@ -37,10 +37,10 @@ final class IpAvailabilitiesSpec extends Utils {
   }
   
   "The ip availabilities service" should {
-    "show the ip avalabilities of a network" in resource.use[IO, Assertion] { case (network, subnet) =>
+    "show the ip avalabilities of a network" in resource.use { case (network, subnet) =>
       neutron.ipAvailabilities.show(network.id).idempotently(testAvailability(network, subnet, _))
     }
-    "list the ip avalabilities" in resource.use[IO, Assertion] { case (network, subnet) =>
+    "list the ip avalabilities" in resource.use { case (network, subnet) =>
       // Very devious way of testing the list. However if we listed all the availabilities we would be making
       // the test code very dependent on the existing networks of the VM we are testing against
       neutron.ipAvailabilities.stream(Query.fromPairs("network_id" -> network.id)).compile.toList.idempotently { availabilities =>

@@ -1,5 +1,6 @@
 package pt.tecnico.dsi.openstack.neutron
 
+import cats.effect.unsafe.implicits.global
 import scala.util.Random
 import cats.effect.{IO, Resource}
 import cats.implicits._

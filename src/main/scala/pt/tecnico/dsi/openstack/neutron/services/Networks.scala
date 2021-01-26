@@ -1,6 +1,6 @@
 package pt.tecnico.dsi.openstack.neutron.services
 
-import cats.effect.Sync
+import cats.effect.Concurrent
 import cats.syntax.flatMap._
 import cats.syntax.functor._
 import io.circe.Decoder
@@ -12,7 +12,7 @@ import pt.tecnico.dsi.openstack.common.services.CrudService
 import pt.tecnico.dsi.openstack.keystone.models.Session
 import pt.tecnico.dsi.openstack.neutron.models.{Network, NeutronError}
 
-final class Networks[F[_]: Sync: Client](baseUri: Uri, session: Session)
+final class Networks[F[_]: Concurrent: Client](baseUri: Uri, session: Session)
   extends CrudService[F, Network, Network.Create, Network.Update](baseUri, "network", session.authToken)
     with BulkCreate[F, Network, Network.Create] {
   
@@ -30,7 +30,7 @@ final class Networks[F[_]: Sync: Client](baseUri: Uri, session: Session)
       isDefault = create.isDefault.filter(_ != existing.isDefault),
     )
     if (updated.needsUpdate) update(existing.id, updated, extraHeaders:_*)
-    else Sync[F].pure(existing)
+    else Concurrent[F].pure(existing)
   }
   override def createOrUpdate(create: Network.Create, keepExistingElements: Boolean = true, extraHeaders: Seq[Header] = Seq.empty)
     (resolveConflict: (Network, Network.Create) => F[Network] = defaultResolveConflict(_, _, keepExistingElements, extraHeaders)): F[Network] = {
@@ -48,7 +48,7 @@ final class Networks[F[_]: Sync: Client](baseUri: Uri, session: Session)
               s"""Cannot create a $name idempotently because more than one exists with:
                  |name: ${create.name}
                  |project: ${create.projectId}""".stripMargin
-            Sync[F].raiseError(NeutronError(Conflict.reason, message))
+            Concurrent[F].raiseError(NeutronError(Conflict.reason, message))
         }
     }
   }

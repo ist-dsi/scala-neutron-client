@@ -1,5 +1,6 @@
 package pt.tecnico.dsi.openstack.neutron
 
+import cats.effect.unsafe.implicits.global
 import scala.util.{Random, Try}
 import cats.effect.{IO, Resource}
 import cats.implicits._
@@ -38,7 +39,7 @@ final class SecurityGroupRulesSpec extends Utils {
   def resource: Resource[IO, SecurityGroupRule] = Resource.make(securityGroupRules.create(createStub))(model => securityGroupRules.delete(model.id))
   
   "Security Group Rules service" should {
-    s"list security group rules" in resource.use[IO, Assertion] { model =>
+    s"list security group rules" in resource.use { model =>
       securityGroupRules.list().idempotently { models =>
         models.exists(m => Try(m shouldBe model).isSuccess) shouldBe true
       }
@@ -62,21 +63,21 @@ final class SecurityGroupRulesSpec extends Utils {
       } yield list.size shouldBe 1
     }
     
-    s"get security group rules (existing id)" in resource.use[IO, Assertion] { model =>
+    s"get security group rules (existing id)" in resource.use { model =>
       securityGroupRules.get(model.id).idempotently(_.value shouldBe model)
     }
     s"get security group rules (non-existing id)" in {
       securityGroupRules.get("non-existing-id").idempotently(_ shouldBe None)
     }
     
-    s"apply security group rules (existing id)" in resource.use[IO, Assertion] { model =>
+    s"apply security group rules (existing id)" in resource.use { model =>
       securityGroupRules.apply(model.id).idempotently(_ shouldBe model)
     }
     s"apply security group rules (non-existing id)" in {
       securityGroupRules.apply("non-existing-id").attempt.idempotently(_.left.value shouldBe a [NoSuchElementException])
     }
     
-    s"delete a security group rules" in resource.use[IO, Assertion] { model =>
+    s"delete a security group rules" in resource.use { model =>
       securityGroupRules.delete(model.id).idempotently(_ shouldBe ())
     }
   }

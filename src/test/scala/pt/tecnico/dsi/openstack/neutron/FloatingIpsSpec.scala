@@ -1,5 +1,6 @@
 package pt.tecnico.dsi.openstack.neutron
 
+import cats.effect.unsafe.implicits.global
 import cats.effect.{IO, Resource}
 import com.comcast.ip4s._
 import org.scalatest.Assertion

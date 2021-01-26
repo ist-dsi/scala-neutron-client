@@ -3,7 +3,6 @@ package pt.tecnico.dsi.openstack.neutron.models
 import java.time.OffsetDateTime
 import cats.{Show, derived}
 import cats.derived.ShowPretty
-import cats.effect.Sync
 import com.comcast.ip4s.IpAddress
 import io.circe.derivation.{deriveCodec, deriveDecoder, deriveEncoder, renaming}
 import io.circe.{Codec, Decoder, Encoder}
@@ -107,5 +106,5 @@ case class Router(
   tags: List[String] = List.empty,
   links: List[Link] = List.empty
 ) extends Identifiable {
-  def project[F[_]: Sync](implicit keystone: KeystoneClient[F]): F[Project] = keystone.projects(projectId)
+  def project[F[_]](implicit keystone: KeystoneClient[F]): F[Project] = keystone.projects(projectId)
 }

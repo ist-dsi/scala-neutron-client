@@ -1,6 +1,6 @@
 package pt.tecnico.dsi.openstack.neutron.services
 
-import cats.effect.Sync
+import cats.effect.Concurrent
 import cats.syntax.flatMap._
 import org.http4s.Status.Conflict
 import org.http4s.client.Client
@@ -10,7 +10,7 @@ import pt.tecnico.dsi.openstack.common.services.CrudService
 import pt.tecnico.dsi.openstack.keystone.models.Session
 import pt.tecnico.dsi.openstack.neutron.models.{NeutronError, SecurityGroup}
 
-final class SecurityGroups[F[_]: Sync: Client](baseUri: Uri, session: Session)
+final class SecurityGroups[F[_]: Concurrent: Client](baseUri: Uri, session: Session)
   extends CrudService[F, SecurityGroup, SecurityGroup.Create, SecurityGroup.Update](baseUri, "security_group", session.authToken) {
   
   override def defaultResolveConflict(existing: SecurityGroup, create: SecurityGroup.Create, keepExistingElements: Boolean, extraHeaders: Seq[Header])
@@ -19,7 +19,7 @@ final class SecurityGroups[F[_]: Sync: Client](baseUri: Uri, session: Session)
       description = Option(create.description).filter(_ != existing.description),
     )
     if (updated.needsUpdate) update(existing.id, updated, extraHeaders:_*)
-    else Sync[F].pure(existing)
+    else Concurrent[F].pure(existing)
   }
   override def createOrUpdate(create: SecurityGroup.Create, keepExistingElements: Boolean = true, extraHeaders: Seq[Header] = Seq.empty)
     (resolveConflict: (SecurityGroup, SecurityGroup.Create) => F[SecurityGroup] = defaultResolveConflict(_, _, keepExistingElements, extraHeaders))
@@ -35,7 +35,7 @@ final class SecurityGroups[F[_]: Sync: Client](baseUri: Uri, session: Session)
           s"""Cannot create a $name idempotently because more than one exists with:
              |name: ${create.name}
              |project: ${create.projectId}""".stripMargin
-        Sync[F].raiseError(NeutronError(Conflict.reason, message))
+        Concurrent[F].raiseError(NeutronError(Conflict.reason, message))
     }
   }
 }

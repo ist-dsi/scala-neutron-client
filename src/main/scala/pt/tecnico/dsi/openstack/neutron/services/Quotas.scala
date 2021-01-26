@@ -1,6 +1,6 @@
 package pt.tecnico.dsi.openstack.neutron.services
 
-import cats.effect.Sync
+import cats.effect.Concurrent
 import fs2.Stream
 import io.circe.{Decoder, Encoder, HCursor}
 import org.http4s.Uri
@@ -9,7 +9,7 @@ import pt.tecnico.dsi.openstack.common.services.Service
 import pt.tecnico.dsi.openstack.keystone.models.Session
 import pt.tecnico.dsi.openstack.neutron.models.{Quota, QuotaUsage}
 
-final class Quotas[F[_]: Sync: Client](baseUri: Uri, session: Session) extends Service[F](baseUri, "quota", session.authToken) {
+final class Quotas[F[_]: Concurrent: Client](baseUri: Uri, session: Session) extends Service[F](baseUri, "quota", session.authToken) {
   private val wrappedAt: Option[String] = Some(name)
   
   /** Streams quotas for projects with non-default quota values. */

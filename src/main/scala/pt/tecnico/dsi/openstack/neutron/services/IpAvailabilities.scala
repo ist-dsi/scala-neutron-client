@@ -1,6 +1,6 @@
 package pt.tecnico.dsi.openstack.neutron.services
 
-import cats.effect.Sync
+import cats.effect.Concurrent
 import fs2.Stream
 import io.circe.Decoder
 import org.http4s.{Header, Query, Uri}
@@ -9,7 +9,7 @@ import pt.tecnico.dsi.openstack.common.services.{PartialCrudService, ListOperati
 import pt.tecnico.dsi.openstack.keystone.models.Session
 import pt.tecnico.dsi.openstack.neutron.models.IpAvailability
 
-final class IpAvailabilities[F[_]: Sync: Client](baseUri: Uri, session: Session)
+final class IpAvailabilities[F[_]: Concurrent: Client](baseUri: Uri, session: Session)
   extends PartialCrudService[F](baseUri, "network_ip_availability", session.authToken)
     with ListOperations[F, IpAvailability] {
   

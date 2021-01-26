@@ -4,7 +4,6 @@ import java.time.OffsetDateTime
 import scala.annotation.nowarn
 import cats.derived
 import cats.derived.ShowPretty
-import cats.effect.Sync
 import com.comcast.ip4s.{Cidr, IpAddress, IpVersion}
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
 import io.circe.{Decoder, Encoder}
@@ -83,5 +82,5 @@ case class SubnetPool(
   tags: List[String],
   links: List[Link] = List.empty
 ) extends Identifiable {
-  def project[F[_]: Sync](implicit keystone: KeystoneClient[F]): F[Project] = keystone.projects(projectId)
+  def project[F[_]](implicit keystone: KeystoneClient[F]): F[Project] = keystone.projects(projectId)
 }
