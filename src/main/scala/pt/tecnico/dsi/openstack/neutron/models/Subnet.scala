@@ -5,15 +5,14 @@ import scala.annotation.nowarn
 import cats.derived
 import cats.derived.ShowPretty
 import com.comcast.ip4s.{Cidr, IpAddress, IpVersion}
-import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
+import io.circe.derivation.{deriveCodec, deriveEncoder, renaming}
 import io.circe.syntax._
-import io.circe.{Decoder, Encoder}
+import io.circe.{Codec, Encoder}
 import io.chrisdavenport.cats.time.offsetdatetimeInstances
 import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link}
 import pt.tecnico.dsi.openstack.keystone.KeystoneClient
 import pt.tecnico.dsi.openstack.keystone.models.Project
 import pt.tecnico.dsi.openstack.neutron.NeutronClient
-import shapeless.Typeable
 
 object Subnet {
   object Create {
@@ -39,7 +38,7 @@ object Subnet {
         }
       }
     }
-    implicit def show[IP <: IpAddress: Typeable]: ShowPretty[Create[IP]] = derived.semiauto.showPretty
+    implicit def show[IP <: IpAddress]: ShowPretty[Create[IP]] = derived.semiauto.showPretty
   }
   case class Create[+IP <: IpAddress](
     name: String,
@@ -64,7 +63,7 @@ object Subnet {
   
   object Update {
     implicit val encoder: Encoder[Update[IpAddress]] = deriveEncoder(renaming.snakeCase)
-    implicit def show[IP <: IpAddress: Typeable]: ShowPretty[Update[IP]] = derived.semiauto.showPretty
+    implicit def show[IP <: IpAddress]: ShowPretty[Update[IP]] = derived.semiauto.showPretty
   }
   case class Update[+IP <: IpAddress](
     name: Option[String] = None,
@@ -91,7 +90,7 @@ object Subnet {
     "mode" -> "ipv6_address_mode",
     "routerAdvertisementMode" -> "ipv6_ra_mode",
   ).withDefault(renaming.snakeCase)
-  implicit val decoder: Decoder[Subnet[IpAddress]] = deriveDecoder(baseRenames)
+  implicit val codec: Codec[Subnet[IpAddress]] = deriveCodec(baseRenames)
   implicit def show[IP <: IpAddress]: ShowPretty[Subnet[IP]] = derived.semiauto.showPretty
 }
 case class Subnet[+IP <: IpAddress](

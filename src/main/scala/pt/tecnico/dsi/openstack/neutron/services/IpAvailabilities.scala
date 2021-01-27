@@ -13,7 +13,7 @@ final class IpAvailabilities[F[_]: Concurrent: Client](baseUri: Uri, session: Se
   extends PartialCrudService[F](baseUri, "network_ip_availability", session.authToken)
     with ListOperations[F, IpAvailability] {
   
-  override implicit val modelDecoder: Decoder[IpAvailability] = IpAvailability.decoder
+  override implicit val modelDecoder: Decoder[IpAvailability] = IpAvailability.codec
   
   // This is causing an UninitializedFieldError. That is why it is commented and the methods stream and list are being overridden
   //override val pluralName: String = "network_ip_availabilities"

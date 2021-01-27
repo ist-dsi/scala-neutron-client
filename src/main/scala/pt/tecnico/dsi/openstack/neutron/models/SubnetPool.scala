@@ -5,8 +5,8 @@ import scala.annotation.nowarn
 import cats.derived
 import cats.derived.ShowPretty
 import com.comcast.ip4s.{Cidr, IpAddress, IpVersion}
-import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
-import io.circe.{Decoder, Encoder}
+import io.circe.derivation.{deriveCodec, deriveEncoder, renaming}
+import io.circe.{Codec, Encoder}
 import io.chrisdavenport.cats.time.offsetdatetimeInstances
 import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link}
 import pt.tecnico.dsi.openstack.keystone.KeystoneClient
@@ -53,10 +53,10 @@ object SubnetPool {
     }
   }
   
-  implicit val decoder: Decoder[SubnetPool] = {
+  implicit val codec: Codec[SubnetPool] = {
     @nowarn // False negative from the compiler. This Encoder is being used in the deriveDecoder which is a macro.
-    implicit val ipVersionDecoder: Decoder[IpVersion] = ipVersionIntDecoder
-    deriveDecoder(Map("revision" -> "revision_number").withDefault(renaming.snakeCase))
+    implicit val ipVersionCodec: Codec[IpVersion] = ipVersionIntCodec
+    deriveCodec(Map("revision" -> "revision_number").withDefault(renaming.snakeCase))
   }
   implicit val show: ShowPretty[SubnetPool] = derived.semiauto.showPretty
 }

@@ -3,8 +3,8 @@ package pt.tecnico.dsi.openstack.neutron.models
 import java.time.OffsetDateTime
 import cats.derived
 import cats.derived.ShowPretty
-import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
-import io.circe.{Decoder, Encoder}
+import io.circe.derivation.{deriveCodec, deriveEncoder, renaming}
+import io.circe.{Codec, Encoder}
 import io.chrisdavenport.cats.time.offsetdatetimeInstances
 import org.http4s.Query
 import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link}
@@ -38,7 +38,7 @@ object SecurityGroup {
     }
   }
   
-  implicit val decoder: Decoder[SecurityGroup] = deriveDecoder(Map("revision" -> "revision_number").withDefault(renaming.snakeCase))
+  implicit val codec: Codec[SecurityGroup] = deriveCodec(Map("revision" -> "revision_number").withDefault(renaming.snakeCase))
   implicit val show: ShowPretty[SecurityGroup] = derived.semiauto.showPretty
 }
 case class SecurityGroup(

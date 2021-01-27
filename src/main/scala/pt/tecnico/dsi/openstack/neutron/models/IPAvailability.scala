@@ -4,17 +4,17 @@ import scala.annotation.nowarn
 import cats.derived
 import cats.derived.ShowPretty
 import com.comcast.ip4s.{Cidr, IpAddress, IpVersion}
-import io.circe.Decoder
-import io.circe.derivation.{deriveDecoder, renaming}
+import io.circe.Codec
+import io.circe.derivation.{deriveCodec, renaming}
 import pt.tecnico.dsi.openstack.keystone.KeystoneClient
 import pt.tecnico.dsi.openstack.keystone.models.Project
 import pt.tecnico.dsi.openstack.neutron.NeutronClient
 
 object SubnetIpAvailability {
-  implicit val decoder: Decoder[SubnetIpAvailability] = {
-    @nowarn // False negative from the compiler. This Encoder is being used in the deriveDecoder which is a macro.
-    implicit val ipVersionDecoder: Decoder[IpVersion] = ipVersionIntDecoder
-    deriveDecoder(renaming.snakeCase)
+  implicit val codec: Codec[SubnetIpAvailability] = {
+    @nowarn // False negative from the compiler. This Codec is being used in the deriveCodec which is a macro.
+    implicit val ipVersionCodec: Codec[IpVersion] = ipVersionIntCodec
+    deriveCodec(renaming.snakeCase)
   }
   implicit val show: ShowPretty[SubnetIpAvailability] = derived.semiauto.showPretty
 }
@@ -30,7 +30,7 @@ case class SubnetIpAvailability(
 }
 
 object IpAvailability {
-  implicit val decoder: Decoder[IpAvailability] = deriveDecoder(renaming.snakeCase)
+  implicit val codec: Codec[IpAvailability] = deriveCodec(renaming.snakeCase)
   implicit val show: ShowPretty[IpAvailability] = derived.semiauto.showPretty
 }
 case class IpAvailability(

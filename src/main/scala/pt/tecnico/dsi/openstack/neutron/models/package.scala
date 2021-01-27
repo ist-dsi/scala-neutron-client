@@ -2,20 +2,18 @@ package pt.tecnico.dsi.openstack.neutron
 
 import cats.Show
 import com.comcast.ip4s.{Cidr, Hostname, IpAddress, IpVersion, Ipv4Address, Ipv6Address}
-import io.circe.{Decoder, Encoder}
+import io.circe.{Codec, Decoder, Encoder}
 
 package object models {
   implicit def ipEncoder[IP <: IpAddress]: Encoder[IP] = Encoder[String].contramap(_.toString)
   implicit val ipv4Decoder: Decoder[Ipv4Address] = Decoder[String].emap(s => Ipv4Address(s).toRight(s"Could not parse $s as an IPv4"))
   implicit val ipv6Decoder: Decoder[Ipv6Address] = Decoder[String].emap(s => Ipv6Address(s).toRight(s"Could not parse $s as an IPv6"))
   implicit val ipDecoder: Decoder[IpAddress] = Decoder[String].emap(s => IpAddress(s).toRight(s"Could not parse $s as an IP address"))
-  //implicit def ipDecoder[IP <: IpAddress]: Decoder[IP] = ???
   
-  implicit def cidrEncoder[IP <: IpAddress]: Encoder[Cidr[IP]] = Encoder[String].contramap(_.toString)
+  implicit def cidrEncoder[IP <: IpAddress: Encoder]: Encoder[Cidr[IP]] = Encoder[String].contramap(_.toString)
   implicit val cidrv4Decoder: Decoder[Cidr[Ipv4Address]] = Decoder[String].emap(s => Cidr.fromString4(s).toRight(s"Could not parse $s as a IPv4 CIDR"))
   implicit val cidrv6Decoder: Decoder[Cidr[Ipv6Address]] = Decoder[String].emap(s => Cidr.fromString6(s).toRight(s"Could not parse $s as a IPv6 CIDR"))
   implicit val cidrDecoder: Decoder[Cidr[IpAddress]] = Decoder[String].emap(s => Cidr.fromString(s).toRight(s"Could not parse $s as a CIDR"))
-  //implicit def cidrDecoder[IP <: IpAddress]: Decoder[Cidr[IP]] = ???
   
   implicit val hostnameEncoder: Encoder[Hostname] = Encoder[String].contramap(_.normalized.toString)
   implicit val hostnameDecoder: Decoder[Hostname] = Decoder[String].emap(s => Hostname(s).toRight(s"Could not parse $s as a valid Hostname"))
@@ -37,4 +35,5 @@ package object models {
     case 6 => Right(IpVersion.V6)
     case e => Left(s"Invalid IP version: $e")
   }
+  val ipVersionIntCodec: Codec[IpVersion] = Codec.from(ipVersionIntDecoder, ipVersionIntEncoder)
 }

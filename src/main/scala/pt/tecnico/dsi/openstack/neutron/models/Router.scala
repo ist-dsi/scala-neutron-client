@@ -1,11 +1,11 @@
 package pt.tecnico.dsi.openstack.neutron.models
 
 import java.time.OffsetDateTime
-import cats.{Show, derived}
 import cats.derived.ShowPretty
+import cats.{Show, derived}
 import com.comcast.ip4s.IpAddress
-import io.circe.derivation.{deriveCodec, deriveDecoder, deriveEncoder, renaming}
-import io.circe.{Codec, Decoder, Encoder}
+import io.circe.derivation.{deriveCodec, deriveEncoder, renaming}
+import io.circe.{Codec, Encoder}
 import io.chrisdavenport.cats.time.offsetdatetimeInstances
 import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link}
 import pt.tecnico.dsi.openstack.keystone.KeystoneClient
@@ -51,7 +51,7 @@ object Router {
   }
   
   object ConntrackHelper {
-    implicit val decoder: Decoder[ConntrackHelper] = deriveDecoder(renaming.snakeCase)
+    implicit val codec: Codec[ConntrackHelper] = deriveCodec(renaming.snakeCase)
     implicit val show: ShowPretty[ConntrackHelper] = derived.semiauto.showPretty
   }
   case class ConntrackHelper(protocol: String, port: Int, helper: String)
@@ -78,9 +78,7 @@ object Router {
   }
   case class ExternalGatewayInfo(networkId: String, enableSnat: Boolean, externalFixedIps: List[ExternalIp])
   
-  implicit val decoder: Decoder[Router] = deriveDecoder(Map(
-    "revision" -> "revision_number"
-  ).withDefault(renaming.snakeCase))
+  implicit val codec: Codec[Router] = deriveCodec(Map("revision" -> "revision_number").withDefault(renaming.snakeCase))
   implicit val show: ShowPretty[Router] = derived.semiauto.showPretty
 }
 case class Router(

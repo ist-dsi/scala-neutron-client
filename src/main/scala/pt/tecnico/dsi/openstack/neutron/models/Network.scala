@@ -132,6 +132,8 @@ object Network {
       obj.add("segments", Json.arr(Json.fromFields(segmentSettings)))
     }
   }))
+  implicit val encoder: Encoder[Network] = deriveEncoder(baseRenames)
+  
   implicit val show: ShowPretty[Network] = derived.semiauto.showPretty
 }
 sealed case class Network(

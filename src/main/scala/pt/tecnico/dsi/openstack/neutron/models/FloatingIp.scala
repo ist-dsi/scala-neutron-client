@@ -5,8 +5,8 @@ import cats.derived
 import cats.derived.ShowPretty
 import cats.effect.Concurrent
 import com.comcast.ip4s.IpAddress
-import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
-import io.circe.{Decoder, Encoder}
+import io.circe.derivation.{deriveCodec, deriveEncoder, renaming}
+import io.circe.{Codec, Encoder}
 import io.chrisdavenport.cats.time.offsetdatetimeInstances
 import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link}
 import pt.tecnico.dsi.openstack.keystone.KeystoneClient
@@ -16,7 +16,7 @@ import pt.tecnico.dsi.openstack.neutron.models.FloatingIp.PortForwarding
 
 object FloatingIp {
   object PortForwarding {
-    implicit val decoder: Decoder[PortForwarding[IpAddress]] = deriveDecoder(renaming.snakeCase)
+    implicit val codec: Codec[PortForwarding[IpAddress]] = deriveCodec(renaming.snakeCase)
     implicit def show[IP <: IpAddress]: ShowPretty[PortForwarding[IP]] = derived.semiauto.showPretty
   }
   case class PortForwarding[+IP <: IpAddress](
@@ -58,7 +58,7 @@ object FloatingIp {
     }
   }
   
-  implicit val decoder: Decoder[FloatingIp[IpAddress]] = deriveDecoder(Map("revision" -> "revision_number").withDefault(renaming.snakeCase))
+  implicit val codec: Codec[FloatingIp[IpAddress]] = deriveCodec(Map("revision" -> "revision_number").withDefault(renaming.snakeCase))
   implicit def show[IP <: IpAddress]: ShowPretty[FloatingIp[IP]] = derived.semiauto.showPretty
 }
 case class FloatingIp[+IP <: IpAddress](

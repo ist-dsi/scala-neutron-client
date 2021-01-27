@@ -2,8 +2,8 @@ package pt.tecnico.dsi.openstack.neutron.models
 
 import cats.derived
 import cats.derived.ShowPretty
-import io.circe.{Decoder, Encoder}
-import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
+import io.circe.derivation.{deriveCodec, deriveEncoder, renaming}
+import io.circe.{Codec, Encoder}
 
 object Quota {
   object Update {
@@ -39,7 +39,7 @@ object Quota {
     }
   }
   
-  implicit val decoder: Decoder[Quota] = deriveDecoder(renaming.snakeCase)
+  implicit val codec: Codec[Quota] = deriveCodec(renaming.snakeCase)
   implicit val show: ShowPretty[Quota] = derived.semiauto.showPretty
 }
 /**

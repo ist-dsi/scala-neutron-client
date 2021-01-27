@@ -99,6 +99,11 @@ object SecurityGroupRule {
     updatedAt <- cursor.get[OffsetDateTime]("updated_at")
   } yield SecurityGroupRule(id, projectId, description, securityGroupId, direction, ipVersion, protocol, min, max, remote, revision, createdAt, updatedAt)
   
+  implicit val encoder: Encoder[SecurityGroupRule] = {
+    @nowarn // False negative from the compiler. This Encoder is being used in the deriveEncoder which is a macro.
+    implicit val eitherEncoder: Encoder[Either[Cidr[IpAddress], String]] = Encoder.encodeEither("remote_ip_prefix", "remote_group_id")
+    deriveEncoder(renaming.snakeCase)
+  }
   implicit val show: ShowPretty[SecurityGroupRule] = derived.semiauto.showPretty
 }
 case class SecurityGroupRule(

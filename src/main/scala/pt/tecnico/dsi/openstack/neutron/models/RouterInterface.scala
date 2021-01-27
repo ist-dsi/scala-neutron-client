@@ -3,14 +3,14 @@ package pt.tecnico.dsi.openstack.neutron.models
 import cats.derived
 import cats.derived.ShowPretty
 import com.comcast.ip4s.IpAddress
-import io.circe.Decoder
-import io.circe.derivation.{deriveDecoder, renaming}
+import io.circe.Codec
+import io.circe.derivation.{deriveCodec, renaming}
 import pt.tecnico.dsi.openstack.keystone.KeystoneClient
 import pt.tecnico.dsi.openstack.keystone.models.Project
 import pt.tecnico.dsi.openstack.neutron.NeutronClient
 
 object RouterInterface {
-  implicit val decoder: Decoder[RouterInterface] = deriveDecoder(Map("routerId" -> "id", "projectId" -> "tenant_id").withDefault(renaming.snakeCase))
+  implicit val codec: Codec[RouterInterface] = deriveCodec(Map("routerId" -> "id", "projectId" -> "tenant_id").withDefault(renaming.snakeCase))
   implicit val show: ShowPretty[RouterInterface] = derived.semiauto.showPretty
 }
 case class RouterInterface(
