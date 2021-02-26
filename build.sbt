@@ -5,7 +5,7 @@ name := "scala-neutron-client"
 // ==== Compile Options =================================================================================================
 // ======================================================================================================================
 javacOptions ++= Seq("-Xlint", "-encoding", "UTF-8", "-Dfile.encoding=utf-8")
-scalaVersion := "2.13.4"
+scalaVersion := "2.13.5"
 
 scalacOptions ++= Seq(
   "-encoding", "utf-8",            // Specify character encoding used by source files.
@@ -39,15 +39,13 @@ scalacOptions in (Test, console) := (scalacOptions in (Compile, console)).value
 // ==== Dependencies ====================================================================================================
 // ======================================================================================================================
 libraryDependencies ++= Seq(
-  "pt.tecnico.dsi"  %% "scala-keystone-client" % "0.9.0-SNAPSHOT",
+  "pt.tecnico.dsi"  %% "scala-keystone-client" % "0.9.2",
   "com.comcast"     %% "ip4s-core"             % "1.4.1",
   "com.beachape"    %% "enumeratum-circe"      % "1.6.1",
   "ch.qos.logback"  %  "logback-classic"       % "1.2.3" % Test,
-  "org.scalatest"   %% "scalatest"             % "3.2.3" % Test,
+  "org.scalatest"   %% "scalatest"             % "3.2.5" % Test,
 )
 addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
-
-resolvers += Resolver.sonatypeRepo("snapshots")
 
 // ======================================================================================================================
 // ==== Testing =========================================================================================================

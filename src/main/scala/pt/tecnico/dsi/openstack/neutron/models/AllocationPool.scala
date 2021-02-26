@@ -1,5 +1,6 @@
 package pt.tecnico.dsi.openstack.neutron.models
 
+import scala.annotation.nowarn
 import cats.Show
 import cats.syntax.show._
 import com.comcast.ip4s.{Cidr, IpAddress}
@@ -37,8 +38,9 @@ object AllocationPool {
     }
   }
   
-  implicit def encoder[IP <: IpAddress: Encoder]: Encoder[AllocationPool[IP]] = deriveEncoder(renaming.snakeCase)
-  implicit def decoder[IP <: IpAddress: Decoder]: Decoder[AllocationPool[IP]] = deriveDecoder(renaming.snakeCase)
+  // nowarn because of a false negative from the compiler. The Encoder and Decoder is being inside the macro deriveCodec.
+  @nowarn implicit def encoder[IP <: IpAddress: Encoder]: Encoder[AllocationPool[IP]] = deriveEncoder(renaming.snakeCase)
+  @nowarn implicit def decoder[IP <: IpAddress: Decoder]: Decoder[AllocationPool[IP]] = deriveDecoder(renaming.snakeCase)
   
   implicit def ordering[IP <: IpAddress: Ordering]: Ordering[AllocationPool[IP]] = Ordering.by(x => (x.start, x.end))
   

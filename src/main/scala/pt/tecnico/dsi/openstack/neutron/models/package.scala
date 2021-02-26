@@ -10,7 +10,7 @@ package object models {
   implicit val ipv6Decoder: Decoder[Ipv6Address] = Decoder[String].emap(s => Ipv6Address(s).toRight(s"Could not parse $s as an IPv6"))
   implicit val ipDecoder: Decoder[IpAddress] = Decoder[String].emap(s => IpAddress(s).toRight(s"Could not parse $s as an IP address"))
   
-  implicit def cidrEncoder[IP <: IpAddress: Encoder]: Encoder[Cidr[IP]] = Encoder[String].contramap(_.toString)
+  implicit def cidrEncoder[IP <: IpAddress]: Encoder[Cidr[IP]] = Encoder[String].contramap(_.toString)
   implicit val cidrv4Decoder: Decoder[Cidr[Ipv4Address]] = Decoder[String].emap(s => Cidr.fromString4(s).toRight(s"Could not parse $s as a IPv4 CIDR"))
   implicit val cidrv6Decoder: Decoder[Cidr[Ipv6Address]] = Decoder[String].emap(s => Cidr.fromString6(s).toRight(s"Could not parse $s as a IPv6 CIDR"))
   implicit val cidrDecoder: Decoder[Cidr[IpAddress]] = Decoder[String].emap(s => Cidr.fromString(s).toRight(s"Could not parse $s as a CIDR"))
