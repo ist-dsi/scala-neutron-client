@@ -16,7 +16,7 @@ final class Networks[F[_]: Concurrent: Client](baseUri: Uri, session: Session)
   extends CrudService[F, Network, Network.Create, Network.Update](baseUri, "network", session.authToken)
     with BulkCreate[F, Network, Network.Create] {
   
-  override def defaultResolveConflict(existing: Network, create: Network.Create, keepExistingElements: Boolean, extraHeaders: Seq[Header]): F[Network] = {
+  override def defaultResolveConflict(existing: Network, create: Network.Create, keepExistingElements: Boolean, extraHeaders: Seq[Header.ToRaw]): F[Network] = {
     val updated = Network.Update(
       description = Option(create.description).filter(_ != existing.description),
       mtu = create.mtu.filter(_ != existing.mtu),
@@ -32,7 +32,7 @@ final class Networks[F[_]: Concurrent: Client](baseUri: Uri, session: Session)
     if (updated.needsUpdate) update(existing.id, updated, extraHeaders:_*)
     else Concurrent[F].pure(existing)
   }
-  override def createOrUpdate(create: Network.Create, keepExistingElements: Boolean = true, extraHeaders: Seq[Header] = Seq.empty)
+  override def createOrUpdate(create: Network.Create, keepExistingElements: Boolean = true, extraHeaders: Seq[Header.ToRaw] = Seq.empty)
     (resolveConflict: (Network, Network.Create) => F[Network] = defaultResolveConflict(_, _, keepExistingElements, extraHeaders)): F[Network] = {
     // If you ask openstack to create two networks with the same name it won't complain. We want to make the name unique **within** a project.
     create.projectId orElse session.scopedProjectId match {

@@ -16,7 +16,7 @@ final class FloatingIps[F[_] : Concurrent : Client](baseUri: Uri, session: Sessi
   extends CrudService[F, FloatingIp[IpAddress], FloatingIp.Create[IpAddress], FloatingIp.Update[IpAddress]](baseUri, "floatingip", session.authToken) {
   
   override def defaultResolveConflict(existing: FloatingIp[IpAddress], create: FloatingIp.Create[IpAddress],
-    keepExistingElements: Boolean, extraHeaders: Seq[Header]): F[FloatingIp[IpAddress]] = {
+    keepExistingElements: Boolean, extraHeaders: Seq[Header.ToRaw]): F[FloatingIp[IpAddress]] = {
     if (existing.portId.isDefined && create.portId != existing.portId) {
       // A VM is already using the existing Floating IP, and its not the intended VM (the portIds are different)
       // so its really a conflict and there is nothing we can do.
@@ -32,7 +32,7 @@ final class FloatingIps[F[_] : Concurrent : Client](baseUri: Uri, session: Sessi
       else Concurrent[F].pure(existing)
     }
   }
-  override def createOrUpdate(create: FloatingIp.Create[IpAddress], keepExistingElements: Boolean = true, extraHeaders: Seq[Header] = Seq.empty)
+  override def createOrUpdate(create: FloatingIp.Create[IpAddress], keepExistingElements: Boolean = true, extraHeaders: Seq[Header.ToRaw] = Seq.empty)
     (resolveConflict: (FloatingIp[IpAddress], FloatingIp.Create[IpAddress]) => F[FloatingIp[IpAddress]] = defaultResolveConflict(_, _, keepExistingElements,
       extraHeaders)): F[FloatingIp[IpAddress]] = {
     // A floating ip create is, mostly, not idempotent. We want it to be idempotent, so we decided to make the dnsName, dnsDomain unique **within** a project.

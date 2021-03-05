@@ -32,7 +32,7 @@ final class SubnetsSpec extends CrudSpec[Subnet[IpAddress], Subnet.Create[IpAddr
     name,
     network.id,
     "a description",
-    Ipv6Address(s"2606:2800:220:${Random.between(1, 100)}::").map(_ / 64),
+    Ipv6Address.fromString(s"2606:2800:220:${Random.between(1, 100)}::").map(_ / 64),
     routerAdvertisementMode = Some(Ipv6Mode.Slaac),
     projectId = Some(project.id)
   )
@@ -51,7 +51,7 @@ final class SubnetsSpec extends CrudSpec[Subnet[IpAddress], Subnet.Create[IpAddr
   override val updateStub: Subnet.Update[IpAddress] = Subnet.Update(
     name = Some(randomName()),
     Some("a better and improved description"),
-    gatewayIp = Ipv6Address("2606:2800:220:1::")
+    gatewayIp = Ipv6Address.fromString("2606:2800:220:1::")
   )
   override def compareUpdate(update: Subnet.Update[IpAddress], model: Subnet[IpAddress]): Assertion = {
     model.name shouldBe update.name.value

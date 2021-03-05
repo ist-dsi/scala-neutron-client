@@ -13,7 +13,8 @@ import pt.tecnico.dsi.openstack.neutron.models.{NeutronError, SecurityGroup}
 final class SecurityGroups[F[_]: Concurrent: Client](baseUri: Uri, session: Session)
   extends CrudService[F, SecurityGroup, SecurityGroup.Create, SecurityGroup.Update](baseUri, "security_group", session.authToken) {
   
-  override def defaultResolveConflict(existing: SecurityGroup, create: SecurityGroup.Create, keepExistingElements: Boolean, extraHeaders: Seq[Header])
+  override def defaultResolveConflict(existing: SecurityGroup, create: SecurityGroup.Create, keepExistingElements: Boolean,
+    extraHeaders: Seq[Header.ToRaw])
   : F[SecurityGroup] = {
     val updated = SecurityGroup.Update(
       description = Option(create.description).filter(_ != existing.description),
@@ -21,7 +22,7 @@ final class SecurityGroups[F[_]: Concurrent: Client](baseUri: Uri, session: Sess
     if (updated.needsUpdate) update(existing.id, updated, extraHeaders:_*)
     else Concurrent[F].pure(existing)
   }
-  override def createOrUpdate(create: SecurityGroup.Create, keepExistingElements: Boolean = true, extraHeaders: Seq[Header] = Seq.empty)
+  override def createOrUpdate(create: SecurityGroup.Create, keepExistingElements: Boolean = true, extraHeaders: Seq[Header.ToRaw] = Seq.empty)
     (resolveConflict: (SecurityGroup, SecurityGroup.Create) => F[SecurityGroup] = defaultResolveConflict(_, _, keepExistingElements, extraHeaders))
   : F[SecurityGroup] = {
     // We want the create to be idempotent, so we decided to make the name unique **within** the project

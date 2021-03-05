@@ -15,6 +15,6 @@ object Route {
   
   implicit def ordering[IP <: IpAddress: Ordering]: Ordering[Route[IP]] = Ordering.by(x => (x.destination, x.nexthop))
   
-  implicit def show[IP <: IpAddress]: Show[Route[IP]] = derived.semiauto.show
+  implicit def show[IP <: IpAddress: Show]: Show[Route[IP]] = derived.semiauto.show
 }
 final case class Route[+IP <: IpAddress](destination: Cidr[IP], nexthop: IP)

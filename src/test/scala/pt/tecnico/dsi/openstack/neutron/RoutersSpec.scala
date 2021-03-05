@@ -72,7 +72,7 @@ final class RoutersSpec extends CrudSpec[Router, Router.Create, Router.Update]("
         name,
         network.id,
         "a description",
-        Ipv4Address(s"192.168.${Random.between(50, 250)}.0").map(_ / 24),
+        Ipv4Address.fromString(s"192.168.${Random.between(50, 250)}.0").map(_ / 24),
         projectId = Some(project.id)
       ))
     } yield (router, network, subnet)

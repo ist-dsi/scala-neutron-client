@@ -29,7 +29,7 @@ final class SecurityGroupRules[F[_]: Concurrent: Client](baseUri: Uri, session: 
    * @param create the create settings.
    * @param extraHeaders extra headers to be used. The `authToken` header is always added.
    */
-  def createWithDeduplication(create: SecurityGroupRule.Create, extraHeaders: Header*): F[SecurityGroupRule] = {
+  def createWithDeduplication(create: SecurityGroupRule.Create, extraHeaders: Header.ToRaw*): F[SecurityGroupRule] = {
     val conflictId = """.*?id is ([a-f0-9\\-]*)\.""".r
     postHandleConflictWithError[SecurityGroupRule.Create, SecurityGroupRule, NeutronError](wrappedAt, create, uri, extraHeaders) {
       case error @ NeutronError("SecurityGroupRuleExists", conflictId(id), _) =>

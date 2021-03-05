@@ -14,7 +14,7 @@ final class SubnetPools[F[_]: Concurrent: Client](baseUri: Uri, session: Session
   extends CrudService[F, SubnetPool, SubnetPool.Create, SubnetPool.Update](baseUri, "subnetpool", session.authToken) {
   
   override def defaultResolveConflict(existing: SubnetPool, create: SubnetPool.Create, keepExistingElements: Boolean,
-    extraHeaders: Seq[Header]): F[SubnetPool] = {
+    extraHeaders: Seq[Header.ToRaw]): F[SubnetPool] = {
     // TODO: handle keep existing elements: https://stackoverflow.com/questions/64754830/encoder-for-update-endpoint-of-a-rest-api
     val updated = SubnetPool.Update(
       description = Option(create.description).filter(_ != existing.description),
@@ -29,7 +29,7 @@ final class SubnetPools[F[_]: Concurrent: Client](baseUri: Uri, session: Session
     else Concurrent[F].pure(existing)
   }
   
-  override def createOrUpdate(create: SubnetPool.Create, keepExistingElements: Boolean = true, extraHeaders: Seq[Header] = Seq.empty)
+  override def createOrUpdate(create: SubnetPool.Create, keepExistingElements: Boolean = true, extraHeaders: Seq[Header.ToRaw] = Seq.empty)
     (resolveConflict: (SubnetPool, SubnetPool.Create) => F[SubnetPool] = defaultResolveConflict(_, _, keepExistingElements, extraHeaders))
   : F[SubnetPool] = {
     // If you ask openstack to create two subnet pools with the same name and **prefixes** it won't complain.

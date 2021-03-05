@@ -25,7 +25,7 @@ final class Subnets[F[_]: Concurrent: Client](baseUri: Uri, session: Session)
   }
   
   override def defaultResolveConflict(existing: Subnet[IpAddress], create: Subnet.Create[IpAddress], keepExistingElements: Boolean,
-    extraHeaders: Seq[Header]): F[Subnet[IpAddress]] = {
+    extraHeaders: Seq[Header.ToRaw]): F[Subnet[IpAddress]] = {
     val updated = Subnet.Update(
       description = Option(create.description).filter(_ != existing.description),
       gatewayIp = if (create.gateway != existing.gateway) create.gateway else None,
@@ -68,7 +68,7 @@ final class Subnets[F[_]: Concurrent: Client](baseUri: Uri, session: Session)
       case _ => Concurrent[F].pure(existing)
     }
   }
-  override def createOrUpdate(create: Subnet.Create[IpAddress], keepExistingElements: Boolean = true, extraHeaders: Seq[Header] = Seq.empty)
+  override def createOrUpdate(create: Subnet.Create[IpAddress], keepExistingElements: Boolean = true, extraHeaders: Seq[Header.ToRaw] = Seq.empty)
     (resolveConflict: (Subnet[IpAddress], Subnet.Create[IpAddress]) => F[Subnet[IpAddress]] = defaultResolveConflict(_, _, keepExistingElements,
       extraHeaders)): F[Subnet[IpAddress]] = {
     // We want the create to be idempotent, so we decided to make the name unique **within** a (project, network).

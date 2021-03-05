@@ -38,7 +38,7 @@ object Subnet {
         }
       }
     }
-    implicit def show[IP <: IpAddress]: ShowPretty[Create[IP]] = derived.semiauto.showPretty
+    implicit val show: ShowPretty[Create[IpAddress]] = derived.semiauto.showPretty
   }
   case class Create[+IP <: IpAddress](
     name: String,
@@ -63,7 +63,7 @@ object Subnet {
   
   object Update {
     implicit val encoder: Encoder[Update[IpAddress]] = deriveEncoder(renaming.snakeCase)
-    implicit def show[IP <: IpAddress]: ShowPretty[Update[IP]] = derived.semiauto.showPretty
+    implicit val show: ShowPretty[Update[IpAddress]] = derived.semiauto.showPretty
   }
   case class Update[+IP <: IpAddress](
     name: Option[String] = None,
@@ -91,7 +91,7 @@ object Subnet {
     "routerAdvertisementMode" -> "ipv6_ra_mode",
   ).withDefault(renaming.snakeCase)
   implicit val codec: Codec[Subnet[IpAddress]] = deriveCodec(baseRenames)
-  implicit def show[IP <: IpAddress]: ShowPretty[Subnet[IP]] = derived.semiauto.showPretty
+  implicit val show: ShowPretty[Subnet[IpAddress]] = derived.semiauto.showPretty
 }
 case class Subnet[+IP <: IpAddress](
   id: String,

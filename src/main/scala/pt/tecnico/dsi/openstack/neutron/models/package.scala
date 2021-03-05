@@ -5,10 +5,12 @@ import com.comcast.ip4s.{Cidr, Hostname, IpAddress, IpVersion, Ipv4Address, Ipv6
 import io.circe.{Codec, Decoder, Encoder}
 
 package object models {
+  implicit def showIpAddress: Show[IpAddress] = Show.fromToString[IpAddress]
+  
   implicit def ipEncoder[IP <: IpAddress]: Encoder[IP] = Encoder[String].contramap(_.toString)
-  implicit val ipv4Decoder: Decoder[Ipv4Address] = Decoder[String].emap(s => Ipv4Address(s).toRight(s"Could not parse $s as an IPv4"))
-  implicit val ipv6Decoder: Decoder[Ipv6Address] = Decoder[String].emap(s => Ipv6Address(s).toRight(s"Could not parse $s as an IPv6"))
-  implicit val ipDecoder: Decoder[IpAddress] = Decoder[String].emap(s => IpAddress(s).toRight(s"Could not parse $s as an IP address"))
+  implicit val ipv4Decoder: Decoder[Ipv4Address] = Decoder[String].emap(s => Ipv4Address.fromString(s).toRight(s"Could not parse $s as an IPv4"))
+  implicit val ipv6Decoder: Decoder[Ipv6Address] = Decoder[String].emap(s => Ipv6Address.fromString(s).toRight(s"Could not parse $s as an IPv6"))
+  implicit val ipDecoder: Decoder[IpAddress] = Decoder[String].emap(s => IpAddress.fromString(s).toRight(s"Could not parse $s as an IP address"))
   
   implicit def cidrEncoder[IP <: IpAddress]: Encoder[Cidr[IP]] = Encoder[String].contramap(_.toString)
   implicit val cidrv4Decoder: Decoder[Cidr[Ipv4Address]] = Decoder[String].emap(s => Cidr.fromString4(s).toRight(s"Could not parse $s as a IPv4 CIDR"))
@@ -16,7 +18,7 @@ package object models {
   implicit val cidrDecoder: Decoder[Cidr[IpAddress]] = Decoder[String].emap(s => Cidr.fromString(s).toRight(s"Could not parse $s as a CIDR"))
   
   implicit val hostnameEncoder: Encoder[Hostname] = Encoder[String].contramap(_.normalized.toString)
-  implicit val hostnameDecoder: Decoder[Hostname] = Decoder[String].emap(s => Hostname(s).toRight(s"Could not parse $s as a valid Hostname"))
+  implicit val hostnameDecoder: Decoder[Hostname] = Decoder[String].emap(s => Hostname.fromString(s).toRight(s"Could not parse $s as a valid Hostname"))
   
   implicit val ipVersionEncoder: Encoder[IpVersion] = Encoder[String].contramap(v => s"IP${v.toString.toLowerCase}")
   implicit val ipVersionDecoder: Decoder[IpVersion] = Decoder[String].emap {

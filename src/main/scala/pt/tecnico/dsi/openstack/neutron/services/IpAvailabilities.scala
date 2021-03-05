@@ -19,9 +19,9 @@ final class IpAvailabilities[F[_]: Concurrent: Client](baseUri: Uri, session: Se
   //override val pluralName: String = "network_ip_availabilities"
   override val uri: Uri = baseUri / "network-ip-availabilities" // Because consistency is key </sarcasm>
   
-  override def stream(query: Query, extraHeaders: Header*): Stream[F, IpAvailability] =
+  override def stream(query: Query, extraHeaders: Header.ToRaw*): Stream[F, IpAvailability] =
     stream[IpAvailability]("network_ip_availabilities", uri.copy(query = query), extraHeaders:_*)
-  override def list(query: Query, extraHeaders: Header*): F[List[IpAvailability]] =
+  override def list(query: Query, extraHeaders: Header.ToRaw*): F[List[IpAvailability]] =
     list[IpAvailability]("network_ip_availabilities", uri.copy(query = query), extraHeaders:_*)
   
   /**

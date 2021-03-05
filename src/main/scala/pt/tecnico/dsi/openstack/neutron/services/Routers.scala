@@ -18,7 +18,8 @@ import pt.tecnico.dsi.openstack.neutron.models._
 final class Routers[F[_] : Concurrent : Client](baseUri: Uri, session: Session)
   extends CrudService[F, Router, Router.Create, Router.Update](baseUri, "router", session.authToken) {
   
-  private def computeUpdatedExternalGatewayInfo(existing: Option[ExternalGatewayInfo], create: Option[ExternalGatewayInfo], keepExistingElements: Boolean): Option[ExternalGatewayInfo] =
+  private def computeUpdatedExternalGatewayInfo(existing: Option[ExternalGatewayInfo], create: Option[ExternalGatewayInfo],
+    keepExistingElements: Boolean): Option[ExternalGatewayInfo] =
     (existing, create) match {
       case (None, _) =>
         // The existing router does not have an externalGatewayInfo. So whatever the create sets prevails
@@ -56,7 +57,7 @@ final class Routers[F[_] : Concurrent : Client](baseUri: Uri, session: Session)
         Option.when(newInfo != existingInfoSorted)(newInfo)
     }
   
-  override def defaultResolveConflict(existing: Router, create: Router.Create, keepExistingElements: Boolean, extraHeaders: Seq[Header]): F[Router] = {
+  override def defaultResolveConflict(existing: Router, create: Router.Create, keepExistingElements: Boolean, extraHeaders: Seq[Header.ToRaw]): F[Router] = {
     val updated = Router.Update(
       description = Option(create.description).filter(_ != existing.description),
       adminStateUp = Option(create.adminStateUp).filter(_ != existing.adminStateUp),
@@ -68,7 +69,7 @@ final class Routers[F[_] : Concurrent : Client](baseUri: Uri, session: Session)
     if (updated.needsUpdate) update(existing.id, updated, extraHeaders:_*)
     else Concurrent[F].pure(existing)
   }
-  override def createOrUpdate(create: Router.Create, keepExistingElements: Boolean = true, extraHeaders: Seq[Header] = Seq.empty)
+  override def createOrUpdate(create: Router.Create, keepExistingElements: Boolean = true, extraHeaders: Seq[Header.ToRaw] = Seq.empty)
     (resolveConflict: (Router, Router.Create) => F[Router] = defaultResolveConflict(_, _, keepExistingElements, extraHeaders)): F[Router] = {
     // A router create is not idempotent because Openstack always creates a new router and never returns a Conflict, whatever the parameters.
     // We want it to be idempotent, so we decided to make the name unique **within** a project.

@@ -17,7 +17,7 @@ import pt.tecnico.dsi.openstack.neutron.models.FloatingIp.PortForwarding
 object FloatingIp {
   object PortForwarding {
     implicit val codec: Codec[PortForwarding[IpAddress]] = deriveCodec(renaming.snakeCase)
-    implicit def show[IP <: IpAddress]: ShowPretty[PortForwarding[IP]] = derived.semiauto.showPretty
+    implicit val show: ShowPretty[PortForwarding[IpAddress]] = derived.semiauto.showPretty
   }
   case class PortForwarding[+IP <: IpAddress](
     protocol: String,
@@ -28,7 +28,7 @@ object FloatingIp {
   
   object Create {
     implicit val decoder: Encoder[Create[IpAddress]] = deriveEncoder(renaming.snakeCase)
-    implicit def show[IP <: IpAddress]: ShowPretty[Create[IP]] = derived.semiauto.showPretty
+    implicit val show: ShowPretty[Create[IpAddress]] = derived.semiauto.showPretty
   }
   case class Create[+IP <: IpAddress](
     floatingNetworkId: String,
@@ -44,7 +44,7 @@ object FloatingIp {
   
   object Update {
     implicit val decoder: Encoder[Update[IpAddress]] = deriveEncoder(renaming.snakeCase)
-    implicit def show[IP <: IpAddress]: ShowPretty[Update[IP]] = derived.semiauto.showPretty
+    implicit val show: ShowPretty[Update[IpAddress]] = derived.semiauto.showPretty
   }
   case class Update[+IP <: IpAddress](
     portId: Option[String] = None,
@@ -59,7 +59,7 @@ object FloatingIp {
   }
   
   implicit val codec: Codec[FloatingIp[IpAddress]] = deriveCodec(Map("revision" -> "revision_number").withDefault(renaming.snakeCase))
-  implicit def show[IP <: IpAddress]: ShowPretty[FloatingIp[IP]] = derived.semiauto.showPretty
+  implicit val show: ShowPretty[FloatingIp[IpAddress]] = derived.semiauto.showPretty
 }
 case class FloatingIp[+IP <: IpAddress](
   id: String,
