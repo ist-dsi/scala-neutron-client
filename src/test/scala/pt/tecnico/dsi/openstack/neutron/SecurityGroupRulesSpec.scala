@@ -25,9 +25,10 @@ final class SecurityGroupRulesSpec extends Utils {
     protocol = "tcp",
     cidr = Ipv4Address.fromBytes(192, 168, Random.between(1, 255), 0) / 24,
     portRange = 5000 to 5000,
-  )(securityGroup.id)
+  )(securityGroup.id, Some(project.id))
   def compareCreate(create: SecurityGroupRule.Create, model: SecurityGroupRule): Assertion = {
     model.securityGroupId shouldBe create.securityGroupId
+    model.projectId shouldBe create.projectId.value
     model.direction shouldBe create.direction
     model.ipVersion shouldBe create.ipVersion
     model.protocol shouldBe create.protocol
@@ -52,6 +53,7 @@ final class SecurityGroupRulesSpec extends Utils {
         _ <- securityGroupRules.createWithDeduplication(stub).idempotently(compareCreate(stub, _), repetitions)
         list <- securityGroupRules.list(Query.fromPairs(
           "security_group_id" -> securityGroup.id,
+          "project_id" -> project.id,
           "direction" -> stub.direction.toString.toLowerCase,
           "ethertype" -> s"IP${stub.ipVersion.toString.toLowerCase}",
           "remote_ip_prefix" -> stub.remote.value.left.value.toString,
