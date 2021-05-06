@@ -31,8 +31,9 @@ object SecurityGroupRule {
     
     implicit val show: ShowPretty[Create] = derived.semiauto.showPretty
     
-    def ingress(protocol: String, cidr: Cidr[IpAddress])(securityGroupId: String): Create = Create(
+    def ingress(protocol: String, cidr: Cidr[IpAddress])(securityGroupId: String, projectId: Option[String]): Create = Create(
       securityGroupId,
+      projectId,
       direction = Direction.Ingress,
       ipVersion = cidr.address.version,
       protocol = Some(protocol),
@@ -40,14 +41,16 @@ object SecurityGroupRule {
       portRangeMax = None,
       remote = Some(Left(cidr)),
     )
-    def ingress(protocol: String, cidr: Cidr[IpAddress], portRange: Range.Inclusive)(securityGroupId: String): Create =
-      ingress(protocol, cidr)(securityGroupId).copy(
+    def ingress(protocol: String, cidr: Cidr[IpAddress], portRange: Range.Inclusive)
+      (securityGroupId: String, projectId: Option[String]): Create =
+      ingress(protocol, cidr)(securityGroupId, projectId).copy(
         portRangeMin = Some(portRange.start),
         portRangeMax = Some(portRange.`end`),
       )
     def ingress(protocol: String, remoteSecurityGroupId: String, portRange: Range.Inclusive, ipVersion: IpVersion = IpVersion.V4)
-      (securityGroupId: String): Create = Create(
+      (securityGroupId: String, projectId: Option[String] = None): Create = Create(
       securityGroupId,
+      projectId,
       direction = Direction.Ingress,
       ipVersion = ipVersion,
       protocol = Some(protocol),
@@ -56,16 +59,18 @@ object SecurityGroupRule {
       remote = Some(Right(remoteSecurityGroupId)),
     )
     
-    def egress(protocol: String, cidr: Cidr[IpAddress])(securityGroupId: String): Create =
-      ingress(protocol, cidr)(securityGroupId).copy(direction = Direction.Egress)
-    def egress(protocol: String, cidr: Cidr[IpAddress], portRange: Range.Inclusive)(securityGroupId: String): Create =
-      ingress(protocol, cidr, portRange)(securityGroupId).copy(direction = Direction.Egress)
+    def egress(protocol: String, cidr: Cidr[IpAddress])(securityGroupId: String, projectId: Option[String]): Create =
+      ingress(protocol, cidr)(securityGroupId, projectId).copy(direction = Direction.Egress)
+    def egress(protocol: String, cidr: Cidr[IpAddress], portRange: Range.Inclusive)
+      (securityGroupId: String, projectId: Option[String]): Create =
+      ingress(protocol, cidr, portRange)(securityGroupId, projectId).copy(direction = Direction.Egress)
     def egress(protocol: String, remoteSecurityGroupId: String, portRange: Range.Inclusive, ipVersion: IpVersion = IpVersion.V4)
-      (securityGroupId: String): Create =
-      ingress(protocol, remoteSecurityGroupId, portRange, ipVersion)(securityGroupId).copy(direction = Direction.Egress)
+      (securityGroupId: String, projectId: Option[String] = None): Create =
+      ingress(protocol, remoteSecurityGroupId, portRange, ipVersion)(securityGroupId, projectId).copy(direction = Direction.Egress)
   }
   case class Create(
     securityGroupId: String,
+    projectId: Option[String] = None,
     direction: Direction,
     ipVersion: IpVersion,
     protocol: Option[String] = None, // Option[String | Int] would be better
