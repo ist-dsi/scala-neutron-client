@@ -13,16 +13,16 @@ final class IpAvailabilities[F[_]: Concurrent: Client](baseUri: Uri, session: Se
   extends PartialCrudService[F](baseUri, "network_ip_availability", session.authToken)
     with ListOperations[F, IpAvailability] {
   
-  override implicit val modelDecoder: Decoder[IpAvailability] = IpAvailability.codec
+  override given modelDecoder: Decoder[IpAvailability] = IpAvailability.derived$ConfiguredCodec
   
   // This is causing an UninitializedFieldError. That is why it is commented and the methods stream and list are being overridden
   //override val pluralName: String = "network_ip_availabilities"
   override val uri: Uri = baseUri / "network-ip-availabilities" // Because consistency is key </sarcasm>
   
   override def stream(query: Query, extraHeaders: Header.ToRaw*): Stream[F, IpAvailability] =
-    stream[IpAvailability]("network_ip_availabilities", uri.copy(query = query), extraHeaders:_*)
+    stream[IpAvailability]("network_ip_availabilities", uri.copy(query = query), extraHeaders*)
   override def list(query: Query, extraHeaders: Header.ToRaw*): F[List[IpAvailability]] =
-    list[IpAvailability]("network_ip_availabilities", uri.copy(query = query), extraHeaders:_*)
+    list[IpAvailability]("network_ip_availabilities", uri.copy(query = query), extraHeaders*)
   
   /**
     * Shows network IP availability details for a network.

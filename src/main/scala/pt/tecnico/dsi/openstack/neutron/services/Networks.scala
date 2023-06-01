@@ -1,8 +1,8 @@
 package pt.tecnico.dsi.openstack.neutron.services
 
 import cats.effect.Concurrent
-import cats.syntax.flatMap._
-import cats.syntax.functor._
+import cats.syntax.flatMap.*
+import cats.syntax.functor.*
 import io.circe.Decoder
 import org.http4s.Status.Conflict
 import org.http4s.client.Client
@@ -14,13 +14,13 @@ import pt.tecnico.dsi.openstack.neutron.models.{Network, NeutronError}
 
 final class Networks[F[_]: Concurrent: Client](baseUri: Uri, session: Session)
   extends CrudService[F, Network, Network.Create, Network.Update](baseUri, "network", session.authToken)
-    with BulkCreate[F, Network, Network.Create] {
+    with BulkCreate[F, Network, Network.Create]:
   
-  override def defaultResolveConflict(existing: Network, create: Network.Create, keepExistingElements: Boolean, extraHeaders: Seq[Header.ToRaw]): F[Network] = {
+  override def defaultResolveConflict(existing: Network, create: Network.Create, keepExistingElements: Boolean, extraHeaders: Seq[Header.ToRaw]): F[Network] =
     val updated = Network.Update(
       description = Option(create.description).filter(_ != existing.description),
       mtu = create.mtu.filter(_ != existing.mtu),
-      dnsDomain = if (create.dnsDomain != existing.dnsDomain) create.dnsDomain else None,
+      dnsDomain = if create.dnsDomain != existing.dnsDomain then create.dnsDomain else None,
       // Most Networking plug-ins (e.g. ML2 Plugin) and drivers do not support updating any provider related attributes.
       // The openstack we are testing against doesn't allow it. That is why we are not setting the segments.
       adminStateUp = create.adminStateUp.filter(_ != existing.adminStateUp),
@@ -29,17 +29,16 @@ final class Networks[F[_]: Concurrent: Client](baseUri: Uri, session: Session)
       shared = create.shared.filter(_ != existing.shared),
       isDefault = create.isDefault.filter(_ != existing.isDefault),
     )
-    if (updated.needsUpdate) update(existing.id, updated, extraHeaders:_*)
+    if updated.needsUpdate then update(existing.id, updated, extraHeaders*)
     else Concurrent[F].pure(existing)
-  }
   override def createOrUpdate(create: Network.Create, keepExistingElements: Boolean = true, extraHeaders: Seq[Header.ToRaw] = Seq.empty)
-    (resolveConflict: (Network, Network.Create) => F[Network] = defaultResolveConflict(_, _, keepExistingElements, extraHeaders)): F[Network] = {
+    (resolveConflict: (Network, Network.Create) => F[Network] = defaultResolveConflict(_, _, keepExistingElements, extraHeaders)): F[Network] =
     // If you ask openstack to create two networks with the same name it won't complain. We want to make the name unique **within** a project.
-    create.projectId orElse session.scopedProjectId match {
-      case None => super.create(create, extraHeaders:_*)
+    create.projectId orElse session.scopedProjectId match
+      case None => super.create(create, extraHeaders*)
       case Some(projectId) =>
-        list("name" -> create.name, "project_id" -> projectId, "limit" -> "2").flatMap {
-          case Nil => super.create(create, extraHeaders:_*)
+        list("name" -> create.name, "project_id" -> projectId, "limit" -> "2").flatMap:
+          case Nil => super.create(create, extraHeaders*)
           case List(existing) =>
             getLogger.info(s"createOrUpdate: found unique $name (id: ${existing.id}) with the correct name and projectId.")
             resolveConflict(existing, create)
@@ -49,15 +48,11 @@ final class Networks[F[_]: Concurrent: Client](baseUri: Uri, session: Session)
                  |name: ${create.name}
                  |project: ${create.projectId}""".stripMargin
             Concurrent[F].raiseError(NeutronError(Conflict.reason, message))
-        }
-    }
-  }
   
   /** @return an unsorted list of all the segmentation ids currently in use. This is usually a slow operation. */
-  val listSegmentationIds: F[List[Int]] = {
-    implicit val decoderInt: Decoder[Option[Int]] = Decoder.decodeOption[Int].at("provider:segmentation_id")
+  val listSegmentationIds: F[List[Int]] =
+    given Decoder[Option[Int]] = Decoder.decodeOption[Int].at("provider:segmentation_id")
     super.list[Option[Int]](pluralName, uri.withQueryParam("fields", "provider:segmentation_id")).map(_.flatten)
-  }
   
   /** @return the first available segmentation id that is within `begin` <= `id` <= `end`. This is usually a slow operation. */
   def firstAvailableSegmentationId(begin: Int, end: Int): F[Option[Int]] = listSegmentationIds.map { ids =>
@@ -66,9 +61,7 @@ final class Networks[F[_]: Concurrent: Client](baseUri: Uri, session: Session)
     filteredAndSortedIds.sliding(2).collectFirst {
       case a :: b :: Nil if b - a > 1 => a + 1
       case a :: Nil => a + 1
-    }.filter(_ <= end).orElse {
+    }.filter(_ <= end).orElse:
       // if the last element is less than `end` we can return the next element
       filteredAndSortedIds.lastOption.filter(_ < end).map(_ + 1)
-    }
   }
-}

@@ -1,13 +1,13 @@
 package pt.tecnico.dsi.openstack.neutron
 
 import cats.effect.{IO, Resource}
-import com.comcast.ip4s._
+import com.comcast.ip4s.*
 import org.http4s.Query
 import org.scalatest.Assertion
 import pt.tecnico.dsi.openstack.neutron.models.{IpAvailability, Network, Subnet}
 
-final class IpAvailabilitiesSpec extends Utils {
-  val resource: Resource[IO, (Network, Subnet[IpAddress])] = for {
+final class IpAvailabilitiesSpec extends Utils:
+  val resource: Resource[IO, (Network, Subnet[IpAddress])] = for
     network <- resourceCreator(neutron.networks)(name => Network.Create(name = name, projectId = Some(project.id)))
     subnet <- resourceCreator(neutron.subnets)(name => Subnet.Create(
       name = name,
@@ -15,9 +15,9 @@ final class IpAvailabilitiesSpec extends Utils {
       cidr = Some(ip"192.169.1.0" / 24),
       projectId = Some(project.id),
     ))
-  } yield (network, subnet)
+  yield (network, subnet)
   
-  def testAvailability(network: Network, subnet: Subnet[IpAddress], availability: IpAvailability): Assertion = {
+  def testAvailability(network: Network, subnet: Subnet[IpAddress], availability: IpAvailability): Assertion =
     availability.networkId shouldBe network.id
     availability.networkName shouldBe network.name
     availability.projectId shouldBe project.id
@@ -34,7 +34,6 @@ final class IpAvailabilitiesSpec extends Utils {
     subnetAvailability.subnetName shouldBe subnet.name
     subnetAvailability.totalIps shouldBe totalIps
     subnetAvailability.usedIps shouldBe 0
-  }
   
   "The ip availabilities service" should {
     "show the ip avalabilities of a network" in resource.use { case (network, subnet) =>
@@ -49,4 +48,3 @@ final class IpAvailabilitiesSpec extends Utils {
       }
     }
   }
-}

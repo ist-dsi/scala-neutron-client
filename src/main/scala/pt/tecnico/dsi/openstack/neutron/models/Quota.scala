@@ -1,14 +1,12 @@
 package pt.tecnico.dsi.openstack.neutron.models
 
-import cats.derived
+import cats.derived.derived
 import cats.derived.ShowPretty
-import io.circe.derivation.{deriveCodec, deriveEncoder, renaming}
-import io.circe.{Codec, Encoder}
+import io.circe.derivation.{ConfiguredCodec, ConfiguredEncoder}
+import io.circe.Encoder
 
-object Quota {
-  object Update {
-    implicit val encoder: Encoder[Update] = deriveEncoder(renaming.snakeCase)
-    implicit val show: ShowPretty[Update] = derived.semiauto.showPretty
+object Quota:
+  object Update:
     val zero: Update = Update(
       floatingip = Some(0),
       network = Some(0),
@@ -20,7 +18,6 @@ object Quota {
       subnet = Some(0),
       subnetpool = Some(0),
     )
-  }
   case class Update(
     floatingip: Option[Int] = None,
     network: Option[Int] = None,
@@ -31,19 +28,13 @@ object Quota {
     securityGroupRule: Option[Int] = None,
     subnet: Option[Int] = None,
     subnetpool: Option[Int] = None,
-  ) {
-    lazy val needsUpdate: Boolean = {
+  ) derives ConfiguredEncoder, ShowPretty:
+    lazy val needsUpdate: Boolean =
       // We could implement this with the next line, but that implementation is less reliable if the fields of this class change
       //  productIterator.asInstanceOf[Iterator[Option[Any]]].exists(_.isDefined)
       List(floatingip, network, port, rbacPolicy, router, securityGroup, securityGroupRule, subnet, subnetpool).exists(_.isDefined)
-    }
-  }
   
   val zero: Quota = Quota(0, 0, 0, 0, 0, 0, 0, 0, 0)
-  
-  implicit val codec: Codec[Quota] = deriveCodec(renaming.snakeCase)
-  implicit val show: ShowPretty[Quota] = derived.semiauto.showPretty
-}
 /**
  * A value of -1 means no limit.
  * @param floatingip number of floating IP addresses allowed for each project.
@@ -66,4 +57,4 @@ case class Quota(
   securityGroupRule: Int,
   subnet: Int,
   subnetpool: Int,
-)
+) derives ConfiguredCodec, ShowPretty

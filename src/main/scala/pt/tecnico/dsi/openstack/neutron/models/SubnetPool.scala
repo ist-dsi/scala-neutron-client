@@ -1,22 +1,17 @@
 package pt.tecnico.dsi.openstack.neutron.models
 
 import java.time.OffsetDateTime
-import scala.annotation.nowarn
-import cats.derived
+import cats.derived.derived
 import cats.derived.ShowPretty
 import com.comcast.ip4s.{Cidr, IpAddress, IpVersion}
-import io.circe.derivation.{deriveCodec, deriveEncoder, renaming}
+import io.circe.derivation.{Configuration, ConfiguredCodec, ConfiguredEncoder, renaming}
 import io.circe.{Codec, Encoder}
-import io.chrisdavenport.cats.time.offsetdatetimeInstances
+import org.typelevel.cats.time.instances.offsetdatetime.given
 import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link}
 import pt.tecnico.dsi.openstack.keystone.KeystoneClient
 import pt.tecnico.dsi.openstack.keystone.models.Project
 
-object SubnetPool {
-  object Create {
-    implicit val decoder: Encoder[Create] = deriveEncoder(renaming.snakeCase)
-    implicit val show: ShowPretty[Create] = derived.semiauto.showPretty
-  }
+object SubnetPool:
   case class Create(
     name: String,
     description: String = "",
@@ -29,12 +24,8 @@ object SubnetPool {
     shared: Option[Boolean] = None,
     defaultQuota: Option[Int] = None,
     addressScopeId: Option[String] = None,
-  )
+  ) derives ConfiguredEncoder, ShowPretty
   
-  object Update {
-    implicit val decoder: Encoder[Update] = deriveEncoder(renaming.snakeCase)
-    implicit val show: ShowPretty[Update] = derived.semiauto.showPretty
-  }
   case class Update(
     name: Option[String] = None,
     description: Option[String] = None,
@@ -45,21 +36,16 @@ object SubnetPool {
     isDefault: Option[Boolean] = None,
     defaultQuota: Option[Int] = None,
     addressScopeId: Option[String] = None,
-  ) {
-    lazy val needsUpdate: Boolean = {
+  ) derives ConfiguredEncoder, ShowPretty:
+    lazy val needsUpdate: Boolean =
       // We could implement this with the next line, but that implementation is less reliable if the fields of this class change
       //  productIterator.asInstanceOf[Iterator[Option[Any]]].exists(_.isDefined)
       List(name, description, prefixes, minPrefixlen, maxPrefixlen, defaultPrefixlen, isDefault, addressScopeId).exists(_.isDefined)
-    }
-  }
-  
-  implicit val codec: Codec[SubnetPool] = {
-    @nowarn // False negative from the compiler. This Encoder is being used in the deriveDecoder which is a macro.
-    implicit val ipVersionCodec: Codec[IpVersion] = ipVersionIntCodec
-    deriveCodec(Map("revision" -> "revision_number").withDefault(renaming.snakeCase))
-  }
-  implicit val show: ShowPretty[SubnetPool] = derived.semiauto.showPretty
-}
+
+  given Codec[IpVersion] = ipVersionIntCodec
+
+  val renames = Map("revision" -> "revision_number").withDefault(renaming.snakeCase)
+  given Configuration = Configuration.default.withDefaults.withTransformMemberNames(renames)
 case class SubnetPool(
   id: String,
   name: String,
@@ -81,6 +67,5 @@ case class SubnetPool(
   updatedAt: OffsetDateTime,
   tags: List[String],
   links: List[Link] = List.empty
-) extends Identifiable {
-  def project[F[_]](implicit keystone: KeystoneClient[F]): F[Project] = keystone.projects(projectId)
-}
+) extends Identifiable derives ConfiguredCodec, ShowPretty:
+  def project[F[_]](using keystone: KeystoneClient[F]): F[Project] = keystone.projects(projectId)

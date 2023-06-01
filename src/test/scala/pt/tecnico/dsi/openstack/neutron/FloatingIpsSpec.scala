@@ -2,18 +2,18 @@ package pt.tecnico.dsi.openstack.neutron
 
 import cats.effect.unsafe.implicits.global
 import cats.effect.{IO, Resource}
-import com.comcast.ip4s._
+import com.comcast.ip4s.*
 import org.scalatest.Assertion
-import org.scalatest.OptionValues._
+import org.scalatest.OptionValues.*
 import pt.tecnico.dsi.openstack.neutron.models.{FloatingIp, Network, Quota, Subnet}
 import pt.tecnico.dsi.openstack.neutron.services.FloatingIps
 
-final class FloatingIpsSpec extends CrudSpec[FloatingIp[IpAddress], FloatingIp.Create[IpAddress], FloatingIp.Update[IpAddress]]("floatingIP") {
+final class FloatingIpsSpec extends CrudSpec[FloatingIp[IpAddress], FloatingIp.Create[IpAddress], FloatingIp.Update[IpAddress]]("floatingIP"):
   // The domain cannot belong to a project otherwise we will get a forbidden.
   // By using the project.name (which is random) we ensure the domain does not belong to any project.
   val dnsDomain = s"${project.name}.pt."
   // This way we use the same Network,Subnet for every test, and make the logs smaller and easier to debug.
-  val stubsResource: Resource[IO, (Network, Subnet[IpAddress])] = for {
+  val stubsResource: Resource[IO, (Network, Subnet[IpAddress])] = for
     network <- resourceCreator(neutron.networks)(name => Network.Create(
       name = name,
       projectId = Some(project.id),
@@ -26,14 +26,13 @@ final class FloatingIpsSpec extends CrudSpec[FloatingIp[IpAddress], FloatingIp.C
       cidr = Some(ip"192.169.1.0" / 24),
       projectId = Some(project.id),
     ))
-  } yield (network, subnet)
+  yield (network, subnet)
   
   val ((network, subnet), deletes) = stubsResource.allocated.unsafeRunSync()
   neutron.quotas.update(project.id, Quota.Update(floatingip = Some(10))).unsafeRunSync()
-  override protected def afterAll(): Unit = {
+  override protected def afterAll(): Unit =
     deletes.unsafeRunSync()
     super.afterAll()
-  }
   
   override val service: FloatingIps[IO] = neutron.floatingIps
   
@@ -46,16 +45,13 @@ final class FloatingIpsSpec extends CrudSpec[FloatingIp[IpAddress], FloatingIp.C
     dnsDomain = Some(dnsDomain),
   )
   
-  override def compareCreate(create: FloatingIp.Create[IpAddress], model: FloatingIp[IpAddress]): Assertion = {
+  override def compareCreate(create: FloatingIp.Create[IpAddress], model: FloatingIp[IpAddress]): Assertion =
     model.floatingNetworkId shouldBe create.floatingNetworkId
     model.description shouldBe create.description
     model.projectId shouldBe create.projectId.value
     model.dnsName shouldBe create.dnsName
     model.dnsDomain shouldBe create.dnsDomain
-  }
   
   override val updateStub: FloatingIp.Update[IpAddress] = FloatingIp.Update(description = Some("a better and improved description"))
-  override def compareUpdate(update: FloatingIp.Update[IpAddress], model: FloatingIp[IpAddress]): Assertion = {
+  override def compareUpdate(update: FloatingIp.Update[IpAddress], model: FloatingIp[IpAddress]): Assertion =
     model.description shouldBe update.description.value
-  }
-}

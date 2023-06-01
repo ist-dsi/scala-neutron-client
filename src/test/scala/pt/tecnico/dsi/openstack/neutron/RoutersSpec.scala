@@ -4,11 +4,11 @@ import scala.util.Random
 import cats.effect.IO
 import com.comcast.ip4s.Ipv4Address
 import org.scalatest.Assertion
-import org.scalatest.OptionValues._
+import org.scalatest.OptionValues.*
 import pt.tecnico.dsi.openstack.neutron.models.{Network, Router, Subnet}
 import pt.tecnico.dsi.openstack.neutron.services.Routers
 
-final class RoutersSpec extends CrudSpec[Router, Router.Create, Router.Update]("router") {
+final class RoutersSpec extends CrudSpec[Router, Router.Create, Router.Update]("router"):
   override val service: Routers[IO] = neutron.routers
   
   override def createStub(name: String): Router.Create = Router.Create(
@@ -16,22 +16,20 @@ final class RoutersSpec extends CrudSpec[Router, Router.Create, Router.Update]("
     "a description",
     projectId = Some(project.id),
   )
-  override def compareCreate(create: Router.Create, model: Router): Assertion = {
+  override def compareCreate(create: Router.Create, model: Router): Assertion =
     model.name shouldBe create.name
     model.projectId shouldBe create.projectId.value
     model.description shouldBe create.description
-  }
   
   override val updateStub: Router.Update = Router.Update(
     name = Some(randomName()),
     description = Some("a better and improved description"),
   )
-  override def compareUpdate(update: Router.Update, model: Router): Assertion = {
+  override def compareUpdate(update: Router.Update, model: Router): Assertion =
     model.name shouldBe update.name.value
     model.description shouldBe update.description.value
-  }
   
-  override def compareGet(get: Router, model: Router): Assertion = {
+  override def compareGet(get: Router, model: Router): Assertion =
     // After a router create openstack performs extra operations on the router and updates it (great move right there </sarcasm>)
     // causing the revision and updatedAt to change.
     // The availabilityZones will be set by openstack (using the availabilityZoneHints) so its value wont be the same
@@ -57,12 +55,11 @@ final class RoutersSpec extends CrudSpec[Router, Router.Create, Router.Update]("
     get.createdAt shouldBe model.createdAt
     //get.updatedAt shouldBe model.updatedAt
     get.tags shouldBe model.tags
-  }
   
   // These are failing because the VM to which we are testing against has incorrect permissions set and we receive:
   // The request you have made requires authentication
   s"The ${name}s service" should {
-    val resources = for {
+    val resources = for
       router <- resource
       network <- resourceCreator(neutron.networks)(name => Network.Create(
         name = name,
@@ -75,27 +72,25 @@ final class RoutersSpec extends CrudSpec[Router, Router.Create, Router.Update]("
         Ipv4Address.fromString(s"192.168.${Random.between(50, 250)}.0").map(_ / 24),
         projectId = Some(project.id)
       ))
-    } yield (router, network, subnet)
-    
+    yield (router, network, subnet)
+
     "addInterface" in resources.use { case (router, network, subnet) =>
-      for {
+      for
         first <- service.on(router).addInterface(subnet)
         second <- service.on(router).addInterface(subnet)
         // We must remove the subnet otherwise the deletes will fail
         _ <- service.on(router).removeInterface(subnet)
-      } yield {
+      yield
         first.value.routerId shouldBe router.id
         first.value.networkId shouldBe network.id
         first.value.projectId shouldBe project.id
         first.value.subnetId shouldBe subnet.id
         second shouldBe None
-      }
     }
     "removeInterface" in resources.use { case (router, _, subnet) =>
-      for {
+      for
         _ <- service.on(router).addInterface(subnet)
-        result <- service.on(router).removeInterface(subnet).idempotently(_ shouldBe ())
-      } yield result
+        result <- service.on(router).removeInterface(subnet).idempotently(_ shouldBe())
+      yield result
     }
   }
-}

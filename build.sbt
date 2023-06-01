@@ -5,46 +5,35 @@ name := "scala-neutron-client"
 // ==== Compile Options =================================================================================================
 // ======================================================================================================================
 javacOptions ++= Seq("-Xlint", "-encoding", "UTF-8", "-Dfile.encoding=utf-8")
-scalaVersion := "2.13.5"
+scalaVersion := "3.3.0"
 
 scalacOptions ++= Seq(
-  "-encoding", "utf-8",            // Specify character encoding used by source files.
-  "-explaintypes",                 // Explain type errors in more detail.
-  "-feature",                      // Emit warning and location for usages of features that should be imported explicitly.
-  "-language:higherKinds",         // Just to help Intellij, otherwise he keeps asking to import/enable the higherKinds flag
-  "-Ybackend-parallelism", "8",    // Maximum worker threads for backend.
-  "-Ybackend-worker-queue", "10",  // Backend threads worker queue size.
-  "-Ymacro-annotations",           // Enable support for macro annotations, formerly in macro paradise.
-  "-Xcheckinit",                   // Wrap field accessors to throw an exception on uninitialized access.
-  "-Xsource:3",                    // Treat compiler input as Scala source for the specified version.
-  "-Xmigration:3",                 // Warn about constructs whose behavior may have changed since version.
-  "-Werror",                       // Fail the compilation if there are any warnings.
-  "-Xlint:_",                      // Enables every warning. scalac -Xlint:help for a list and explanation
-  "-deprecation",                  // Emit warning and location for usages of deprecated APIs.
-  "-unchecked",                    // Enable additional warnings where generated code depends on assumptions.
-  "-Wdead-code",                   // Warn when dead code is identified.
-  "-Wextra-implicit",              // Warn when more than one implicit parameter section is defined.
-  "-Wnumeric-widen",               // Warn when numerics are widened.
-  "-Woctal-literal",               // Warn on obsolete octal syntax.
-  "-Wvalue-discard",               // Warn when non-Unit expression results are unused.
-  "-Wunused:_",                    // Enables every warning of unused members/definitions/etc
+  //"-explain",                      // Explain errors in more detail.
+  //"-explain-types",                // Explain type errors in more detail.
+  "-new-syntax",                    // Require `then` and `do` in control expressions.
+  "-indent",                        // Allow significant indentation.
+  "-feature",                       // Emit warning and location for usages of features that should be imported explicitly.
+  "-language:future",               // better-monadic-for
+  "-language:implicitConversions",  // Allow implicit conversions
+  "-deprecation",                   // Emit warning and location for usages of deprecated APIs.
+  "-Wunused:all",                   // Enable or disable specific `unused` warnings
+  "-Werror",                        // Fail the compilation if there are any warnings.
+  "-Wvalue-discard",
+  "-source:future",
 )
 
-Compile / console / scalacOptions ~= (_.filterNot { option =>
-  option.startsWith("-W") || option.startsWith("-Xlint")
-})
+// These lines ensure that in sbt console or sbt test:console the -Werror is not bothersome.
+Compile / console / scalacOptions ~= (_.filterNot(_.startsWith("-Werror")))
 Test / console / scalacOptions := (Compile / console / scalacOptions).value
 
 // ======================================================================================================================
 // ==== Dependencies ====================================================================================================
 // ======================================================================================================================
 libraryDependencies ++= Seq(
-  "pt.tecnico.dsi"  %% "scala-keystone-client" % "0.11.0",
-  "com.beachape"    %% "enumeratum-circe"      % "1.6.1",
-  "ch.qos.logback"  %  "logback-classic"       % "1.2.3" % Test,
-  "org.scalatest"   %% "scalatest"             % "3.2.8" % Test,
+  "pt.tecnico.dsi" %% "scala-keystone-client" % "0.12.0",
+  "ch.qos.logback"  % "logback-classic"       % "1.4.7" % Test,
+  "org.scalatest"  %% "scalatest"             % "3.2.16" % Test,
 )
-addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
 
 // ======================================================================================================================
 // ==== Testing =========================================================================================================
@@ -60,7 +49,7 @@ Test / logBuffered := false
 // By default, tests executed in a forked JVM are executed sequentially.
 Test / fork := true
 // So we make them run in parallel.
-Test / testForkedParallel := true
+Test / testForkedParallel := false // Openstack can't handle things in parallel
 // We need to force IPv6 addresses otherwise Java resolves names to IPv4 and Travis will fail because the VM test is not reachable by IPv4
 Test / javaOptions += "-Djava.net.preferIPv6Addresses=true"
 // The tests in a single group are run sequentially. We run 4 suites per forked VM.
@@ -75,7 +64,6 @@ Test / testGrouping := {
 // ==== Scaladoc ========================================================================================================
 // ======================================================================================================================
 git.remoteRepo := s"git@github.com:ist-dsi/${name.value}.git"
-git.useGitDescribe := true // Get version by calling `git describe` on the repository
 val latestReleasedVersion = SettingKey[String]("latest released version")
 latestReleasedVersion := git.gitDescribedVersion.value.getOrElse("0.0.1-SNAPSHOT")
 

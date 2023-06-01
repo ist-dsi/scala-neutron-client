@@ -2,22 +2,19 @@ package pt.tecnico.dsi.openstack.neutron.models
 
 import java.time.OffsetDateTime
 import cats.derived.ShowPretty
-import cats.{Show, derived}
+import cats.Show
+import cats.derived.derived
 import com.comcast.ip4s.IpAddress
-import io.circe.derivation.{deriveCodec, deriveEncoder, renaming}
-import io.circe.{Codec, Encoder}
-import io.chrisdavenport.cats.time.offsetdatetimeInstances
+import io.circe.derivation.{Configuration, ConfiguredCodec, ConfiguredEncoder, renaming}
+import io.circe.Encoder
+import org.typelevel.cats.time.instances.offsetdatetime.given
 import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link}
 import pt.tecnico.dsi.openstack.keystone.KeystoneClient
 import pt.tecnico.dsi.openstack.keystone.models.Project
 import pt.tecnico.dsi.openstack.neutron.NeutronClient
 import pt.tecnico.dsi.openstack.neutron.models.Router.{ConntrackHelper, ExternalGatewayInfo}
 
-object Router {
-  object Create {
-    implicit val encoder: Encoder[Create] = deriveEncoder(renaming.snakeCase)
-    implicit val show: ShowPretty[Create] = derived.semiauto.showPretty
-  }
+object Router:
   case class Create(
     name: String,
     description: String = "",
@@ -28,12 +25,8 @@ object Router {
     ha: Option[Boolean] = None,
     availabilityZoneHints: Option[List[String]] = None,
     projectId: Option[String] = None,
-  )
+  ) derives ConfiguredEncoder, ShowPretty
   
-  object Update {
-    implicit val encoder: Encoder[Update] = deriveEncoder(renaming.snakeCase)
-    implicit val show: ShowPretty[Update] = derived.semiauto.showPretty
-  }
   case class Update(
     name: Option[String] = None,
     description: Option[String] = None,
@@ -42,45 +35,39 @@ object Router {
     routes: Option[List[Route[IpAddress]]] = None,
     distributed: Option[Boolean] = None,
     ha: Option[Boolean] = None,
-  ) {
-    lazy val needsUpdate: Boolean = {
+  ) derives ConfiguredEncoder, ShowPretty:
+    lazy val needsUpdate: Boolean =
       // We could implement this with the next line, but that implementation is less reliable if the fields of this class change
       //  productIterator.asInstanceOf[Iterator[Option[Any]]].exists(_.isDefined)
       List(name, description, adminStateUp, externalGatewayInfo, distributed, ha, routes).exists(_.isDefined)
-    }
-  }
   
-  object ConntrackHelper {
-    implicit val codec: Codec[ConntrackHelper] = deriveCodec(renaming.snakeCase)
-    implicit val show: ShowPretty[ConntrackHelper] = derived.semiauto.showPretty
-  }
-  case class ConntrackHelper(protocol: String, port: Int, helper: String)
+  case class ConntrackHelper(
+    protocol: String,
+    port: Int,
+    helper: String,
+  ) derives ConfiguredCodec, ShowPretty
   
-  object ExternalIp {
-    implicit val codec: Codec[ExternalIp] = deriveCodec(renaming.snakeCase)
-    implicit val show: Show[ExternalIp] = derived.semiauto.show
-  }
-  case class ExternalIp(subnetId: String, ipAddress: Option[IpAddress] = None) {
-    def subnet[F[_]](implicit neutron: NeutronClient[F]): F[Subnet[IpAddress]] = neutron.subnets(subnetId)
+  case class ExternalIp(
+    subnetId: String,
+    ipAddress: Option[IpAddress] = None,
+  ) derives ConfiguredCodec, ShowPretty:
+    def subnet[F[_]](using neutron: NeutronClient[F]): F[Subnet[IpAddress]] = neutron.subnets(subnetId)
     
-    def prevalingIp(existing: Option[IpAddress]): Option[IpAddress] = {
+    def prevalingIp(existing: Option[IpAddress]): Option[IpAddress] =
       // If ipAddress is setting an address even if its the same as existing, then ipAddress prevails in relationship with the existing one
       // otherwise the existing one wins. The existing will prevail when ipAddress = None (most likely from a Create) and existing = Some.
       // Or in other words, when we created we didn't care about which IP we got but once it got created and an IP address as been assigned
       // we don't want to change it.
       ipAddress.orElse(existing)
-    }
-  }
   
-  object ExternalGatewayInfo {
-    implicit val codec: Codec[ExternalGatewayInfo] = deriveCodec(renaming.snakeCase)
-    implicit val show: ShowPretty[ExternalGatewayInfo] = derived.semiauto.showPretty
-  }
-  case class ExternalGatewayInfo(networkId: String, enableSnat: Boolean, externalFixedIps: List[ExternalIp])
-  
-  implicit val codec: Codec[Router] = deriveCodec(Map("revision" -> "revision_number").withDefault(renaming.snakeCase))
-  implicit val show: ShowPretty[Router] = derived.semiauto.showPretty
-}
+  case class ExternalGatewayInfo(
+    networkId: String,
+    enableSnat: Boolean,
+    externalFixedIps: List[ExternalIp],
+  ) derives ConfiguredCodec, ShowPretty
+
+  val renames = Map("revision" -> "revision_number").withDefault(renaming.snakeCase)
+  given Configuration = Configuration.default.withDefaults.withTransformMemberNames(renames)
 case class Router(
   id: String,
   name: String,
@@ -103,6 +90,5 @@ case class Router(
   updatedAt: OffsetDateTime,
   tags: List[String] = List.empty,
   links: List[Link] = List.empty
-) extends Identifiable {
-  def project[F[_]](implicit keystone: KeystoneClient[F]): F[Project] = keystone.projects(projectId)
-}
+) extends Identifiable derives ConfiguredCodec, ShowPretty:
+  def project[F[_]](using keystone: KeystoneClient[F]): F[Project] = keystone.projects(projectId)

@@ -13,13 +13,12 @@ final class Quotas[F[_]: Concurrent: Client](baseUri: Uri, session: Session) ext
   private val wrappedAt: Option[String] = Some(name)
   
   /** Streams quotas for projects with non-default quota values. */
-  def stream: Stream[F, (String, Quota)] = {
-    val decoder: Decoder[(String, Quota)] = (cursor: HCursor) => for {
+  def stream: Stream[F, (String, Quota)] =
+    given Decoder[(String, Quota)] = (cursor: HCursor) => for
       projectId <- cursor.get[String]("project_id")
       quota <- cursor.as[Quota]
-    } yield (projectId, quota)
-    super.stream(wrappedAt = pluralName, uri)(decoder)
-  }
+    yield (projectId, quota)
+    super.stream(wrappedAt = pluralName, uri)
   
   /** Lists quotas for projects with non-default quota values. */
   def list: F[List[(String, Quota)]] = stream.compile.toList
@@ -49,10 +48,9 @@ final class Quotas[F[_]: Concurrent: Client](baseUri: Uri, session: Session) ext
     * Updates quotas for a project.
     * @param projectId The UUID of the project.
     */
-  def update(projectId: String, quotas: Quota.Update)(implicit encoder: Encoder[Quota.Update]): F[Quota] = {
+  def update(projectId: String, quotas: Quota.Update)(using Encoder[Quota.Update]): F[Quota] =
     // Partial updates are done with a put, everyone knows that </sarcasm>
     super.put(wrappedAt = Some(name), quotas, uri / projectId)
-  }
   
   /**
    * Resets quotas to default values for a project.

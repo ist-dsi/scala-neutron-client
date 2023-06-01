@@ -1,7 +1,7 @@
 package pt.tecnico.dsi.openstack.neutron.services
 
 import cats.effect.Concurrent
-import cats.syntax.flatMap._
+import cats.syntax.flatMap.*
 import org.http4s.Status.Conflict
 import org.http4s.client.Client
 import org.http4s.{Header, Uri}
@@ -11,10 +11,10 @@ import pt.tecnico.dsi.openstack.keystone.models.Session
 import pt.tecnico.dsi.openstack.neutron.models.{NeutronError, SubnetPool}
 
 final class SubnetPools[F[_]: Concurrent: Client](baseUri: Uri, session: Session)
-  extends CrudService[F, SubnetPool, SubnetPool.Create, SubnetPool.Update](baseUri, "subnetpool", session.authToken) {
+  extends CrudService[F, SubnetPool, SubnetPool.Create, SubnetPool.Update](baseUri, "subnetpool", session.authToken):
   
   override def defaultResolveConflict(existing: SubnetPool, create: SubnetPool.Create, keepExistingElements: Boolean,
-    extraHeaders: Seq[Header.ToRaw]): F[SubnetPool] = {
+    extraHeaders: Seq[Header.ToRaw]): F[SubnetPool] =
     // TODO: handle keep existing elements: https://stackoverflow.com/questions/64754830/encoder-for-update-endpoint-of-a-rest-api
     val updated = SubnetPool.Update(
       description = Option(create.description).filter(_ != existing.description),
@@ -22,25 +22,24 @@ final class SubnetPools[F[_]: Concurrent: Client](baseUri: Uri, session: Session
       maxPrefixlen = create.maxPrefixlen.filter(_ != existing.maxPrefixlen),
       defaultPrefixlen = create.defaultPrefixlen.filter(_ != existing.defaultPrefixlen),
       isDefault = create.isDefault.filter(_ != existing.isDefault),
-      defaultQuota = if (create.defaultQuota != existing.defaultQuota) create.defaultQuota else None,
-      addressScopeId = if (create.addressScopeId != existing.addressScopeId) create.addressScopeId else None,
+      defaultQuota = if create.defaultQuota != existing.defaultQuota then create.defaultQuota else None,
+      addressScopeId = if create.addressScopeId != existing.addressScopeId then create.addressScopeId else None,
     )
-    if (updated.needsUpdate) update(existing.id, updated, extraHeaders:_*)
+    if updated.needsUpdate then update(existing.id, updated, extraHeaders*)
     else Concurrent[F].pure(existing)
-  }
   
   override def createOrUpdate(create: SubnetPool.Create, keepExistingElements: Boolean = true, extraHeaders: Seq[Header.ToRaw] = Seq.empty)
     (resolveConflict: (SubnetPool, SubnetPool.Create) => F[SubnetPool] = defaultResolveConflict(_, _, keepExistingElements, extraHeaders))
-  : F[SubnetPool] = {
+  : F[SubnetPool] =
     // If you ask openstack to create two subnet pools with the same name and **prefixes** it won't complain.
     // We want the create to be idempotent, so we decided to make the name,prefixes unique **within** the project
-    create.projectId orElse session.scopedProjectId match {
-      case None => super.create(create, extraHeaders: _*)
+    create.projectId orElse session.scopedProjectId match
+      case None => super.create(create, extraHeaders*)
       case Some(projectId) =>
         // We cannot set a limit because of the prefixes
         list("name" -> create.name, "project_id" -> projectId).flatMap { pools =>
-          pools.filter(_.prefixes.intersect(create.prefixes).nonEmpty) match {
-            case Nil => super.create(create, extraHeaders: _*)
+          pools.filter(_.prefixes.intersect(create.prefixes).nonEmpty) match
+            case Nil => super.create(create, extraHeaders*)
             case List(existing) =>
               getLogger.info(s"createOrUpdate: found unique $name (id: ${existing.id}) with the correct name, prefixes and projectId.")
               resolveConflict(existing, create)
@@ -51,8 +50,4 @@ final class SubnetPools[F[_]: Concurrent: Client](baseUri: Uri, session: Session
                    |prefixes: ${create.prefixes} (another subnet pool contains at least one of these CIDRs)
                    |project: ${create.projectId}""".stripMargin
               Concurrent[F].raiseError(NeutronError(Conflict.reason, message))
-          }
         }
-    }
-  }
-}

@@ -5,12 +5,12 @@ import pt.tecnico.dsi.openstack.common.models.Usage
 import pt.tecnico.dsi.openstack.keystone.models.Project
 import pt.tecnico.dsi.openstack.neutron.models.{Quota, QuotaUsage}
 
-class QuotasSpec extends Utils {
+class QuotasSpec extends Utils:
   val withStubProject: Resource[IO, Project] = resourceCreator(keystone.projects)(Project.Create(_))
   
   // These are the default quotas for the Neutron we are testing against
   val defaultQuotas: Quota = Quota(
-    floatingip = 50,
+    floatingip = 0,
     network = 100,
     port = 500,
     rbacPolicy = 10,
@@ -34,40 +34,37 @@ class QuotasSpec extends Utils {
   
   "Quotas service" should {
     "list quotas" in withStubProject.use { project =>
-      for {
-        // Ensure there is at least one project with non-default quotas
+      for
+      // Ensure there is at least one project with non-default quotas
         _ <- neutron.quotas.update(project.id, Quota.Update(network = Some(30)))
         quotas <- neutron.quotas.stream.map(_._1).compile.toList
         // Reset the quotas back to default values to ensure we can run this suite multiple times
         _ <- neutron.quotas.delete(project.id)
-      } yield quotas should contain(project.id)
+      yield quotas should contain(project.id)
     }
-    
+
     "apply quotas for a project (existing id)" in withStubProject.use { project =>
       neutron.quotas.apply(project.id).idempotently(_ shouldBe defaultQuotas)
     }
-    "apply quotas for a project (non-existing id)" in {
+    "apply quotas for a project (non-existing id)" in :
       // This is not a mistake in the test. Neutron does return a Quota even if the project does not exist :faceplam:
       neutron.quotas.apply("non-existing-id").idempotently(_ shouldBe defaultQuotas)
-    }
-    
+
     "apply usage quotas for a project (existing id)" in withStubProject.use { project =>
       neutron.quotas.applyUsage(project.id).idempotently(_ shouldBe defaultUsageQuotas)
     }
-    "apply usage quotas for a project (non-existing id)" in {
+    "apply usage quotas for a project (non-existing id)" in :
       // This is not a mistake in the test. Neutron does return a Quota even if the project does not exist :faceplam:
       neutron.quotas.applyUsage("non-existing-id").idempotently(_ shouldBe defaultUsageQuotas)
-    }
-    
+
     "apply default quotas for a project (existing id)" in withStubProject.use { project =>
       neutron.quotas.applyDefaults(project.id).idempotently(_ shouldBe defaultQuotas)
     }
-    "apply default quotas for a project (non-existing id)" in {
+    "apply default quotas for a project (non-existing id)" in :
       // This is not a mistake in the test. Neutron does return a Quota even if the project does not exist :faceplam:
       neutron.quotas.applyDefaults("non-existing-id").idempotently(_ shouldBe defaultQuotas)
-    }
-    
-    "update quotas for a project" in withStubProject.use  { project =>
+
+    "update quotas for a project" in withStubProject.use { project =>
       val newQuotas = Quota.Update(floatingip = Some(25), router = Some(25))
       neutron.quotas.update(project.id, newQuotas).idempotently { quota =>
         quota.floatingip shouldBe 25
@@ -75,7 +72,6 @@ class QuotasSpec extends Utils {
       }
     }
     "delete quotas for a project" in withStubProject.use { project =>
-      neutron.quotas.delete(project.id).idempotently(_ shouldBe ())
+      neutron.quotas.delete(project.id).idempotently(_ shouldBe())
     }
   }
-}

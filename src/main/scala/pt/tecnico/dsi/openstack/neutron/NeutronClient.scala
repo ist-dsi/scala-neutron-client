@@ -4,17 +4,16 @@ import cats.effect.Concurrent
 import org.http4s.Uri
 import org.http4s.client.Client
 import pt.tecnico.dsi.openstack.keystone.models.{ClientBuilder, Session}
-import pt.tecnico.dsi.openstack.neutron.services._
+import pt.tecnico.dsi.openstack.neutron.services.*
 
-object NeutronClient extends ClientBuilder {
+object NeutronClient extends ClientBuilder:
   final type OpenstackClient[F[_]] = NeutronClient[F]
   final val `type`: String = "network"
   
   override def apply[F[_]: Concurrent: Client](baseUri: Uri, session: Session): NeutronClient[F] =
     new NeutronClient[F](baseUri, session)
-}
-class NeutronClient[F[_]: Concurrent](baseUri: Uri, session: Session)(implicit client: Client[F]) {
-  val uri: Uri = if (baseUri.path.dropEndsWithSlash.toString.endsWith("v2.0")) baseUri else baseUri / "v2.0"
+class NeutronClient[F[_]: Concurrent](baseUri: Uri, session: Session)(using client: Client[F]):
+  val uri: Uri = if baseUri.path.dropEndsWithSlash.toString.endsWith("v2.0") then baseUri else baseUri / "v2.0"
   
   val networks: Networks[F] = new Networks[F](uri, session)
   val ipAvailabilities: IpAvailabilities[F] = new IpAvailabilities[F](uri, session)
@@ -25,4 +24,3 @@ class NeutronClient[F[_]: Concurrent](baseUri: Uri, session: Session)(implicit c
   val subnets: Subnets[F] = new Subnets[F](uri, session)
   val subnetPools: SubnetPools[F] = new SubnetPools[F](uri, session)
   val quotas: Quotas[F] = new Quotas[F](uri, session)
-}

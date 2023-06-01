@@ -1,32 +1,40 @@
 package pt.tecnico.dsi.openstack.neutron.models
 
 import java.time.OffsetDateTime
-import scala.annotation.nowarn
-import cats.derived
+import cats.derived.derived
 import cats.derived.ShowPretty
 import com.comcast.ip4s.{Cidr, IpAddress, IpVersion}
-import io.circe.derivation.{deriveCodec, deriveEncoder, renaming}
-import io.circe.syntax._
+import io.circe.derivation.{Configuration, ConfiguredCodec, ConfiguredEncoder, renaming}
+import io.circe.syntax.*
 import io.circe.{Codec, Encoder}
-import io.chrisdavenport.cats.time.offsetdatetimeInstances
+import org.typelevel.cats.time.instances.offsetdatetime.given
 import pt.tecnico.dsi.openstack.common.models.{Identifiable, Link}
 import pt.tecnico.dsi.openstack.keystone.KeystoneClient
 import pt.tecnico.dsi.openstack.keystone.models.Project
 import pt.tecnico.dsi.openstack.neutron.NeutronClient
 
-object Subnet {
-  object Create {
-    implicit val encoder: Encoder[Create[IpAddress]] = {
-      @nowarn // False negative from the compiler. This Encoder is being used in the deriveEncoder which is a macro.
-      implicit val ipVersionEncoder: Encoder[IpVersion] = ipVersionIntEncoder
-      val derived = deriveEncoder[Create[IpAddress]](baseRenames)
+object Subnet:
+  private val baseRenames = Map(
+    "revision" -> "revision_number",
+    "gateway" -> "gateway_ip",
+    "nameservers" -> "dns_nameservers",
+    "mode" -> "ipv6_address_mode",
+    "routerAdvertisementMode" -> "ipv6_ra_mode",
+  ).withDefault(renaming.snakeCase)
+
+  given Configuration = Configuration.default.withDefaults.withTransformMemberNames(baseRenames)
+
+  object Create:
+    given Encoder[Create[IpAddress]] =
+      given Encoder[IpVersion] = ipVersionIntEncoder
+      val derived = ConfiguredEncoder.derived[Create[IpAddress]]
       (create: Create[IpAddress]) => {
         val addressOption = create.cidr.map(_.address)
                                   .orElse(create.gateway)
                                   .orElse(create.allocationPools.flatMap(_.headOption).map(_.start))
                                   .orElse(create.hostRoutes.headOption.map(_.nexthop))
         // TODO: if cidr.address != cidr.prefix (eg: 192.168.1.35/27) we could assume cidr.address to be the gateway
-        addressOption match {
+        addressOption match
           case None =>
             // The user has not set cidr, gatewayIp, allocationPools, or host routes.
             // Most probably just subnetpoolId/useDefaultSubnetpool, lets hope it did not forget to set IpVersion
@@ -35,11 +43,8 @@ object Subnet {
           case Some(ip) =>
             // Even if ip_version was already set, we override it to ensure it has the right value.
             derived(create).mapObject(_.add("ip_version", ip.fold(_ => 4, _ => 6).asJson))
-        }
       }
-    }
-    implicit val show: ShowPretty[Create[IpAddress]] = derived.semiauto.showPretty
-  }
+    given ShowPretty[Create[IpAddress]] = ShowPretty.derived
   case class Create[+IP <: IpAddress](
     name: String,
     networkId: String,
@@ -61,10 +66,9 @@ object Subnet {
     projectId: Option[String] = None
   )
   
-  object Update {
-    implicit val encoder: Encoder[Update[IpAddress]] = deriveEncoder(renaming.snakeCase)
-    implicit val show: ShowPretty[Update[IpAddress]] = derived.semiauto.showPretty
-  }
+  object Update:
+    given Encoder[Update[IpAddress]] = ConfiguredEncoder.derived
+    given ShowPretty[Update[IpAddress]] = ShowPretty.derived
   case class Update[+IP <: IpAddress](
     name: Option[String] = None,
     description: Option[String] = None,
@@ -75,24 +79,14 @@ object Subnet {
     enableDhcp: Option[Boolean] = None,
     segmentId: Option[String] = None,
     serviceTypes: Option[List[String]] = None,
-  ) {
-    lazy val needsUpdate: Boolean = {
+  ):
+    lazy val needsUpdate: Boolean =
       // We could implement this with the next line, but that implementation is less reliable if the fields of this class change
       //  productIterator.asInstanceOf[Iterator[Option[Any]]].exists(_.isDefined)
       List(name, description, gatewayIp, allocationPools, hostRoutes, dnsNameservers, enableDhcp, segmentId, serviceTypes).exists(_.isDefined)
-    }
-  }
-  
-  private val baseRenames = Map(
-    "revision" -> "revision_number",
-    "gateway" -> "gateway_ip",
-    "nameservers" -> "dns_nameservers",
-    "mode" -> "ipv6_address_mode",
-    "routerAdvertisementMode" -> "ipv6_ra_mode",
-  ).withDefault(renaming.snakeCase)
-  implicit val codec: Codec[Subnet[IpAddress]] = deriveCodec(baseRenames)
-  implicit val show: ShowPretty[Subnet[IpAddress]] = derived.semiauto.showPretty
-}
+
+  given Codec[Subnet[IpAddress]] = ConfiguredCodec.derived
+  given ShowPretty[Subnet[IpAddress]] = ShowPretty.derived
 case class Subnet[+IP <: IpAddress](
   id: String,
   name: String,
@@ -119,6 +113,6 @@ case class Subnet[+IP <: IpAddress](
   tags: List[String] = List.empty,
   links: List[Link] = List.empty,
 ) extends Identifiable {
-  def project[F[_]](implicit keystone: KeystoneClient[F]): F[Project] = keystone.projects(projectId)
-  def network[F[_]](implicit neutron: NeutronClient[F]): F[Network] = neutron.networks(networkId)
+  def project[F[_]](using keystone: KeystoneClient[F]): F[Project] = keystone.projects(projectId)
+  def network[F[_]](using neutron: NeutronClient[F]): F[Network] = neutron.networks(networkId)
 }

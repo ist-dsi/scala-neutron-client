@@ -3,10 +3,10 @@ package pt.tecnico.dsi.openstack.neutron
 import cats.effect.unsafe.implicits.global
 import scala.util.Random
 import cats.effect.{IO, Resource}
-import cats.implicits._
-import com.comcast.ip4s._
+import cats.implicits.*
+import com.comcast.ip4s.*
 import org.scalatest.Assertion
-import org.scalatest.OptionValues._
+import org.scalatest.OptionValues.*
 import pt.tecnico.dsi.openstack.neutron.models.{AllocationPool, Ipv6Mode, Network, Subnet}
 import pt.tecnico.dsi.openstack.neutron.services.Subnets
 
@@ -18,10 +18,9 @@ final class SubnetsSpec extends CrudSpec[Subnet[IpAddress], Subnet.Create[IpAddr
     projectId = Some(project.id),
   ))
   val (network, networkDelete) = stubNetwork.allocated.unsafeRunSync()
-  override protected def afterAll(): Unit = {
+  override protected def afterAll(): Unit =
     networkDelete.unsafeRunSync()
     super.afterAll()
-  }
   
   override val service: Subnets[IO] = neutron.subnets
   override val bulkService: Subnets[IO] = service
@@ -36,7 +35,7 @@ final class SubnetsSpec extends CrudSpec[Subnet[IpAddress], Subnet.Create[IpAddr
     routerAdvertisementMode = Some(Ipv6Mode.Slaac),
     projectId = Some(project.id)
   )
-  override def compareCreate(create: Subnet.Create[IpAddress], model: Subnet[IpAddress]): Assertion = {
+  override def compareCreate(create: Subnet.Create[IpAddress], model: Subnet[IpAddress]): Assertion =
     model.name shouldBe create.name
     model.description shouldBe create.description
     model.projectId shouldBe create.projectId.value
@@ -46,21 +45,18 @@ final class SubnetsSpec extends CrudSpec[Subnet[IpAddress], Subnet.Create[IpAddr
     model.allocationPools shouldBe List(AllocationPool.fromCidr(create.cidr.value))
     model.mode shouldBe create.mode
     model.routerAdvertisementMode shouldBe create.routerAdvertisementMode
-  }
   
   override val updateStub: Subnet.Update[IpAddress] = Subnet.Update(
     name = Some(randomName()),
     Some("a better and improved description"),
     gatewayIp = Ipv6Address.fromString("2606:2800:220:1::")
   )
-  override def compareUpdate(update: Subnet.Update[IpAddress], model: Subnet[IpAddress]): Assertion = {
+  override def compareUpdate(update: Subnet.Update[IpAddress], model: Subnet[IpAddress]): Assertion =
     model.name shouldBe update.name.value
     model.description shouldBe update.description.value
     model.gateway shouldBe update.gatewayIp
-  }
   
-  override def withBulkCreated(quantity: Int): Resource[IO, List[Subnet[IpAddress]]] = {
+  override def withBulkCreated(quantity: Int): Resource[IO, List[Subnet[IpAddress]]] =
     val creates = List.tabulate(quantity)(i => createStub(s"${randomName()}$i"))
     Resource.make(service.create(creates))(_.traverse_(stub => service.delete(stub.id)))
-  }
 }

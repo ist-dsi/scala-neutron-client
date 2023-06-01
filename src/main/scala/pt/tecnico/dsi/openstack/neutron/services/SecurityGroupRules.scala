@@ -1,12 +1,12 @@
 package pt.tecnico.dsi.openstack.neutron.services
 
 import cats.effect.Concurrent
-import cats.syntax.flatMap._
+import cats.syntax.flatMap.*
 import io.circe.{Decoder, Encoder}
 import org.http4s.client.Client
 import org.http4s.{Header, Uri}
 import org.log4s.getLogger
-import pt.tecnico.dsi.openstack.common.services._
+import pt.tecnico.dsi.openstack.common.services.*
 import pt.tecnico.dsi.openstack.keystone.models.Session
 import pt.tecnico.dsi.openstack.neutron.models.{NeutronError, SecurityGroupRule}
 
@@ -15,10 +15,10 @@ final class SecurityGroupRules[F[_]: Concurrent: Client](baseUri: Uri, session: 
     with CreateNonIdempotentOperations[F, SecurityGroupRule, SecurityGroupRule.Create]
     with ListOperations[F, SecurityGroupRule]
     with ReadOperations[F, SecurityGroupRule]
-    with DeleteOperations[F, SecurityGroupRule] {
+    with DeleteOperations[F, SecurityGroupRule]:
   
-  override implicit val createEncoder: Encoder[SecurityGroupRule.Create] = SecurityGroupRule.Create.encoder
-  override implicit val modelDecoder: Decoder[SecurityGroupRule] = SecurityGroupRule.decoder
+  override given createEncoder: Encoder[SecurityGroupRule.Create] = SecurityGroupRule.Create.given_Encoder_Create
+  override given modelDecoder: Decoder[SecurityGroupRule] = SecurityGroupRule.given_Decoder_SecurityGroupRule
   
   /**
    * A sort of idempotent create. If a Conflict is received and the existing rule already has the same settings the existing rule
@@ -29,23 +29,19 @@ final class SecurityGroupRules[F[_]: Concurrent: Client](baseUri: Uri, session: 
    * @param create the create settings.
    * @param extraHeaders extra headers to be used. The `authToken` header is always added.
    */
-  def createWithDeduplication(create: SecurityGroupRule.Create, extraHeaders: Header.ToRaw*): F[SecurityGroupRule] = {
+  def createWithDeduplication(create: SecurityGroupRule.Create, extraHeaders: Header.ToRaw*): F[SecurityGroupRule] =
     val conflictId = """.*?id is ([a-f0-9\\-]*)\.""".r
-    postHandleConflictWithError[SecurityGroupRule.Create, SecurityGroupRule, NeutronError](wrappedAt, create, uri, extraHeaders) {
+    postHandleConflictWithError[SecurityGroupRule.Create, SecurityGroupRule, NeutronError](wrappedAt, create, uri, extraHeaders):
       case error @ NeutronError("SecurityGroupRuleExists", conflictId(id), _) =>
         apply(id).flatMap { existing =>
           val SecurityGroupRule(_, _, description, _, direction, ipVersion, protocol, portRangeMin, portRangeMax, remote, _, _, _, _) = existing
-          if (description.contains(create.description) && create.direction == direction && create.ipVersion == ipVersion && create.protocol == protocol &&
-            create.portRangeMin == portRangeMin && create.portRangeMax == portRangeMax && create.remote == remote) {
+          if description.contains(create.description) && create.direction == direction && create.ipVersion == ipVersion && create.protocol == protocol &&
+            create.portRangeMin == portRangeMin && create.portRangeMax == portRangeMax && create.remote == remote then
             getLogger.info(s"createOrUpdate: found unique $name (id: ${existing.id}) with the correct " +
               s"description, direction, ipVersion, protocol, portRangMin, portRangeMax, and remote.")
             F.pure(existing)
-          } else {
+          else
             // The Security Group Rules API does not have an update. The only thing we could do would be to delete the rule and create it again.
             // But that would surely make the users of this method angry.
             F.raiseError(error)
-          }
         }
-    }
-  }
-}
