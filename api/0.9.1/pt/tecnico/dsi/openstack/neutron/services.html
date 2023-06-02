@@ -1,0 +1,738 @@
+<html data-pathToRoot="../../../../../"><head><meta charset="utf-8"></meta><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"></meta><title>pt.tecnico.dsi.openstack.neutron.services</title><link rel="shortcut icon" type="image/x-icon" href="../../../../../favicon.ico"></link><script type="text/javascript" src="../../../../../scripts/theme.js"></script><script type="text/javascript" src="../../../../../scripts/searchData.js" defer="true"></script><script type="text/javascript" src="../../../../../scripts/scastieConfiguration.js" defer="true"></script><link rel="stylesheet" href="../../../../../styles/theme/bundle.css"></link><link rel="stylesheet" href="../../../../../styles/theme/components/bundle.css"></link><link rel="stylesheet" href="../../../../../styles/theme/components/button/bundle.css"></link><link rel="stylesheet" href="../../../../../styles/theme/layout/bundle.css"></link><link rel="stylesheet" href="../../../../../styles/nord-light.css"></link><link rel="stylesheet" href="../../../../../styles/dotty-icons.css"></link><link rel="stylesheet" href="../../../../../styles/filter-bar.css"></link><link rel="stylesheet" href="../../../../../styles/code-snippets.css"></link><link rel="stylesheet" href="../../../../../styles/searchbar.css"></link><link rel="stylesheet" href="../../../../../styles/social-links.css"></link><link rel="stylesheet" href="../../../../../styles/versions-dropdown.css"></link><link rel="stylesheet" href="../../../../../styles/content-contributors.css"></link><link rel="stylesheet" href="../../../../../styles/fontawesome.css"></link><script type="text/javascript" src="../../../../../hljs/highlight.pack.js" defer="true"></script><script type="text/javascript" src="../../../../../scripts/hljs-scala3.js" defer="true"></script><script type="text/javascript" src="../../../../../scripts/ux.js" defer="true"></script><script type="text/javascript" src="../../../../../scripts/common/component.js" defer="true"></script><script type="text/javascript" src="../../../../../scripts/common/utils.js" defer="true"></script><script type="text/javascript" src="../../../../../scripts/components/FilterBar.js" defer="true"></script><script type="text/javascript" src="../../../../../scripts/components/DocumentableList.js" defer="true"></script><script type="text/javascript" src="../../../../../scripts/components/Input.js" defer="true"></script><script type="text/javascript" src="../../../../../scripts/components/FilterGroup.js" defer="true"></script><script type="text/javascript" src="../../../../../scripts/components/Filter.js" defer="true"></script><script type="text/javascript" src="../../../../../scripts/scaladoc-scalajs.js" defer="true"></script><script type="text/javascript" src="../../../../../scripts/contributors.js" defer="true"></script><script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.min.js" defer="true"></script><script type="text/javascript" src="https://d3js.org/d3.v6.min.js" defer="true"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/graphlib-dot@0.6.2/dist/graphlib-dot.min.js" defer="true"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dagre-d3/0.6.1/dagre-d3.min.js" defer="true"></script><script type="text/javascript" src="https://scastie.scala-lang.org/embedded.js" defer="true"></script><script type="text/javascript" src="../../../../../scripts/data.js" defer="true"></script><link rel="stylesheet" href="../../../../../styles/apistyles.css"></link><script>var pathToRoot = "../../../../../";</script></head><body><div id=""><div id="header" class="body-small"><div class="header-container-left"><a href="../../../../../" class="logo-container"><span class="project-name h300">Scala-neutron-client</span></a><span onclick="dropdownHandler(event)" class="text-button with-arrow" id="dropdown-trigger"><a><div class="projectVersion">0.9.1</div></a></span><div id="version-dropdown" class="dropdown-menu"></div></div><div class="header-container-right"><button id="search-toggle" class="icon-button"></button><span id="theme-toggle" class="icon-button"></span><span id="mobile-menu-toggle" class="icon-button hamburger"></span></div></div><div id="mobile-menu"><div class="mobile-menu-header body-small"><span class="mobile-menu-logo"><span class="project-name h300">Scala-neutron-client</span></span><button id="mobile-menu-close" class="icon-button close"></button></div><div class="mobile-menu-container body-medium"><input id="mobile-scaladoc-searchbar-input" class="scaladoc-searchbar-input" type="search" placeholder="Find anything"></input><span id="mobile-theme-toggle" class="mobile-menu-item mode"></span></div></div><span id="mobile-sidebar-toggle" class="floating-button"></span><div id="leftColumn" class="body-small"><div class="switcher-container"><a id="api-nav-button" class="switcher h100 selected" href="../../../../../index.html">API</a></div><nav id="api-nav" class="side-menu"><div class="ni n0 expanded"><span class="nh h100 expanded cs"><button class="ar icon-button expanded"></button><a href="../neutron.html"><span class="micon pa"></span><span>pt.tecnico.dsi.openstack.neutron</span></a></span><div class="ni n1"><span class="nh "><button class="ar icon-button "></button><a href="models.html"><span class="micon pa"></span><span>models</span></a></span><div class="ni n2 "><span class="nh "><a href="models/AllocationPool$.html"><span class="micon ob"></span><span>AllocationPool</span></a></span></div><div class="ni n2 "><span class="nh "><a href="models/AllocationPool.html"><span class="micon cl"></span><span>AllocationPool</span></a></span></div><div class="ni n2 "><span class="nh "><a href="models/Direction$.html"><span class="micon ob"></span><span>Direction</span></a></span></div><div class="ni n2 "><span class="nh "><a href="models/Direction.html"><span class="micon en"></span><span>Direction</span></a></span></div><div class="ni n2"><span class="nh "><button class="ar icon-button "></button><a href="models/FloatingIp$.html"><span class="micon ob"></span><span>FloatingIp</span></a></span><div class="ni n3 "><span class="nh "><a href="models/FloatingIp$$Create.html"><span class="micon cl"></span><span>Create</span></a></span></div><div class="ni n3 "><span class="nh "><a href="models/FloatingIp$$Create$.html"><span class="micon ob"></span><span>Create</span></a></span></div><div class="ni n3 "><span class="nh "><a href="models/FloatingIp$$PortForwarding.html"><span class="micon cl"></span><span>PortForwarding</span></a></span></div><div class="ni n3 "><span class="nh "><a href="models/FloatingIp$$PortForwarding$.html"><span class="micon ob"></span><span>PortForwarding</span></a></span></div><div class="ni n3 "><span class="nh "><a href="models/FloatingIp$$Update.html"><span class="micon cl"></span><span>Update</span></a></span></div><div class="ni n3 "><span class="nh "><a href="models/FloatingIp$$Update$.html"><span class="micon ob"></span><span>Update</span></a></span></div></div><div class="ni n2 "><span class="nh "><a href="models/FloatingIp.html"><span class="micon cl"></span><span>FloatingIp</span></a></span></div><div class="ni n2 "><span class="nh "><a href="models/IpAvailability.html"><span class="micon cl"></span><span>IpAvailability</span></a></span></div><div class="ni n2 "><span class="nh "><a href="models/Ipv6Mode$.html"><span class="micon ob"></span><span>Ipv6Mode</span></a></span></div><div class="ni n2 "><span class="nh "><a href="models/Ipv6Mode.html"><span class="micon en"></span><span>Ipv6Mode</span></a></span></div><div class="ni n2"><span class="nh "><button class="ar icon-button "></button><a href="models/Network$.html"><span class="micon ob"></span><span>Network</span></a></span><div class="ni n3 "><span class="nh "><a href="models/Network$$Create.html"><span class="micon cl"></span><span>Create</span></a></span></div><div class="ni n3 "><span class="nh "><a href="models/Network$$Create$.html"><span class="micon ob"></span><span>Create</span></a></span></div><div class="ni n3 "><span class="nh "><a href="models/Network$$Segment.html"><span class="micon cl"></span><span>Segment</span></a></span></div><div class="ni n3 "><span class="nh "><a href="models/Network$$Segment$.html"><span class="micon ob"></span><span>Segment</span></a></span></div><div class="ni n3 "><span class="nh "><a href="models/Network$$Update.html"><span class="micon cl"></span><span>Update</span></a></span></div><div class="ni n3 "><span class="nh "><a href="models/Network$$Update$.html"><span class="micon ob"></span><span>Update</span></a></span></div></div><div class="ni n2 "><span class="nh "><a href="models/Network.html"><span class="micon cl"></span><span>Network</span></a></span></div><div class="ni n2 "><span class="nh "><a href="models/NeutronError$.html"><span class="micon ob"></span><span>NeutronError</span></a></span></div><div class="ni n2 "><span class="nh "><a href="models/NeutronError.html"><span class="micon cl"></span><span>NeutronError</span></a></span></div><div class="ni n2"><span class="nh "><button class="ar icon-button "></button><a href="models/Quota$.html"><span class="micon ob"></span><span>Quota</span></a></span><div class="ni n3 "><span class="nh "><a href="models/Quota$$Update.html"><span class="micon cl"></span><span>Update</span></a></span></div><div class="ni n3 "><span class="nh "><a href="models/Quota$$Update$.html"><span class="micon ob"></span><span>Update</span></a></span></div></div><div class="ni n2 "><span class="nh "><a href="models/Quota.html"><span class="micon cl"></span><span>Quota</span></a></span></div><div class="ni n2 "><span class="nh "><a href="models/QuotaUsage$.html"><span class="micon ob"></span><span>QuotaUsage</span></a></span></div><div class="ni n2 "><span class="nh "><a href="models/QuotaUsage.html"><span class="micon cl"></span><span>QuotaUsage</span></a></span></div><div class="ni n2 "><span class="nh "><a href="models/Route$.html"><span class="micon ob"></span><span>Route</span></a></span></div><div class="ni n2 "><span class="nh "><a href="models/Route.html"><span class="micon cl"></span><span>Route</span></a></span></div><div class="ni n2"><span class="nh "><button class="ar icon-button "></button><a href="models/Router$.html"><span class="micon ob"></span><span>Router</span></a></span><div class="ni n3 "><span class="nh "><a href="models/Router$$ConntrackHelper.html"><span class="micon cl"></span><span>ConntrackHelper</span></a></span></div><div class="ni n3 "><span class="nh "><a href="models/Router$$Create.html"><span class="micon cl"></span><span>Create</span></a></span></div><div class="ni n3 "><span class="nh "><a href="models/Router$$ExternalGatewayInfo.html"><span class="micon cl"></span><span>ExternalGatewayInfo</span></a></span></div><div class="ni n3 "><span class="nh "><a href="models/Router$$ExternalIp.html"><span class="micon cl"></span><span>ExternalIp</span></a></span></div><div class="ni n3 "><span class="nh "><a href="models/Router$$Update.html"><span class="micon cl"></span><span>Update</span></a></span></div></div><div class="ni n2 "><span class="nh "><a href="models/Router.html"><span class="micon cl"></span><span>Router</span></a></span></div><div class="ni n2 "><span class="nh "><a href="models/RouterInterface$.html"><span class="micon ob"></span><span>RouterInterface</span></a></span></div><div class="ni n2 "><span class="nh "><a href="models/RouterInterface.html"><span class="micon cl"></span><span>RouterInterface</span></a></span></div><div class="ni n2"><span class="nh "><button class="ar icon-button "></button><a href="models/SecurityGroup$.html"><span class="micon ob"></span><span>SecurityGroup</span></a></span><div class="ni n3 "><span class="nh "><a href="models/SecurityGroup$$Create.html"><span class="micon cl"></span><span>Create</span></a></span></div><div class="ni n3 "><span class="nh "><a href="models/SecurityGroup$$Update.html"><span class="micon cl"></span><span>Update</span></a></span></div></div><div class="ni n2 "><span class="nh "><a href="models/SecurityGroup.html"><span class="micon cl"></span><span>SecurityGroup</span></a></span></div><div class="ni n2"><span class="nh "><button class="ar icon-button "></button><a href="models/SecurityGroupRule$.html"><span class="micon ob"></span><span>SecurityGroupRule</span></a></span><div class="ni n3 "><span class="nh "><a href="models/SecurityGroupRule$$Create.html"><span class="micon cl"></span><span>Create</span></a></span></div><div class="ni n3 "><span class="nh "><a href="models/SecurityGroupRule$$Create$.html"><span class="micon ob"></span><span>Create</span></a></span></div></div><div class="ni n2 "><span class="nh "><a href="models/SecurityGroupRule.html"><span class="micon cl"></span><span>SecurityGroupRule</span></a></span></div><div class="ni n2"><span class="nh "><button class="ar icon-button "></button><a href="models/Subnet$.html"><span class="micon ob"></span><span>Subnet</span></a></span><div class="ni n3 "><span class="nh "><a href="models/Subnet$$Create.html"><span class="micon cl"></span><span>Create</span></a></span></div><div class="ni n3 "><span class="nh "><a href="models/Subnet$$Create$.html"><span class="micon ob"></span><span>Create</span></a></span></div><div class="ni n3 "><span class="nh "><a href="models/Subnet$$Update.html"><span class="micon cl"></span><span>Update</span></a></span></div><div class="ni n3 "><span class="nh "><a href="models/Subnet$$Update$.html"><span class="micon ob"></span><span>Update</span></a></span></div></div><div class="ni n2 "><span class="nh "><a href="models/Subnet.html"><span class="micon cl"></span><span>Subnet</span></a></span></div><div class="ni n2 "><span class="nh "><a href="models/SubnetIpAvailability$.html"><span class="micon ob"></span><span>SubnetIpAvailability</span></a></span></div><div class="ni n2 "><span class="nh "><a href="models/SubnetIpAvailability.html"><span class="micon cl"></span><span>SubnetIpAvailability</span></a></span></div><div class="ni n2"><span class="nh "><button class="ar icon-button "></button><a href="models/SubnetPool$.html"><span class="micon ob"></span><span>SubnetPool</span></a></span><div class="ni n3 "><span class="nh "><a href="models/SubnetPool$$Create.html"><span class="micon cl"></span><span>Create</span></a></span></div><div class="ni n3 "><span class="nh "><a href="models/SubnetPool$$Update.html"><span class="micon cl"></span><span>Update</span></a></span></div></div><div class="ni n2 "><span class="nh "><a href="models/SubnetPool.html"><span class="micon cl"></span><span>SubnetPool</span></a></span></div></div><div class="ni n1 expanded"><span class="nh h100 selected"><button class="ar icon-button expanded"></button><a href="#"><span class="micon pa"></span><span>services</span></a></span><div class="ni n2 "><span class="nh "><a href="services/BulkCreate.html"><span class="micon tr"></span><span>BulkCreate</span></a></span></div><div class="ni n2 "><span class="nh "><a href="services/FloatingIps.html"><span class="micon cl"></span><span>FloatingIps</span></a></span></div><div class="ni n2 "><span class="nh "><a href="services/IpAvailabilities.html"><span class="micon cl"></span><span>IpAvailabilities</span></a></span></div><div class="ni n2 "><span class="nh "><a href="services/Networks.html"><span class="micon cl"></span><span>Networks</span></a></span></div><div class="ni n2 "><span class="nh "><a href="services/Quotas.html"><span class="micon cl"></span><span>Quotas</span></a></span></div><div class="ni n2"><span class="nh "><button class="ar icon-button "></button><a href="services/Routers.html"><span class="micon cl"></span><span>Routers</span></a></span><div class="ni n3 "><span class="nh "><a href="services/Routers$Operations.html"><span class="micon cl"></span><span>Operations</span></a></span></div></div><div class="ni n2 "><span class="nh "><a href="services/SecurityGroupRules.html"><span class="micon cl"></span><span>SecurityGroupRules</span></a></span></div><div class="ni n2 "><span class="nh "><a href="services/SecurityGroups.html"><span class="micon cl"></span><span>SecurityGroups</span></a></span></div><div class="ni n2 "><span class="nh "><a href="services/SubnetPools.html"><span class="micon cl"></span><span>SubnetPools</span></a></span></div><div class="ni n2 "><span class="nh "><a href="services/Subnets.html"><span class="micon cl"></span><span>Subnets</span></a></span></div></div><div class="ni n1 "><span class="nh "><a href="NeutronClient$.html"><span class="micon ob"></span><span>NeutronClient</span></a></span></div><div class="ni n1 "><span class="nh "><a href="NeutronClient.html"><span class="micon cl"></span><span>NeutronClient</span></a></span></div></div></nav></div><div id="footer" class="body-small"><div class="left-container">Generated with</div><div class="right-container"><div class="text"></div></div><div class="text-mobile"></div></div><div id="scaladoc-searchBar"></div><div id="main"><div class="breadcrumbs container"><a href="../../../../../index.html">Scala-neutron-client</a>/<a href="../neutron.html">pt.tecnico.dsi.openstack.neutron</a>/<a href="services.html">pt.tecnico.dsi.openstack.neutron.services</a></div><div id="content" class="body-medium"><div><div class="cover-header">
+ <span class="icon"><span class="micon pa"></span></span>
+ <h1 class="h600 single">pt.tecnico.dsi.openstack.neutron.services</h1>
+</div>
+<div class="fqname body-large">
+ <span></span>
+</div>
+<div class="main-signature mono-small-block">
+ <div class="signature">
+  <span class="modifiers"></span><span class="kind"><span t="k">package </span></span><a href="services.html" t="n" class="documentableName ">pt.tecnico.dsi.openstack.neutron.services</a>
+ </div>
+</div>
+<section id="members-list">
+ <h2 class="h500">Members list</h2>
+ <div class="documentableFilter">
+  <div class="filtersContainer"></div>
+  <input class="filterableInput" placeholder="Filter by any phrase" data-test-id="filterBarInput" type="search"><button class="clearButton label-only-button" data-test-id="filterBarClearButton">Clear all</button>
+ </div>
+ <div class="membersList expand">
+  <div class="tabs">
+   <div class="contents">
+    <section id="Type-members">
+     <div data-togglable="Type members" class="tab expand">
+      <div class="member-group-header">
+       <h3 data-togglable="Type members" class="h400">Type members</h3>
+      </div>
+      <section id="Classlikes">
+       <div class="documentableList expand">
+        <div class="documentableList-expander">
+         <button class="icon-button show-content expand"></button>
+         <h4 class="groupHeader h200">Classlikes</h4>
+        </div>
+        <div class="documentableElement">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"></span><span class="kind"><span t="k">trait </span></span><a href="services/BulkCreate.html" t="n" class="documentableName ">BulkCreate</a>[<span t="k"></span><span data-unresolved-link="" t="t">F</span>[<span t="t">_</span>], <span t="k"></span><span data-unresolved-link="" t="t">Model</span><span t="k"> &lt;: </span><a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/models/Identifiable.html" t="t">Identifiable</a>, <span t="k"></span><span data-unresolved-link="" t="t">Create</span>]<span t="k"> extends </span><a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/CrudService.html" t="t">CrudService</a>[<span t="t">F</span>, <span t="t">Model</span>, <span t="t">Create</span>, <span t="k">_</span>]</span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">
+               Source
+              </dt>
+              <dd class="body-medium">
+               <a href="https://github.com/ist-dsi/scala-neutron-client/tree/v0.9.1/src/main/scala/pt/tecnico/dsi/openstack/neutron/services/BulkCreate.scala">BulkCreate.scala</a>
+              </dd>
+              <dt class="body-small">
+               Supertypes
+              </dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 class <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/CrudService.html" t="n">CrudService</a>[<span t="t">F</span>, <span t="t">Model</span>, <span t="t">Create</span>, <span t="k">_</span>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/DeleteOperations.html" t="n">DeleteOperations</a>[<span t="t">F</span>, <span t="t">Model</span>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/ReadOperations.html" t="n">ReadOperations</a>[<span t="t">F</span>, <span t="t">Model</span>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/ListOperations.html" t="n">ListOperations</a>[<span t="t">F</span>, <span t="t">Model</span>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/CreateOperations.html" t="n">CreateOperations</a>[<span t="t">F</span>, <span t="t">Model</span>, <span t="t">Create</span>, <span t="k">_</span>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/UpdateOperations.html" t="n">UpdateOperations</a>[<span t="t">F</span>, <span t="t">Model</span>, <span t="k">_</span>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/CreateNonIdempotentOperations.html" t="n">CreateNonIdempotentOperations</a>[<span t="t">F</span>, <span t="t">Model</span>, <span t="t">Create</span>]
+                </div>
+                <div>
+                 class <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/PartialCrudService.html" t="n">PartialCrudService</a>[<span t="t">F</span>]
+                </div>
+                <div>
+                 class <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/Service.html" t="n">Service</a>[<span t="t">F</span>]
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div><span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+              <dt class="body-small">
+               Known subtypes
+              </dt>
+              <dd class="body-medium">
+               <div class="mono-small-block subtypes">
+                <div>
+                 class <a href="services/Networks.html" t="n">Networks</a>[<span t="t">F</span>]
+                </div>
+                <div>
+                 class <a href="services/Subnets.html" t="n">Subnets</a>[<span t="t">F</span>]
+                </div><span></span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-keywords="final">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"><span t="k">final </span></span><span class="kind"><span t="k">class </span></span><a href="services/FloatingIps.html" t="n" class="documentableName ">FloatingIps</a>[<span t="k"></span><span data-unresolved-link="" t="t">F</span>[<span t="t">_</span>]](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">baseUri</span>: <a href="https://www.javadoc.io/doc/org.http4s/http4s-docs_3/1.0.0-M38/org/http4s/Uri.html" t="t">Uri</a>, <span t="k"></span><span data-unresolved-link="" t="n">session</span>: <a href="https://github.com/ist-dsi/scala-keystone-client/api/0.12.2-1-g1795570/pt/tecnico/dsi/openstack/keystone/models/Session.html" t="t">Session</a>)(<span t="k">using </span><span t="k"></span><span data-unresolved-link="" t="n">evidence$1</span>: <a href="https://typelevel.org/cats-effect/api/3.x/cats/effect/kernel.html#Concurrent[F[_$4]=>>_>:Nothing<:Any]=GenConcurrent[F,Throwable]" t="t">Concurrent</a>[<span data-unresolved-link="" t="t">F</span>], <span t="k"></span><span data-unresolved-link="" t="n">evidence$2</span>: <a href="https://www.javadoc.io/doc/org.http4s/http4s-docs_3/1.0.0-M38/org/http4s/client/Client.html" t="t">Client</a>[<span data-unresolved-link="" t="t">F</span>])<span t="k"> extends </span><a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/CrudService.html" t="t">CrudService</a>[<span t="t">F</span>, <a href="models/FloatingIp.html" t="t">FloatingIp</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>], <a href="models/FloatingIp$$Create.html" t="t">Create</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>], <a href="models/FloatingIp$$Update.html" t="t">Update</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>]]</span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">
+               Source
+              </dt>
+              <dd class="body-medium">
+               <a href="https://github.com/ist-dsi/scala-neutron-client/tree/v0.9.1/src/main/scala/pt/tecnico/dsi/openstack/neutron/services/FloatingIps.scala">FloatingIps.scala</a>
+              </dd>
+              <dt class="body-small">
+               Supertypes
+              </dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 class <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/CrudService.html" t="n">CrudService</a>[<span t="t">F</span>, <a href="models/FloatingIp.html" t="t">FloatingIp</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>], <a href="models/FloatingIp$$Create.html" t="t">Create</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>], <a href="models/FloatingIp$$Update.html" t="t">Update</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>]]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/DeleteOperations.html" t="n">DeleteOperations</a>[<span t="t">F</span>, <a href="models/FloatingIp.html" t="t">FloatingIp</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>]]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/ReadOperations.html" t="n">ReadOperations</a>[<span t="t">F</span>, <a href="models/FloatingIp.html" t="t">FloatingIp</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>]]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/ListOperations.html" t="n">ListOperations</a>[<span t="t">F</span>, <a href="models/FloatingIp.html" t="t">FloatingIp</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>]]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/CreateOperations.html" t="n">CreateOperations</a>[<span t="t">F</span>, <a href="models/FloatingIp.html" t="t">FloatingIp</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>], <a href="models/FloatingIp$$Create.html" t="t">Create</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>], <a href="models/FloatingIp$$Update.html" t="t">Update</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>]]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/UpdateOperations.html" t="n">UpdateOperations</a>[<span t="t">F</span>, <a href="models/FloatingIp.html" t="t">FloatingIp</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>], <a href="models/FloatingIp$$Update.html" t="t">Update</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>]]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/CreateNonIdempotentOperations.html" t="n">CreateNonIdempotentOperations</a>[<span t="t">F</span>, <a href="models/FloatingIp.html" t="t">FloatingIp</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>], <a href="models/FloatingIp$$Create.html" t="t">Create</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>]]
+                </div>
+                <div>
+                 class <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/PartialCrudService.html" t="n">PartialCrudService</a>[<span t="t">F</span>]
+                </div>
+                <div>
+                 class <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/Service.html" t="n">Service</a>[<span t="t">F</span>]
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div><span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-keywords="final">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"><span t="k">final </span></span><span class="kind"><span t="k">class </span></span><a href="services/IpAvailabilities.html" t="n" class="documentableName ">IpAvailabilities</a>[<span t="k"></span><span data-unresolved-link="" t="t">F</span>[<span t="t">_</span>]](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">baseUri</span>: <a href="https://www.javadoc.io/doc/org.http4s/http4s-docs_3/1.0.0-M38/org/http4s/Uri.html" t="t">Uri</a>, <span t="k"></span><span data-unresolved-link="" t="n">session</span>: <a href="https://github.com/ist-dsi/scala-keystone-client/api/0.12.2-1-g1795570/pt/tecnico/dsi/openstack/keystone/models/Session.html" t="t">Session</a>)(<span t="k">using </span><span t="k"></span><span data-unresolved-link="" t="n">evidence$1</span>: <a href="https://typelevel.org/cats-effect/api/3.x/cats/effect/kernel.html#Concurrent[F[_$4]=>>_>:Nothing<:Any]=GenConcurrent[F,Throwable]" t="t">Concurrent</a>[<span data-unresolved-link="" t="t">F</span>], <span t="k"></span><span data-unresolved-link="" t="n">evidence$2</span>: <a href="https://www.javadoc.io/doc/org.http4s/http4s-docs_3/1.0.0-M38/org/http4s/client/Client.html" t="t">Client</a>[<span data-unresolved-link="" t="t">F</span>])<span t="k"> extends </span><a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/PartialCrudService.html" t="t">PartialCrudService</a>[<span t="t">F</span>]<span t="k">, </span></span><span class="signature-long"><a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/ListOperations.html" t="t">ListOperations</a>[<span t="t">F</span>, <a href="models/IpAvailability.html" t="t">IpAvailability</a>]</span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">
+               Source
+              </dt>
+              <dd class="body-medium">
+               <a href="https://github.com/ist-dsi/scala-neutron-client/tree/v0.9.1/src/main/scala/pt/tecnico/dsi/openstack/neutron/services/IpAvailabilities.scala">IpAvailabilities.scala</a>
+              </dd>
+              <dt class="body-small">
+               Supertypes
+              </dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/ListOperations.html" t="n">ListOperations</a>[<span t="t">F</span>, <a href="models/IpAvailability.html" t="t">IpAvailability</a>]
+                </div>
+                <div>
+                 class <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/PartialCrudService.html" t="n">PartialCrudService</a>[<span t="t">F</span>]
+                </div>
+                <div>
+                 class <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/Service.html" t="n">Service</a>[<span t="t">F</span>]
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div><span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-keywords="final">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"><span t="k">final </span></span><span class="kind"><span t="k">class </span></span><a href="services/Networks.html" t="n" class="documentableName ">Networks</a>[<span t="k"></span><span data-unresolved-link="" t="t">F</span>[<span t="t">_</span>]](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">baseUri</span>: <a href="https://www.javadoc.io/doc/org.http4s/http4s-docs_3/1.0.0-M38/org/http4s/Uri.html" t="t">Uri</a>, <span t="k"></span><span data-unresolved-link="" t="n">session</span>: <a href="https://github.com/ist-dsi/scala-keystone-client/api/0.12.2-1-g1795570/pt/tecnico/dsi/openstack/keystone/models/Session.html" t="t">Session</a>)(<span t="k">using </span><span t="k"></span><span data-unresolved-link="" t="n">evidence$1</span>: <a href="https://typelevel.org/cats-effect/api/3.x/cats/effect/kernel.html#Concurrent[F[_$4]=>>_>:Nothing<:Any]=GenConcurrent[F,Throwable]" t="t">Concurrent</a>[<span data-unresolved-link="" t="t">F</span>], <span t="k"></span><span data-unresolved-link="" t="n">evidence$2</span>: <a href="https://www.javadoc.io/doc/org.http4s/http4s-docs_3/1.0.0-M38/org/http4s/client/Client.html" t="t">Client</a>[<span data-unresolved-link="" t="t">F</span>])<span t="k"> extends </span><a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/CrudService.html" t="t">CrudService</a>[<span t="t">F</span>, <a href="models/Network.html" t="t">Network</a>, <a href="models/Network$$Create.html" t="t">Create</a>, <a href="models/Network$$Update.html" t="t">Update</a>]<span t="k">, </span></span><span class="signature-long"><a href="services/BulkCreate.html" t="t">BulkCreate</a>[<span t="t">F</span>, <a href="models/Network.html" t="t">Network</a>, <a href="models/Network$$Create.html" t="t">Create</a>]</span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">
+               Source
+              </dt>
+              <dd class="body-medium">
+               <a href="https://github.com/ist-dsi/scala-neutron-client/tree/v0.9.1/src/main/scala/pt/tecnico/dsi/openstack/neutron/services/Networks.scala">Networks.scala</a>
+              </dd>
+              <dt class="body-small">
+               Supertypes
+              </dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <a href="services/BulkCreate.html" t="n">BulkCreate</a>[<span t="t">F</span>, <a href="models/Network.html" t="t">Network</a>, <a href="models/Network$$Create.html" t="t">Create</a>]
+                </div>
+                <div>
+                 class <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/CrudService.html" t="n">CrudService</a>[<span t="t">F</span>, <a href="models/Network.html" t="t">Network</a>, <a href="models/Network$$Create.html" t="t">Create</a>, <a href="models/Network$$Update.html" t="t">Update</a>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/DeleteOperations.html" t="n">DeleteOperations</a>[<span t="t">F</span>, <a href="models/Network.html" t="t">Network</a>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/ReadOperations.html" t="n">ReadOperations</a>[<span t="t">F</span>, <a href="models/Network.html" t="t">Network</a>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/ListOperations.html" t="n">ListOperations</a>[<span t="t">F</span>, <a href="models/Network.html" t="t">Network</a>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/CreateOperations.html" t="n">CreateOperations</a>[<span t="t">F</span>, <a href="models/Network.html" t="t">Network</a>, <a href="models/Network$$Create.html" t="t">Create</a>, <a href="models/Network$$Update.html" t="t">Update</a>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/UpdateOperations.html" t="n">UpdateOperations</a>[<span t="t">F</span>, <a href="models/Network.html" t="t">Network</a>, <a href="models/Network$$Update.html" t="t">Update</a>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/CreateNonIdempotentOperations.html" t="n">CreateNonIdempotentOperations</a>[<span t="t">F</span>, <a href="models/Network.html" t="t">Network</a>, <a href="models/Network$$Create.html" t="t">Create</a>]
+                </div>
+                <div>
+                 class <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/PartialCrudService.html" t="n">PartialCrudService</a>[<span t="t">F</span>]
+                </div>
+                <div>
+                 class <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/Service.html" t="n">Service</a>[<span t="t">F</span>]
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div><span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-keywords="final">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"><span t="k">final </span></span><span class="kind"><span t="k">class </span></span><a href="services/Quotas.html" t="n" class="documentableName ">Quotas</a>[<span t="k"></span><span data-unresolved-link="" t="t">F</span>[<span t="t">_</span>]](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">baseUri</span>: <a href="https://www.javadoc.io/doc/org.http4s/http4s-docs_3/1.0.0-M38/org/http4s/Uri.html" t="t">Uri</a>, <span t="k"></span><span data-unresolved-link="" t="n">session</span>: <a href="https://github.com/ist-dsi/scala-keystone-client/api/0.12.2-1-g1795570/pt/tecnico/dsi/openstack/keystone/models/Session.html" t="t">Session</a>)(<span t="k">using </span><span t="k"></span><span data-unresolved-link="" t="n">evidence$1</span>: <a href="https://typelevel.org/cats-effect/api/3.x/cats/effect/kernel.html#Concurrent[F[_$4]=>>_>:Nothing<:Any]=GenConcurrent[F,Throwable]" t="t">Concurrent</a>[<span data-unresolved-link="" t="t">F</span>], <span t="k"></span><span data-unresolved-link="" t="n">evidence$2</span>: <a href="https://www.javadoc.io/doc/org.http4s/http4s-docs_3/1.0.0-M38/org/http4s/client/Client.html" t="t">Client</a>[<span data-unresolved-link="" t="t">F</span>])<span t="k"> extends </span><a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/Service.html" t="t">Service</a>[<span t="t">F</span>]</span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">
+               Source
+              </dt>
+              <dd class="body-medium">
+               <a href="https://github.com/ist-dsi/scala-neutron-client/tree/v0.9.1/src/main/scala/pt/tecnico/dsi/openstack/neutron/services/Quotas.scala">Quotas.scala</a>
+              </dd>
+              <dt class="body-small">
+               Supertypes
+              </dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 class <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/Service.html" t="n">Service</a>[<span t="t">F</span>]
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div><span></span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-keywords="final">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"><span t="k">final </span></span><span class="kind"><span t="k">class </span></span><a href="services/Routers.html" t="n" class="documentableName ">Routers</a>[<span t="k"></span><span data-unresolved-link="" t="t">F</span>[<span t="t">_</span>]](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">baseUri</span>: <a href="https://www.javadoc.io/doc/org.http4s/http4s-docs_3/1.0.0-M38/org/http4s/Uri.html" t="t">Uri</a>, <span t="k"></span><span data-unresolved-link="" t="n">session</span>: <a href="https://github.com/ist-dsi/scala-keystone-client/api/0.12.2-1-g1795570/pt/tecnico/dsi/openstack/keystone/models/Session.html" t="t">Session</a>)(<span t="k">using </span><span t="k"></span><span data-unresolved-link="" t="n">evidence$1</span>: <a href="https://typelevel.org/cats-effect/api/3.x/cats/effect/kernel.html#Concurrent[F[_$4]=>>_>:Nothing<:Any]=GenConcurrent[F,Throwable]" t="t">Concurrent</a>[<span data-unresolved-link="" t="t">F</span>], <span t="k"></span><span data-unresolved-link="" t="n">evidence$2</span>: <a href="https://www.javadoc.io/doc/org.http4s/http4s-docs_3/1.0.0-M38/org/http4s/client/Client.html" t="t">Client</a>[<span data-unresolved-link="" t="t">F</span>])<span t="k"> extends </span><a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/CrudService.html" t="t">CrudService</a>[<span t="t">F</span>, <a href="models/Router.html" t="t">Router</a>, <a href="models/Router$$Create.html" t="t">Create</a>, <a href="models/Router$$Update.html" t="t">Update</a>]</span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">
+               Source
+              </dt>
+              <dd class="body-medium">
+               <a href="https://github.com/ist-dsi/scala-neutron-client/tree/v0.9.1/src/main/scala/pt/tecnico/dsi/openstack/neutron/services/Routers.scala">Routers.scala</a>
+              </dd>
+              <dt class="body-small">
+               Supertypes
+              </dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 class <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/CrudService.html" t="n">CrudService</a>[<span t="t">F</span>, <a href="models/Router.html" t="t">Router</a>, <a href="models/Router$$Create.html" t="t">Create</a>, <a href="models/Router$$Update.html" t="t">Update</a>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/DeleteOperations.html" t="n">DeleteOperations</a>[<span t="t">F</span>, <a href="models/Router.html" t="t">Router</a>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/ReadOperations.html" t="n">ReadOperations</a>[<span t="t">F</span>, <a href="models/Router.html" t="t">Router</a>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/ListOperations.html" t="n">ListOperations</a>[<span t="t">F</span>, <a href="models/Router.html" t="t">Router</a>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/CreateOperations.html" t="n">CreateOperations</a>[<span t="t">F</span>, <a href="models/Router.html" t="t">Router</a>, <a href="models/Router$$Create.html" t="t">Create</a>, <a href="models/Router$$Update.html" t="t">Update</a>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/UpdateOperations.html" t="n">UpdateOperations</a>[<span t="t">F</span>, <a href="models/Router.html" t="t">Router</a>, <a href="models/Router$$Update.html" t="t">Update</a>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/CreateNonIdempotentOperations.html" t="n">CreateNonIdempotentOperations</a>[<span t="t">F</span>, <a href="models/Router.html" t="t">Router</a>, <a href="models/Router$$Create.html" t="t">Create</a>]
+                </div>
+                <div>
+                 class <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/PartialCrudService.html" t="n">PartialCrudService</a>[<span t="t">F</span>]
+                </div>
+                <div>
+                 class <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/Service.html" t="n">Service</a>[<span t="t">F</span>]
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div><span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-keywords="final">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"><span t="k">final </span></span><span class="kind"><span t="k">class </span></span><a href="services/SecurityGroupRules.html" t="n" class="documentableName ">SecurityGroupRules</a>[<span t="k"></span><span data-unresolved-link="" t="t">F</span>[<span t="t">_</span>]](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">baseUri</span>: <a href="https://www.javadoc.io/doc/org.http4s/http4s-docs_3/1.0.0-M38/org/http4s/Uri.html" t="t">Uri</a>, <span t="k"></span><span data-unresolved-link="" t="n">session</span>: <a href="https://github.com/ist-dsi/scala-keystone-client/api/0.12.2-1-g1795570/pt/tecnico/dsi/openstack/keystone/models/Session.html" t="t">Session</a>)(<span t="k">using </span><span t="k"></span><span data-unresolved-link="" t="n">evidence$1</span>: <a href="https://typelevel.org/cats-effect/api/3.x/cats/effect/kernel.html#Concurrent[F[_$4]=>>_>:Nothing<:Any]=GenConcurrent[F,Throwable]" t="t">Concurrent</a>[<span data-unresolved-link="" t="t">F</span>], <span t="k"></span><span data-unresolved-link="" t="n">evidence$2</span>: <a href="https://www.javadoc.io/doc/org.http4s/http4s-docs_3/1.0.0-M38/org/http4s/client/Client.html" t="t">Client</a>[<span data-unresolved-link="" t="t">F</span>])<span t="k"> extends </span><a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/PartialCrudService.html" t="t">PartialCrudService</a>[<span t="t">F</span>]<span t="k">, </span></span><span class="signature-long"><a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/CreateNonIdempotentOperations.html" t="t">CreateNonIdempotentOperations</a>[<span t="t">F</span>, <a href="models/SecurityGroupRule.html" t="t">SecurityGroupRule</a>, <a href="models/SecurityGroupRule$$Create.html" t="t">Create</a>]<span t="k">, </span><a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/ListOperations.html" t="t">ListOperations</a>[<span t="t">F</span>, <a href="models/SecurityGroupRule.html" t="t">SecurityGroupRule</a>]<span t="k">, </span><a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/ReadOperations.html" t="t">ReadOperations</a>[<span t="t">F</span>, <a href="models/SecurityGroupRule.html" t="t">SecurityGroupRule</a>]<span t="k">, </span><a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/DeleteOperations.html" t="t">DeleteOperations</a>[<span t="t">F</span>, <a href="models/SecurityGroupRule.html" t="t">SecurityGroupRule</a>]</span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">
+               Source
+              </dt>
+              <dd class="body-medium">
+               <a href="https://github.com/ist-dsi/scala-neutron-client/tree/v0.9.1/src/main/scala/pt/tecnico/dsi/openstack/neutron/services/SecurityGroupRules.scala">SecurityGroupRules.scala</a>
+              </dd>
+              <dt class="body-small">
+               Supertypes
+              </dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/DeleteOperations.html" t="n">DeleteOperations</a>[<span t="t">F</span>, <a href="models/SecurityGroupRule.html" t="t">SecurityGroupRule</a>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/ReadOperations.html" t="n">ReadOperations</a>[<span t="t">F</span>, <a href="models/SecurityGroupRule.html" t="t">SecurityGroupRule</a>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/ListOperations.html" t="n">ListOperations</a>[<span t="t">F</span>, <a href="models/SecurityGroupRule.html" t="t">SecurityGroupRule</a>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/CreateNonIdempotentOperations.html" t="n">CreateNonIdempotentOperations</a>[<span t="t">F</span>, <a href="models/SecurityGroupRule.html" t="t">SecurityGroupRule</a>, <a href="models/SecurityGroupRule$$Create.html" t="t">Create</a>]
+                </div>
+                <div>
+                 class <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/PartialCrudService.html" t="n">PartialCrudService</a>[<span t="t">F</span>]
+                </div>
+                <div>
+                 class <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/Service.html" t="n">Service</a>[<span t="t">F</span>]
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div><span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-keywords="final">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"><span t="k">final </span></span><span class="kind"><span t="k">class </span></span><a href="services/SecurityGroups.html" t="n" class="documentableName ">SecurityGroups</a>[<span t="k"></span><span data-unresolved-link="" t="t">F</span>[<span t="t">_</span>]](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">baseUri</span>: <a href="https://www.javadoc.io/doc/org.http4s/http4s-docs_3/1.0.0-M38/org/http4s/Uri.html" t="t">Uri</a>, <span t="k"></span><span data-unresolved-link="" t="n">session</span>: <a href="https://github.com/ist-dsi/scala-keystone-client/api/0.12.2-1-g1795570/pt/tecnico/dsi/openstack/keystone/models/Session.html" t="t">Session</a>)(<span t="k">using </span><span t="k"></span><span data-unresolved-link="" t="n">evidence$1</span>: <a href="https://typelevel.org/cats-effect/api/3.x/cats/effect/kernel.html#Concurrent[F[_$4]=>>_>:Nothing<:Any]=GenConcurrent[F,Throwable]" t="t">Concurrent</a>[<span data-unresolved-link="" t="t">F</span>], <span t="k"></span><span data-unresolved-link="" t="n">evidence$2</span>: <a href="https://www.javadoc.io/doc/org.http4s/http4s-docs_3/1.0.0-M38/org/http4s/client/Client.html" t="t">Client</a>[<span data-unresolved-link="" t="t">F</span>])<span t="k"> extends </span><a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/CrudService.html" t="t">CrudService</a>[<span t="t">F</span>, <a href="models/SecurityGroup.html" t="t">SecurityGroup</a>, <a href="models/SecurityGroup$$Create.html" t="t">Create</a>, <a href="models/SecurityGroup$$Update.html" t="t">Update</a>]</span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">
+               Source
+              </dt>
+              <dd class="body-medium">
+               <a href="https://github.com/ist-dsi/scala-neutron-client/tree/v0.9.1/src/main/scala/pt/tecnico/dsi/openstack/neutron/services/SecurityGroups.scala">SecurityGroups.scala</a>
+              </dd>
+              <dt class="body-small">
+               Supertypes
+              </dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 class <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/CrudService.html" t="n">CrudService</a>[<span t="t">F</span>, <a href="models/SecurityGroup.html" t="t">SecurityGroup</a>, <a href="models/SecurityGroup$$Create.html" t="t">Create</a>, <a href="models/SecurityGroup$$Update.html" t="t">Update</a>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/DeleteOperations.html" t="n">DeleteOperations</a>[<span t="t">F</span>, <a href="models/SecurityGroup.html" t="t">SecurityGroup</a>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/ReadOperations.html" t="n">ReadOperations</a>[<span t="t">F</span>, <a href="models/SecurityGroup.html" t="t">SecurityGroup</a>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/ListOperations.html" t="n">ListOperations</a>[<span t="t">F</span>, <a href="models/SecurityGroup.html" t="t">SecurityGroup</a>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/CreateOperations.html" t="n">CreateOperations</a>[<span t="t">F</span>, <a href="models/SecurityGroup.html" t="t">SecurityGroup</a>, <a href="models/SecurityGroup$$Create.html" t="t">Create</a>, <a href="models/SecurityGroup$$Update.html" t="t">Update</a>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/UpdateOperations.html" t="n">UpdateOperations</a>[<span t="t">F</span>, <a href="models/SecurityGroup.html" t="t">SecurityGroup</a>, <a href="models/SecurityGroup$$Update.html" t="t">Update</a>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/CreateNonIdempotentOperations.html" t="n">CreateNonIdempotentOperations</a>[<span t="t">F</span>, <a href="models/SecurityGroup.html" t="t">SecurityGroup</a>, <a href="models/SecurityGroup$$Create.html" t="t">Create</a>]
+                </div>
+                <div>
+                 class <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/PartialCrudService.html" t="n">PartialCrudService</a>[<span t="t">F</span>]
+                </div>
+                <div>
+                 class <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/Service.html" t="n">Service</a>[<span t="t">F</span>]
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div><span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-keywords="final">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"><span t="k">final </span></span><span class="kind"><span t="k">class </span></span><a href="services/SubnetPools.html" t="n" class="documentableName ">SubnetPools</a>[<span t="k"></span><span data-unresolved-link="" t="t">F</span>[<span t="t">_</span>]](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">baseUri</span>: <a href="https://www.javadoc.io/doc/org.http4s/http4s-docs_3/1.0.0-M38/org/http4s/Uri.html" t="t">Uri</a>, <span t="k"></span><span data-unresolved-link="" t="n">session</span>: <a href="https://github.com/ist-dsi/scala-keystone-client/api/0.12.2-1-g1795570/pt/tecnico/dsi/openstack/keystone/models/Session.html" t="t">Session</a>)(<span t="k">using </span><span t="k"></span><span data-unresolved-link="" t="n">evidence$1</span>: <a href="https://typelevel.org/cats-effect/api/3.x/cats/effect/kernel.html#Concurrent[F[_$4]=>>_>:Nothing<:Any]=GenConcurrent[F,Throwable]" t="t">Concurrent</a>[<span data-unresolved-link="" t="t">F</span>], <span t="k"></span><span data-unresolved-link="" t="n">evidence$2</span>: <a href="https://www.javadoc.io/doc/org.http4s/http4s-docs_3/1.0.0-M38/org/http4s/client/Client.html" t="t">Client</a>[<span data-unresolved-link="" t="t">F</span>])<span t="k"> extends </span><a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/CrudService.html" t="t">CrudService</a>[<span t="t">F</span>, <a href="models/SubnetPool.html" t="t">SubnetPool</a>, <a href="models/SubnetPool$$Create.html" t="t">Create</a>, <a href="models/SubnetPool$$Update.html" t="t">Update</a>]</span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">
+               Source
+              </dt>
+              <dd class="body-medium">
+               <a href="https://github.com/ist-dsi/scala-neutron-client/tree/v0.9.1/src/main/scala/pt/tecnico/dsi/openstack/neutron/services/SubnetPools.scala">SubnetPools.scala</a>
+              </dd>
+              <dt class="body-small">
+               Supertypes
+              </dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 class <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/CrudService.html" t="n">CrudService</a>[<span t="t">F</span>, <a href="models/SubnetPool.html" t="t">SubnetPool</a>, <a href="models/SubnetPool$$Create.html" t="t">Create</a>, <a href="models/SubnetPool$$Update.html" t="t">Update</a>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/DeleteOperations.html" t="n">DeleteOperations</a>[<span t="t">F</span>, <a href="models/SubnetPool.html" t="t">SubnetPool</a>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/ReadOperations.html" t="n">ReadOperations</a>[<span t="t">F</span>, <a href="models/SubnetPool.html" t="t">SubnetPool</a>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/ListOperations.html" t="n">ListOperations</a>[<span t="t">F</span>, <a href="models/SubnetPool.html" t="t">SubnetPool</a>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/CreateOperations.html" t="n">CreateOperations</a>[<span t="t">F</span>, <a href="models/SubnetPool.html" t="t">SubnetPool</a>, <a href="models/SubnetPool$$Create.html" t="t">Create</a>, <a href="models/SubnetPool$$Update.html" t="t">Update</a>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/UpdateOperations.html" t="n">UpdateOperations</a>[<span t="t">F</span>, <a href="models/SubnetPool.html" t="t">SubnetPool</a>, <a href="models/SubnetPool$$Update.html" t="t">Update</a>]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/CreateNonIdempotentOperations.html" t="n">CreateNonIdempotentOperations</a>[<span t="t">F</span>, <a href="models/SubnetPool.html" t="t">SubnetPool</a>, <a href="models/SubnetPool$$Create.html" t="t">Create</a>]
+                </div>
+                <div>
+                 class <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/PartialCrudService.html" t="n">PartialCrudService</a>[<span t="t">F</span>]
+                </div>
+                <div>
+                 class <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/Service.html" t="n">Service</a>[<span t="t">F</span>]
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div><span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-keywords="final">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"><span t="k">final </span></span><span class="kind"><span t="k">class </span></span><a href="services/Subnets.html" t="n" class="documentableName ">Subnets</a>[<span t="k"></span><span data-unresolved-link="" t="t">F</span>[<span t="t">_</span>]](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">baseUri</span>: <a href="https://www.javadoc.io/doc/org.http4s/http4s-docs_3/1.0.0-M38/org/http4s/Uri.html" t="t">Uri</a>, <span t="k"></span><span data-unresolved-link="" t="n">session</span>: <a href="https://github.com/ist-dsi/scala-keystone-client/api/0.12.2-1-g1795570/pt/tecnico/dsi/openstack/keystone/models/Session.html" t="t">Session</a>)(<span t="k">using </span><span t="k"></span><span data-unresolved-link="" t="n">evidence$1</span>: <a href="https://typelevel.org/cats-effect/api/3.x/cats/effect/kernel.html#Concurrent[F[_$4]=>>_>:Nothing<:Any]=GenConcurrent[F,Throwable]" t="t">Concurrent</a>[<span data-unresolved-link="" t="t">F</span>], <span t="k"></span><span data-unresolved-link="" t="n">evidence$2</span>: <a href="https://www.javadoc.io/doc/org.http4s/http4s-docs_3/1.0.0-M38/org/http4s/client/Client.html" t="t">Client</a>[<span data-unresolved-link="" t="t">F</span>])<span t="k"> extends </span><a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/CrudService.html" t="t">CrudService</a>[<span t="t">F</span>, <a href="models/Subnet.html" t="t">Subnet</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>], <a href="models/Subnet$$Create.html" t="t">Create</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>], <a href="models/Subnet$$Update.html" t="t">Update</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>]]<span t="k">, </span></span><span class="signature-long"><a href="services/BulkCreate.html" t="t">BulkCreate</a>[<span t="t">F</span>, <a href="models/Subnet.html" t="t">Subnet</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>], <a href="models/Subnet$$Create.html" t="t">Create</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>]]</span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">
+               Source
+              </dt>
+              <dd class="body-medium">
+               <a href="https://github.com/ist-dsi/scala-neutron-client/tree/v0.9.1/src/main/scala/pt/tecnico/dsi/openstack/neutron/services/Subnets.scala">Subnets.scala</a>
+              </dd>
+              <dt class="body-small">
+               Supertypes
+              </dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <a href="services/BulkCreate.html" t="n">BulkCreate</a>[<span t="t">F</span>, <a href="models/Subnet.html" t="t">Subnet</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>], <a href="models/Subnet$$Create.html" t="t">Create</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>]]
+                </div>
+                <div>
+                 class <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/CrudService.html" t="n">CrudService</a>[<span t="t">F</span>, <a href="models/Subnet.html" t="t">Subnet</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>], <a href="models/Subnet$$Create.html" t="t">Create</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>], <a href="models/Subnet$$Update.html" t="t">Update</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>]]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/DeleteOperations.html" t="n">DeleteOperations</a>[<span t="t">F</span>, <a href="models/Subnet.html" t="t">Subnet</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>]]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/ReadOperations.html" t="n">ReadOperations</a>[<span t="t">F</span>, <a href="models/Subnet.html" t="t">Subnet</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>]]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/ListOperations.html" t="n">ListOperations</a>[<span t="t">F</span>, <a href="models/Subnet.html" t="t">Subnet</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>]]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/CreateOperations.html" t="n">CreateOperations</a>[<span t="t">F</span>, <a href="models/Subnet.html" t="t">Subnet</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>], <a href="models/Subnet$$Create.html" t="t">Create</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>], <a href="models/Subnet$$Update.html" t="t">Update</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>]]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/UpdateOperations.html" t="n">UpdateOperations</a>[<span t="t">F</span>, <a href="models/Subnet.html" t="t">Subnet</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>], <a href="models/Subnet$$Update.html" t="t">Update</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>]]
+                </div>
+                <div>
+                 trait <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/CreateNonIdempotentOperations.html" t="n">CreateNonIdempotentOperations</a>[<span t="t">F</span>, <a href="models/Subnet.html" t="t">Subnet</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>], <a href="models/Subnet$$Create.html" t="t">Create</a>[<a href="https://www.javadoc.io/doc/com.comcast/ip4s-core_3/3.2.0/com/comcast/ip4s/IpAddress.html" t="t">IpAddress</a>]]
+                </div>
+                <div>
+                 class <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/PartialCrudService.html" t="n">PartialCrudService</a>[<span t="t">F</span>]
+                </div>
+                <div>
+                 class <a href="https://github.com/ist-dsi/scala-openstack-common-clients/api/0.0.1-SNAPSHOT/pt/tecnico/dsi/openstack/common/services/Service.html" t="n">Service</a>[<span t="t">F</span>]
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div><span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </section>
+     </div>
+    </section>
+   </div>
+  </div>
+ </div>
+</section></div><div id="toc" class="body-small"><div id="toc-container"><span class="toc-title h200">In this article</span><nav class="toc-nav"><ul class="toc-list"><li><a href="#members-list">Members list</a><ul><li><a href="#Type-members">Type members</a><ul><li><a href="#Classlikes">Classlikes</a></li></ul></li></ul></li></ul></nav></div></div></div><div id="footer" class="body-small mobile-footer"><div class="left-container">Generated with</div><div class="right-container"><a href="https://github.com/lampepfl/dotty"><button class="icon-button gh"></button></a><a href="https://twitter.com/scala_lang"><button class="icon-button twitter"></button></a><a href="https://discord.com/invite/scala"><button class="icon-button discord"></button></a><a href="https://gitter.im/scala/scala"><button class="icon-button gitter"></button></a><div class="text"></div></div><div class="text-mobile"></div></div></div></div></body></html>
